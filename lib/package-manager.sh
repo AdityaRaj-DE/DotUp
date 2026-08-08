@@ -20,7 +20,7 @@ pkg_update() {
 pkg_install() {
     local pkgs="$*"
     log_info "Installing packages: ${pkgs}"
-    if ! ${SUDO_CMD:-} DEBIAN_FRONTEND=noninteractive apt-get install -yq ${pkgs} >/dev/null 2>>"${LOG_FILE}"; then
+    if ! env DEBIAN_FRONTEND=noninteractive ${SUDO_CMD:-} apt-get install -yq ${pkgs} >/dev/null 2>>"${LOG_FILE}"; then
         fail_critical "Failed to install packages: ${pkgs}"
     fi
 }
