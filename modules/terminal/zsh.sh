@@ -29,7 +29,7 @@ zsh_configure() {
     if [[ "$SHELL" != *"zsh"* ]]; then
         log_info "Changing default shell to zsh..."
         if command -v zsh >/dev/null 2>&1; then
-            ${SUDO_CMD:-} chsh -s "$(command -v zsh)" "${USER}" || log_warn "Failed to change default shell to zsh. You may need to do it manually."
+            ${SUDO_CMD:-} chsh -s "$(command -v zsh)" "${USER:-$(whoami)}" || log_warn "Failed to change default shell to zsh. You may need to do it manually."
         fi
     fi
 
