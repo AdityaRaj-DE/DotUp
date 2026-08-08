@@ -29,7 +29,22 @@ main() {
     
     log_success "Preflight checks passed."
     
-    # Modules execution point (to be implemented in subsequent phases)
+    # Load Modules
+    source "${SCRIPT_DIR}/modules/system/packages.sh"
+    
+    # Execute System Packages Module
+    local sys_state
+    sys_state=$(system_detect)
+    if [[ "$sys_state" == "NOT_INSTALLED" ]]; then
+        system_install
+        system_configure
+    elif [[ "$sys_state" == "BROKEN" ]]; then
+        system_repair
+        system_configure
+    else
+        log_info "System base packages already installed."
+    fi
+    system_validate
     
     log_success "DevBootstrap execution complete!"
     log_info "View detailed logs at: ${LATEST_LOG}"
