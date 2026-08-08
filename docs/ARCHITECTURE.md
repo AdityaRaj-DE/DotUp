@@ -1,7 +1,7 @@
-# DevBootstrap Architecture
+# DotUp Architecture
 
 ## Core Design
-DevBootstrap is a CLI/bootstrap tool designed to automatically prepare a development environment on a fresh or partially configured Linux machine.
+DotUp is a CLI/bootstrap tool designed to automatically prepare a development environment on a fresh or partially configured Linux machine.
 
 ## Components
 - **Orchestrator**: Manages execution flow, profile selection, and module invocation.

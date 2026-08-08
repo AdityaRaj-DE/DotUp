@@ -21,7 +21,7 @@ source "${SCRIPT_DIR}/modules/editors/antigravity.sh"
 
 setup_logging
 
-echo -e "${BOLD}${CYAN}DevBootstrap Doctor${NC}"
+echo -e "${BOLD}${CYAN}DotUp Doctor${NC}"
 echo -e "${CYAN}────────────────────────────${NC}\n"
 
 problems=0

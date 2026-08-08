@@ -1,6 +1,6 @@
 # Module Contract
 
-Every installer module in DevBootstrap must adhere to a consistent contract to allow the orchestrator to manage them seamlessly.
+Every installer module in DotUp must adhere to a consistent contract to allow the orchestrator to manage them seamlessly.
 
 ## Lifecycle Methods
 

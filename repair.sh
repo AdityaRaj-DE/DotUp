@@ -25,7 +25,7 @@ source "${SCRIPT_DIR}/modules/editors/antigravity.sh"
 
 setup_logging
 
-echo -e "${BOLD}${CYAN}DevBootstrap Repair${NC}"
+echo -e "${BOLD}${CYAN}DotUp Repair${NC}"
 echo -e "${CYAN}────────────────────────────${NC}\n"
 
 setup_temp_dir

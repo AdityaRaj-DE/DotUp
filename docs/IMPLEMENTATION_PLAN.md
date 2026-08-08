@@ -1,4 +1,4 @@
-# DevBootstrap Implementation Plan
+# DotUp Implementation Plan
 
 Phase 0 — COMPLETE (Repository Analysis and Architecture)
 Phase 1 — COMPLETE (Core Framework)

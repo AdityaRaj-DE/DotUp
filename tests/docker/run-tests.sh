@@ -7,7 +7,7 @@ REPO_ROOT="${SCRIPT_DIR}/../.."
 run_test() {
     local os_name="$1"
     local dockerfile="${SCRIPT_DIR}/${os_name}.Dockerfile"
-    local image_name="devbootstrap-test-${os_name}"
+    local image_name="dotup-test-${os_name}"
 
     echo "========================================"
     echo "Testing on ${os_name}"

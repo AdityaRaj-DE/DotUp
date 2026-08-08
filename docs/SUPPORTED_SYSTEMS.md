@@ -1,7 +1,7 @@
 # Supported Systems
 
 ## V1 Scope
-DevBootstrap V1 is explicitly designed for the **Debian/Ubuntu family**.
+DotUp V1 is explicitly designed for the **Debian/Ubuntu family**.
 
 ### Primary Supported Distributions
 - **Ubuntu** (Latest LTS and previous LTS)

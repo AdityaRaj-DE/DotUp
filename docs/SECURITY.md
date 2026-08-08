@@ -1,14 +1,13 @@
 # Security Model
 
-Because DevBootstrap executes installation code on a user's machine, security is a primary concern.
+Because DotUp executes installation code on a user's machine, security is a primary concern.
 
-## Minimum V1 Security Requirements
+## Minimum Security Requirements
 - **HTTPS Only**: All downloads and web requests must use HTTPS.
-- **Checksum Verification**: Release artifacts downloaded via the bootstrap script must be verified via checksums before extraction.
+- **Checksum Verification**: Release artifacts downloaded via the bootstrap script are verified via `SHA256SUMS` before extraction. If the checksum fails, the bootstrapper fails closed.
+- **Checksum Limitations**: Note that standard SHA256 checksums protect against corrupted downloads and MITM attacks assuming the GitHub API and release storage themselves are not compromised. They are *not* a substitute for cryptographic signing (GPG/Sigstore), which may be added in future architectures.
 - **Official Repositories**: Use official package repositories wherever possible. Avoid untrusted PPAs.
 - **No Hardcoded Secrets**: Do not store passwords, API keys, or tokens in the codebase.
 - **No Credential Logging**: Never log passwords, tokens, private SSH keys, or other credentials.
-- **No Blind Execution**: Never execute arbitrary remote scripts downloaded on the fly without validating their source and intent.
-- **Secure Temporary Directories**: Use `mktemp -d` to create secure temp directories and ensure they are cleaned up (`trap cleanup EXIT`).
-- **Safe Shell Practices**: Use `set -Eeuo pipefail` where compatible. Quote shell variables properly.
+- **Secure Temporary Directories**: Extraction uses `mktemp -d` to create secure temp directories and ensures they are aggressively cleaned up (`trap cleanup EXIT`) whether the installation succeeds or fails.
 - **Minimal Sudo**: Avoid running the entire installer as root. Only request `sudo` when strictly necessary.

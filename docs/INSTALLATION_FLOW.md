@@ -1,7 +1,7 @@
 # Installation Flow
 
 1. **Bootstrap (`curl | bash`)**: 
-   - Downloads a specific DevBootstrap release.
+   - Downloads a specific DotUp release.
    - Verifies checksum.
    - Extracts into a temporary directory.
    - Executes the main `install.sh`.

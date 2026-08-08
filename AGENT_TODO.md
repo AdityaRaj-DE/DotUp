@@ -18,13 +18,16 @@
 - [x] V1 Documentation
 
 ## Incomplete Work (Next Phases)
-### Phase 12: V1 Release Candidate Validation
-- [x] Inspect release bundle contents.
-- [x] Verify checksum mismatch handling.
-- [x] Document GUI testing limitations.
-- [x] Ensure readiness for public release.
+### Phase 13: Documentation & Release Consistency
+- [x] Complete full repository documentation audit.
+- [x] Replace obsolete names ("DevBootstrap").
+- [x] Rewrite README.md for V1.1.0 context.
 
-*V1 Implementation is fully met. The repository is Release Ready.*
+*V1 implementation       COMPLETE*
+*V1 CI validation        COMPLETE*
+*V1 release validation   COMPLETE*
+*V1.1.0 release          COMPLETE*
+*Documentation audit     COMPLETE*
 
 ## Known Problems
 - Local Docker tests cannot be verified on the current host due to Docker Engine errors (`500 Internal Server Error`). Tests must rely on GitHub Actions CI.

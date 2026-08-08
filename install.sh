@@ -72,7 +72,7 @@ execute_module() {
 main() {
     setup_logging
     echo -e "${BOLD}${CYAN}════════════════════════════════════${NC}"
-    echo -e "${BOLD}${CYAN} DevBootstrap V1${NC}"
+    echo -e "${BOLD}${CYAN} DotUp V1${NC}"
     echo -e "${BOLD}${CYAN}════════════════════════════════════${NC}"
 
     log_info "Initializing..."

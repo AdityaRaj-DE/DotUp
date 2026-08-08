@@ -18,7 +18,7 @@ detect_os() {
         # shellcheck disable=SC2034
         OS_FAMILY="debian"
     else
-        fail_critical "Unsupported OS: ${PRETTY_NAME}. DevBootstrap V1 only supports the Debian/Ubuntu family."
+        fail_critical "Unsupported OS: ${PRETTY_NAME}. DotUp V1 only supports the Debian/Ubuntu family."
     fi
 
     # Detect Architecture

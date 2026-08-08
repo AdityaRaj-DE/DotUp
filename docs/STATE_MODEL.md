@@ -1,6 +1,6 @@
 # State Model
 
-DevBootstrap tracks the state of installed components, but the state file is **NOT** the single source of truth. Actual system inspection is authoritative.
+DotUp tracks the state of installed components, but the state file is **NOT** the single source of truth. Actual system inspection is authoritative.
 
 ## Valid States
 - `NOT_INSTALLED`: The component is missing from the system.
