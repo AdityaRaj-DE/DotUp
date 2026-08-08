@@ -2,7 +2,7 @@
 
 setup_sudo() {
     log_debug "Setting up sudo privileges..."
-    
+
     if [ "$EUID" -eq 0 ]; then
         log_warn "Running entirely as root is not recommended."
         SUDO_CMD=""
@@ -17,7 +17,11 @@ setup_sudo() {
             log_info "Sudo privileges required for package management. Please authenticate."
             if sudo -v; then
                 # Keep sudo alive in the background while the script runs
-                (while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null) &
+                (while true; do
+                    sudo -n true
+                    sleep 60
+                    kill -0 "$$" || exit
+                done 2>/dev/null) &
                 # shellcheck disable=SC2034
                 SUDO_CMD="sudo"
                 log_success "Sudo privileges acquired."

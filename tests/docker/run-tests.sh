@@ -8,11 +8,11 @@ run_test() {
     local os_name="$1"
     local dockerfile="${SCRIPT_DIR}/${os_name}.Dockerfile"
     local image_name="devbootstrap-test-${os_name}"
-    
+
     echo "========================================"
     echo "Testing on ${os_name}"
     echo "========================================"
-    
+
     echo "Building test image for ${os_name}..."
     docker build -t "$image_name" -f "$dockerfile" "${REPO_ROOT}"
 
@@ -21,7 +21,7 @@ run_test() {
 
     echo "Running bootstrap and idempotency test on ${os_name}..."
     docker run --rm -v "${REPO_ROOT}/dist:/dist" "$image_name" bash -c "DOTUP_LOCAL_TAR=/dist/dotup-test.tar.gz DOTUP_LOCAL_SHA=/dist/SHA256SUMS bash ./bootstrap.sh --profile minimal && echo '--- SECOND RUN ---' && cd /tmp/tmp.*/dotup-test && bash ./install.sh --profile minimal"
-    
+
     echo "Test on ${os_name} PASSED!"
 }
 

@@ -30,27 +30,27 @@ COMMAND="${1:-help}"
 shift || true
 
 case "$COMMAND" in
-    install)
-        exec "${SCRIPT_DIR}/install.sh" "$@"
-        ;;
-    doctor)
-        exec "${SCRIPT_DIR}/doctor.sh" "$@"
-        ;;
-    repair)
-        exec "${SCRIPT_DIR}/repair.sh" "$@"
-        ;;
-    update)
-        exec "${SCRIPT_DIR}/update.sh" "$@"
-        ;;
-    version)
-        echo "dotup version ${VERSION}"
-        ;;
-    help|--help|-h)
-        show_help
-        ;;
-    *)
-        echo "Unknown command: ${COMMAND}"
-        show_help
-        exit 1
-        ;;
+install)
+    exec "${SCRIPT_DIR}/install.sh" "$@"
+    ;;
+doctor)
+    exec "${SCRIPT_DIR}/doctor.sh" "$@"
+    ;;
+repair)
+    exec "${SCRIPT_DIR}/repair.sh" "$@"
+    ;;
+update)
+    exec "${SCRIPT_DIR}/update.sh" "$@"
+    ;;
+version)
+    echo "dotup version ${VERSION}"
+    ;;
+help | --help | -h)
+    show_help
+    ;;
+*)
+    echo "Unknown command: ${COMMAND}"
+    show_help
+    exit 1
+    ;;
 esac

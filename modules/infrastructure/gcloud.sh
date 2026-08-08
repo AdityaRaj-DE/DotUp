@@ -11,13 +11,13 @@ gcloud_detect() {
 
 gcloud_install() {
     log_info "Installing Google Cloud CLI..."
-    
+
     pkg_install apt-transport-https ca-certificates gnupg curl
-    
+
     ${SUDO_CMD:-} curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | ${SUDO_CMD:-} gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg --yes
-    
+
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | ${SUDO_CMD:-} tee /etc/apt/sources.list.d/google-cloud-sdk.list
-    
+
     pkg_update
     pkg_install google-cloud-cli
 }

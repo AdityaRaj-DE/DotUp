@@ -36,7 +36,7 @@ system_detect() {
             break
         fi
     done
-    
+
     if [ $missing -eq 1 ]; then
         echo "NOT_INSTALLED"
     else
@@ -47,9 +47,9 @@ system_detect() {
 system_install() {
     log_info "Installing system base packages..."
     pkg_update
-    
+
     local to_install=("${SYSTEM_PACKAGES[@]}")
-    
+
     for pkg in "${OPTIONAL_PACKAGES[@]}"; do
         if apt-cache show "$pkg" >/dev/null 2>&1; then
             to_install+=("$pkg")
@@ -76,7 +76,7 @@ system_configure() {
 system_validate() {
     log_debug "Validating system packages..."
     local failed=0
-    
+
     local cmds=(curl wget git unzip jq tree tmux rg make)
     for cmd in "${cmds[@]}"; do
         if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -84,7 +84,7 @@ system_validate() {
             failed=1
         fi
     done
-    
+
     if [ $failed -eq 1 ]; then
         fail_critical "System package validation failed."
     fi

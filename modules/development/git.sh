@@ -21,11 +21,11 @@ git_repair() {
 
 git_configure() {
     log_info "Configuring Git..."
-    
+
     if ! git config --global user.name >/dev/null 2>&1; then
         log_warn "Git user.name not set. Run: git config --global user.name 'Your Name'"
     fi
-    
+
     if ! git config --global user.email >/dev/null 2>&1; then
         log_warn "Git user.email not set. Run: git config --global user.email 'you@example.com'"
     fi
@@ -35,7 +35,7 @@ git_configure() {
 
     local ssh_dir="${HOME}/.ssh"
     local ssh_key="${ssh_dir}/id_ed25519"
-    
+
     if [[ ! -f "$ssh_key" ]]; then
         log_info "Generating new SSH key (id_ed25519)..."
         mkdir -p "$ssh_dir"

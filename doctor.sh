@@ -31,7 +31,7 @@ check_module() {
     local name="$2"
     local state
     state=$("${module}_detect")
-    
+
     if [[ "$state" == "INSTALLED" ]]; then
         echo -e "${GREEN}✓${NC} ${name}"
     elif [[ "$state" == "NOT_APPLICABLE" ]]; then

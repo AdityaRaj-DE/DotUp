@@ -21,7 +21,10 @@ if [[ -z "${DOTUP_LOCAL_TAR:-}" ]]; then
     else
         echo -e "${CYAN}Determining latest stable release...${NC}"
         LATEST_API_URL="https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest"
-        LATEST_JSON=$(curl -fsSL "$LATEST_API_URL") || { echo -e "${RED}Failed to fetch latest release metadata.${NC}"; exit 1; }
+        LATEST_JSON=$(curl -fsSL "$LATEST_API_URL") || {
+            echo -e "${RED}Failed to fetch latest release metadata.${NC}"
+            exit 1
+        }
         VERSION=$(echo "$LATEST_JSON" | grep -m1 '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' || true)
         if [[ -z "$VERSION" ]]; then
             echo -e "${RED}Error: Could not determine latest release version.${NC}"

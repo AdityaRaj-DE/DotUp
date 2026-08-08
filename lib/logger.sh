@@ -16,28 +16,28 @@ setup_logging() {
 log_info() {
     local msg="$1"
     echo -e "${BLUE}ℹ${NC} ${msg}"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [INFO] ${msg}" >> "${LOG_FILE}"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [INFO] ${msg}" >>"${LOG_FILE}"
 }
 
 log_success() {
     local msg="$1"
     echo -e "${GREEN}✓${NC} ${msg}"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [SUCCESS] ${msg}" >> "${LOG_FILE}"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [SUCCESS] ${msg}" >>"${LOG_FILE}"
 }
 
 log_warn() {
     local msg="$1"
     echo -e "${YELLOW}⚠${NC} ${msg}"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [WARN] ${msg}" >> "${LOG_FILE}"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [WARN] ${msg}" >>"${LOG_FILE}"
 }
 
 log_error() {
     local msg="$1"
     echo -e "${RED}✗${NC} ${msg}"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [ERROR] ${msg}" >> "${LOG_FILE}"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [ERROR] ${msg}" >>"${LOG_FILE}"
 }
 
 log_debug() {
     local msg="$1"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [DEBUG] ${msg}" >> "${LOG_FILE}"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [DEBUG] ${msg}" >>"${LOG_FILE}"
 }

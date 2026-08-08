@@ -3,13 +3,13 @@
 zsh_detect() {
     log_debug "Detecting zsh and Oh My Zsh..."
     local state="INSTALLED"
-    
+
     if ! command -v zsh >/dev/null 2>&1; then
         state="NOT_INSTALLED"
     elif [[ ! -d "${HOME}/.oh-my-zsh" ]]; then
         state="BROKEN"
     fi
-    
+
     echo "$state"
 }
 
@@ -25,7 +25,7 @@ zsh_repair() {
 
 zsh_configure() {
     log_info "Configuring zsh and Oh My Zsh..."
-    
+
     if [[ "$SHELL" != *"zsh"* ]]; then
         log_info "Changing default shell to zsh..."
         if command -v zsh >/dev/null 2>&1; then
@@ -43,11 +43,11 @@ zsh_configure() {
         log_info "Installing Powerlevel10k..."
         git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$p10k_dir" >/dev/null 2>&1 || fail_critical "Failed to install Powerlevel10k"
     fi
-    
+
     local zshrc="${HOME}/.zshrc"
     if [[ ! -f "$zshrc" ]]; then
         log_info "Creating default .zshrc..."
-        cat > "$zshrc" << 'EOF'
+        cat >"$zshrc" <<'EOF'
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git)

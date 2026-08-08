@@ -6,8 +6,14 @@ PROFILE="full"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --profile) PROFILE="$2"; shift ;;
-        *) echo "Unknown parameter passed: $1"; exit 1 ;;
+    --profile)
+        PROFILE="$2"
+        shift
+        ;;
+    *)
+        echo "Unknown parameter passed: $1"
+        exit 1
+        ;;
     esac
     shift
 done
@@ -40,14 +46,14 @@ execute_module() {
     local repair_fn="${module}_repair"
     local config_fn="${module}_configure"
     local validate_fn="${module}_validate"
-    
-    if ! declare -F "$detect_fn" > /dev/null; then
+
+    if ! declare -F "$detect_fn" >/dev/null; then
         fail_critical "Module function not found: $detect_fn"
     fi
 
     local state
     state=$("$detect_fn")
-    
+
     if [[ "$state" == "NOT_INSTALLED" ]]; then
         "$install_fn"
         "$config_fn"
@@ -68,39 +74,39 @@ main() {
     echo -e "${BOLD}${CYAN}════════════════════════════════════${NC}"
     echo -e "${BOLD}${CYAN} DevBootstrap V1${NC}"
     echo -e "${BOLD}${CYAN}════════════════════════════════════${NC}"
-    
+
     log_info "Initializing..."
-    
+
     setup_temp_dir
     check_network
     detect_os
     detect_package_manager
     setup_sudo
-    
+
     log_success "Preflight checks passed."
-    
+
     local profile_file="${SCRIPT_DIR}/config/profiles/${PROFILE}.conf"
     if [[ ! -f "$profile_file" ]]; then
         fail_critical "Profile not found: ${PROFILE}"
     fi
-    
+
     log_info "Loading profile: ${PROFILE}"
     local modules=()
     while IFS= read -r line || [[ -n "$line" ]]; do
         [[ -z "$line" || "$line" =~ ^#.*$ ]] && continue
         modules+=("$line")
-    done < "$profile_file"
+    done <"$profile_file"
 
     for mod in "${modules[@]}"; do
         execute_module "$mod"
     done
-    
+
     log_info "Installing dotup CLI wrapper..."
     local bin_dir="${HOME}/.local/bin"
     mkdir -p "${bin_dir}"
     cp "${SCRIPT_DIR}/dotup" "${bin_dir}/dotup"
     chmod +x "${bin_dir}/dotup"
-    
+
     if [[ ":$PATH:" != *":$bin_dir:"* ]]; then
         log_warn "${bin_dir} is not in your PATH. Please add it to your shell configuration."
     fi
@@ -108,7 +114,7 @@ main() {
     echo -e "\n${BOLD}${CYAN}════════════════════════════════════${NC}"
     echo -e "${BOLD}${CYAN} dotup Installation Complete${NC}"
     echo -e "${BOLD}${CYAN}════════════════════════════════════${NC}"
-    
+
     log_info "View detailed logs at: ${LATEST_LOG}"
 }
 

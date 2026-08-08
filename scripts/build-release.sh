@@ -25,6 +25,8 @@ cp "${REPO_ROOT}/install.sh" "${STAGE_DIR}/"
 cp "${REPO_ROOT}/doctor.sh" "${STAGE_DIR}/"
 cp "${REPO_ROOT}/repair.sh" "${STAGE_DIR}/"
 cp "${REPO_ROOT}/bootstrap.sh" "${STAGE_DIR}/"
+cp "${REPO_ROOT}/update.sh" "${STAGE_DIR}/"
+cp "${REPO_ROOT}/dotup" "${STAGE_DIR}/"
 cp -r "${REPO_ROOT}/modules" "${STAGE_DIR}/"
 cp -r "${REPO_ROOT}/lib" "${STAGE_DIR}/"
 cp -r "${REPO_ROOT}/config" "${STAGE_DIR}/"
@@ -40,7 +42,7 @@ cd "${DIST_DIR}"
 tar -czf "dotup-${VERSION}.tar.gz" "dotup-${VERSION}"
 
 # Generate SHA256SUMS
-sha256sum "dotup-${VERSION}.tar.gz" > SHA256SUMS
+sha256sum "dotup-${VERSION}.tar.gz" >SHA256SUMS
 
 echo "Release artifacts generated in ${DIST_DIR}:"
 ls -la "${DIST_DIR}"

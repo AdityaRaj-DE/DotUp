@@ -8,7 +8,7 @@ python_detect() {
             return
         fi
     fi
-    
+
     echo "NOT_INSTALLED"
 }
 
