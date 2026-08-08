@@ -16,6 +16,11 @@ jobs:
       - name: Run shellcheck
         run: |
           find . -name "*.sh" -not -path "*/node_modules/*" -exec shellcheck {} +
+      - name: Install shfmt
+        run: |
+          curl -sSLo shfmt https://github.com/mvdan/sh/releases/download/v3.7.0/shfmt_v3.7.0_linux_amd64
+          chmod +x shfmt
+          sudo mv shfmt /usr/local/bin/
       - name: Run shfmt
         run: |
           find . -name "*.sh" -not -path "*/node_modules/*" -exec shfmt -d {} +

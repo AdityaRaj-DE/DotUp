@@ -31,6 +31,10 @@ cp -r "${REPO_ROOT}/config" "${STAGE_DIR}/"
 cp -r "${REPO_ROOT}/docs" "${STAGE_DIR}/"
 cp "${REPO_ROOT}/README.md" "${STAGE_DIR}/"
 
+# Ensure all scripts are executable inside the release archive
+chmod +x "${STAGE_DIR}/"*.sh
+chmod +x "${STAGE_DIR}/dotup"
+
 # Build tarball
 cd "${DIST_DIR}"
 tar -czf "dotup-${VERSION}.tar.gz" "dotup-${VERSION}"
