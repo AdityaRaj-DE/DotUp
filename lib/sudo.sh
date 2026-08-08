@@ -18,6 +18,7 @@ setup_sudo() {
             if sudo -v; then
                 # Keep sudo alive in the background while the script runs
                 (while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null) &
+                # shellcheck disable=SC2034
                 SUDO_CMD="sudo"
                 log_success "Sudo privileges acquired."
             else

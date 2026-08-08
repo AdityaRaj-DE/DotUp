@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2034
+
 # Terminal colors
 if [ -t 1 ]; then
     RED='\033[0;31m'

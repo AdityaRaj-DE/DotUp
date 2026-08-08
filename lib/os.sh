@@ -7,6 +7,7 @@ detect_os() {
         fail_critical "/etc/os-release not found. Unsupported OS."
     fi
     
+    # shellcheck disable=SC1091
     source /etc/os-release
     
     local os_id="${ID}"
@@ -14,6 +15,7 @@ detect_os() {
     
     if [[ "$os_id" == "ubuntu" ]] || [[ "$os_id" == "debian" ]] || [[ "$os_id" == "linuxmint" ]] || [[ "$os_id" == "pop" ]] || [[ "$os_id_like" == *"ubuntu"* ]] || [[ "$os_id_like" == *"debian"* ]]; then
         log_success "Supported OS detected: ${PRETTY_NAME}"
+        # shellcheck disable=SC2034
         OS_FAMILY="debian"
     else
         fail_critical "Unsupported OS: ${PRETTY_NAME}. DevBootstrap V1 only supports the Debian/Ubuntu family."

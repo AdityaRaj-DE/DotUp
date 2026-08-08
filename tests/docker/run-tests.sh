@@ -17,7 +17,7 @@ run_test() {
     docker build -t "$image_name" -f "$dockerfile" "${REPO_ROOT}"
 
     echo "Building release artifact for testing..."
-    "${REPO_ROOT}/scripts/build-release.sh" test
+    bash "${REPO_ROOT}/scripts/build-release.sh" test
 
     echo "Running bootstrap and idempotency test on ${os_name}..."
     docker run --rm -v "${REPO_ROOT}/dist:/dist" "$image_name" bash -c "DOTUP_LOCAL_TAR=/dist/dotup-test.tar.gz DOTUP_LOCAL_SHA=/dist/SHA256SUMS ./bootstrap.sh --profile minimal && echo '--- SECOND RUN ---' && cd /tmp/tmp.*/dotup-test && ./install.sh --profile minimal"

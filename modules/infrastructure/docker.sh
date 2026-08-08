@@ -16,6 +16,7 @@ docker_install() {
     ${SUDO_CMD:-} curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
     ${SUDO_CMD:-} chmod a+r /etc/apt/keyrings/docker.asc
 
+    # shellcheck disable=SC1091
     source /etc/os-release
     local id_name="${ID}"
     if [[ "$id_name" == "linuxmint" ]] || [[ "$id_name" == "pop" ]]; then

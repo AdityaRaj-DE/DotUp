@@ -3,6 +3,7 @@
 detect_package_manager() {
     log_debug "Detecting package manager..."
     if command -v apt-get >/dev/null 2>&1; then
+        # shellcheck disable=SC2034
         PKG_MANAGER="apt"
         log_debug "Package manager detected: apt"
     else
@@ -20,6 +21,7 @@ pkg_update() {
 pkg_install() {
     local pkgs="$*"
     log_info "Installing packages: ${pkgs}"
+    # shellcheck disable=SC2086
     if ! env DEBIAN_FRONTEND=noninteractive ${SUDO_CMD:-} apt-get install -yq ${pkgs} >/dev/null 2>>"${LOG_FILE}"; then
         fail_critical "Failed to install packages: ${pkgs}"
     fi

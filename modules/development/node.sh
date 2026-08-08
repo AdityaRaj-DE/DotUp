@@ -39,12 +39,14 @@ node_configure() {
     local bashrc="${HOME}/.bashrc"
     if [[ -f "$bashrc" ]] && ! grep -q "fnm env" "$bashrc"; then
         log_debug "Adding fnm to .bashrc"
+        # shellcheck disable=SC2016
         echo 'eval "$(fnm env --use-on-cd --shell bash)"' >> "$bashrc"
     fi
     
     local zshrc="${HOME}/.zshrc"
     if [[ -f "$zshrc" ]] && ! grep -q "fnm env" "$zshrc"; then
         log_debug "Adding fnm to .zshrc"
+        # shellcheck disable=SC2016
         echo 'eval "$(fnm env --use-on-cd --shell zsh)"' >> "$zshrc"
     fi
 }
