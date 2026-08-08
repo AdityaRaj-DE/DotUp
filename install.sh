@@ -95,8 +95,18 @@ main() {
         execute_module "$mod"
     done
     
+    log_info "Installing dotup CLI wrapper..."
+    local bin_dir="${HOME}/.local/bin"
+    mkdir -p "${bin_dir}"
+    cp "${SCRIPT_DIR}/dotup" "${bin_dir}/dotup"
+    chmod +x "${bin_dir}/dotup"
+    
+    if [[ ":$PATH:" != *":$bin_dir:"* ]]; then
+        log_warn "${bin_dir} is not in your PATH. Please add it to your shell configuration."
+    fi
+
     echo -e "\n${BOLD}${CYAN}════════════════════════════════════${NC}"
-    echo -e "${BOLD}${CYAN} DevBootstrap Installation Complete${NC}"
+    echo -e "${BOLD}${CYAN} dotup Installation Complete${NC}"
     echo -e "${BOLD}${CYAN}════════════════════════════════════${NC}"
     
     log_info "View detailed logs at: ${LATEST_LOG}"

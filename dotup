@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# This script is the CLI entrypoint for dotup.
+# It resolves the installation directory and delegates to the appropriate scripts.
+
+SCRIPT_PATH="$(readlink -f "$0" 2>/dev/null || realpath "$0" 2>/dev/null || echo "$0")"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+VERSION="v1.0.0"
+
+show_help() {
+    echo "dotup - Autonomous Linux Developer Environment Bootstrap"
+    echo ""
+    echo "Usage:"
+    echo "  dotup <command> [options]"
+    echo ""
+    echo "Commands:"
+    echo "  install [options]  Install dotup configuration profiles"
+    echo "  doctor             Run diagnostic health checks"
+    echo "  repair             Repair broken environment components"
+    echo "  update             Update dotup to the latest version"
+    echo "  version            Show dotup version"
+    echo "  help               Show this help message"
+    echo ""
+    echo "Options for install:"
+    echo "  --profile <name>   Specify the profile to install (e.g. full, minimal)"
+}
+
+COMMAND="${1:-help}"
+shift || true
+
+case "$COMMAND" in
+    install)
+        exec "${SCRIPT_DIR}/install.sh" "$@"
+        ;;
+    doctor)
+        exec "${SCRIPT_DIR}/doctor.sh" "$@"
+        ;;
+    repair)
+        exec "${SCRIPT_DIR}/repair.sh" "$@"
+        ;;
+    update)
+        exec "${SCRIPT_DIR}/update.sh" "$@"
+        ;;
+    version)
+        echo "dotup version ${VERSION}"
+        ;;
+    help|--help|-h)
+        show_help
+        ;;
+    *)
+        echo "Unknown command: ${COMMAND}"
+        show_help
+        exit 1
+        ;;
+esac

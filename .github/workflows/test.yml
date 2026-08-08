@@ -15,7 +15,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Run shellcheck
         run: |
-          find . -name "*.sh" -exec shellcheck {} +
+          find . -name "*.sh" -not -path "*/node_modules/*" -exec shellcheck {} +
+      - name: Run shfmt
+        run: |
+          find . -name "*.sh" -not -path "*/node_modules/*" -exec shfmt -d {} +
 
   docker-tests:
     name: Docker Matrix Tests
