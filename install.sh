@@ -36,6 +36,8 @@ main() {
     source "${SCRIPT_DIR}/modules/development/node.sh"
     source "${SCRIPT_DIR}/modules/development/python.sh"
     source "${SCRIPT_DIR}/modules/development/java.sh"
+    source "${SCRIPT_DIR}/modules/infrastructure/docker.sh"
+    source "${SCRIPT_DIR}/modules/infrastructure/gcloud.sh"
     
     # Execute System Packages Module
     local sys_state
@@ -125,6 +127,36 @@ main() {
         java_configure
     fi
     java_validate
+
+    # Execute Docker Module
+    local docker_state
+    docker_state=$(docker_detect)
+    if [[ "$docker_state" == "NOT_INSTALLED" ]]; then
+        docker_install
+        docker_configure
+    elif [[ "$docker_state" == "BROKEN" ]]; then
+        docker_repair
+        docker_configure
+    else
+        log_info "Docker already installed, ensuring configuration..."
+        docker_configure
+    fi
+    docker_validate
+
+    # Execute Google Cloud Module
+    local gcloud_state
+    gcloud_state=$(gcloud_detect)
+    if [[ "$gcloud_state" == "NOT_INSTALLED" ]]; then
+        gcloud_install
+        gcloud_configure
+    elif [[ "$gcloud_state" == "BROKEN" ]]; then
+        gcloud_repair
+        gcloud_configure
+    else
+        log_info "Google Cloud CLI already installed, ensuring configuration..."
+        gcloud_configure
+    fi
+    gcloud_validate
     
     log_success "DevBootstrap execution complete!"
     log_info "View detailed logs at: ${LATEST_LOG}"
