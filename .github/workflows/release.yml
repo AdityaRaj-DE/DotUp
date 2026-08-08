@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  test-before-release:
+    uses: ./.github/workflows/test.yml
+
+  release:
+    name: Build and Release
+    needs: test-before-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Get the version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        
+      - name: Build Release
+        run: |
+          chmod +x scripts/build-release.sh
+          ./scripts/build-release.sh ${{ env.VERSION }}
+          
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/dotup-${{ env.VERSION }}.tar.gz
+            dist/SHA256SUMS
+          draft: false
+          prerelease: false

@@ -16,13 +16,18 @@ run_test() {
     echo "Building test image for ${os_name}..."
     docker build -t "$image_name" -f "$dockerfile" "${REPO_ROOT}"
 
+    echo "Building release artifact for testing..."
+    "${REPO_ROOT}/scripts/build-release.sh" test
+
     echo "Running bootstrap and idempotency test on ${os_name}..."
-    # Execute bootstrap.sh first, then for idempotency run install.sh again from the extracted dir
-    # Since bootstrap.sh extracts to /tmp, we just run install.sh from there for the second run
-    docker run --rm "$image_name" bash -c "./bootstrap.sh --profile minimal && echo '--- SECOND RUN ---' && cd /tmp/devbootstrap* && ./install.sh --profile minimal"
+    docker run --rm -v "${REPO_ROOT}/dist:/dist" "$image_name" bash -c "DOTUP_LOCAL_TAR=/dist/dotup-test.tar.gz DOTUP_LOCAL_SHA=/dist/SHA256SUMS ./bootstrap.sh --profile minimal && echo '--- SECOND RUN ---' && cd /tmp/tmp.*/dotup-test && ./install.sh --profile minimal"
     
     echo "Test on ${os_name} PASSED!"
 }
 
-run_test "ubuntu"
-run_test "debian"
+if [[ $# -gt 0 ]]; then
+    run_test "$1"
+else
+    run_test "ubuntu"
+    run_test "debian"
+fi
