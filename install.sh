@@ -38,6 +38,9 @@ main() {
     source "${SCRIPT_DIR}/modules/development/java.sh"
     source "${SCRIPT_DIR}/modules/infrastructure/docker.sh"
     source "${SCRIPT_DIR}/modules/infrastructure/gcloud.sh"
+    source "${SCRIPT_DIR}/modules/applications/chrome.sh"
+    source "${SCRIPT_DIR}/modules/editors/vscode.sh"
+    source "${SCRIPT_DIR}/modules/editors/antigravity.sh"
     
     # Execute System Packages Module
     local sys_state
@@ -157,6 +160,53 @@ main() {
         gcloud_configure
     fi
     gcloud_validate
+
+    # Execute Chrome Module
+    local chrome_state
+    chrome_state=$(chrome_detect)
+    if [[ "$chrome_state" == "NOT_INSTALLED" ]]; then
+        chrome_install
+        chrome_configure
+    elif [[ "$chrome_state" == "BROKEN" ]]; then
+        chrome_repair
+        chrome_configure
+    elif [[ "$chrome_state" == "NOT_APPLICABLE" ]]; then
+        log_warn "Headless environment detected. Skipping Chrome."
+    else
+        log_info "Chrome already installed, ensuring configuration..."
+        chrome_configure
+    fi
+    chrome_validate
+
+    # Execute VS Code Module
+    local vscode_state
+    vscode_state=$(vscode_detect)
+    if [[ "$vscode_state" == "NOT_INSTALLED" ]]; then
+        vscode_install
+        vscode_configure
+    elif [[ "$vscode_state" == "BROKEN" ]]; then
+        vscode_repair
+        vscode_configure
+    else
+        log_info "VS Code already installed, ensuring configuration..."
+        vscode_configure
+    fi
+    vscode_validate
+
+    # Execute Antigravity Module
+    local antigravity_state
+    antigravity_state=$(antigravity_detect)
+    if [[ "$antigravity_state" == "NOT_INSTALLED" ]]; then
+        antigravity_install
+        antigravity_configure
+    elif [[ "$antigravity_state" == "BROKEN" ]]; then
+        antigravity_repair
+        antigravity_configure
+    else
+        log_info "Antigravity already installed, ensuring configuration..."
+        antigravity_configure
+    fi
+    antigravity_validate
     
     log_success "DevBootstrap execution complete!"
     log_info "View detailed logs at: ${LATEST_LOG}"
