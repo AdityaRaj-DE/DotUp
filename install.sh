@@ -2,12 +2,17 @@
 set -Eeuo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-PROFILE="full"
+PROFILE=""
+CONFIG_FILE=""
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
     --profile)
         PROFILE="$2"
+        shift
+        ;;
+    --config)
+        CONFIG_FILE="$2"
         shift
         ;;
     *)
@@ -18,6 +23,10 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
+if [[ -z "$PROFILE" && -z "$CONFIG_FILE" ]]; then
+    PROFILE="full"
+fi
+
 source "${SCRIPT_DIR}/lib/colors.sh"
 source "${SCRIPT_DIR}/lib/logger.sh"
 source "${SCRIPT_DIR}/lib/utils.sh"
@@ -25,6 +34,8 @@ source "${SCRIPT_DIR}/lib/os.sh"
 source "${SCRIPT_DIR}/lib/network.sh"
 source "${SCRIPT_DIR}/lib/sudo.sh"
 source "${SCRIPT_DIR}/lib/package-manager.sh"
+source "${SCRIPT_DIR}/lib/config_parser.sh"
+source "${SCRIPT_DIR}/lib/config_validator.sh"
 
 source "${SCRIPT_DIR}/modules/system/packages.sh"
 source "${SCRIPT_DIR}/modules/development/git.sh"
@@ -86,19 +97,39 @@ main() {
 
     log_success "Preflight checks passed."
 
-    local profile_file="${SCRIPT_DIR}/config/profiles/${PROFILE}.conf"
-    if [[ ! -f "$profile_file" ]]; then
-        fail_critical "Profile not found: ${PROFILE}"
+    local modules_to_run=()
+
+    if [[ -n "$CONFIG_FILE" ]]; then
+        log_info "Loading YAML config: ${CONFIG_FILE}"
+        parse_config "$CONFIG_FILE"
+        validate_config
+        
+        # In V2, we dynamically source exactly the modules requested
+        for mod in "${CONFIG_MODULES[@]}"; do
+            modules_to_run+=("$mod")
+            for mod_file in "${SCRIPT_DIR}/modules"/*/"${mod}.sh"; do
+                if [[ -f "$mod_file" ]]; then
+                    # shellcheck source=/dev/null
+                    source "$mod_file"
+                    break
+                fi
+            done
+        done
+    else
+        # V1 Legacy Profile Support
+        local profile_file="${SCRIPT_DIR}/config/profiles/${PROFILE}.conf"
+        if [[ ! -f "$profile_file" ]]; then
+            fail_critical "Profile not found: ${PROFILE}"
+        fi
+
+        log_info "Loading legacy profile: ${PROFILE}"
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            [[ -z "$line" || "$line" =~ ^#.*$ ]] && continue
+            modules_to_run+=("$line")
+        done <"$profile_file"
     fi
 
-    log_info "Loading profile: ${PROFILE}"
-    local modules=()
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        [[ -z "$line" || "$line" =~ ^#.*$ ]] && continue
-        modules+=("$line")
-    done <"$profile_file"
-
-    for mod in "${modules[@]}"; do
+    for mod in "${modules_to_run[@]}"; do
         execute_module "$mod"
     done
 
