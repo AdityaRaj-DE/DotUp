@@ -182,3 +182,36 @@ Every completed V2 phase should record:
 
 ### CI
 - PENDING CI
+
+---
+
+## Phase 7A — State Model
+
+### Architecture
+- Established the formal Data-Driven State Model in `docs/V2_STATE_MODEL.md`.
+- Validated state detection boundaries using a declarative, machine-readable line-oriented format (`key=value`) over standard output.
+
+### Implementation
+- `lib/state_engine.sh` implemented with pure Bash functions: `collect_desired_state`, `collect_actual_state`, and `compare_state`.
+- State is strictly maintained as dynamic Bash environment variables mapping the respective configurations (`DESIRED_STATE_*`, `ACTUAL_STATE_*`, `DIFF_STATE_*`).
+
+### State Statuses
+- Supported: `NOT_INSTALLED`, `INSTALLED`, `BROKEN`, `UNSUPPORTED`, `UNKNOWN`.
+- Diff Actions: `SATISFIED`, `INSTALL_REQUIRED`, `VERSION_CHANGE_REQUIRED`, `REPAIR_REQUIRED`, `UNSUPPORTED`, `UNKNOWN`.
+
+### Module Contract
+- Defined the `<module>_detect_state` contract.
+- Adapted `node.sh`, `git.sh`, `python.sh`, and `docker.sh` to implement the new side-effect-free, machine-readable state checks.
+
+### Existing V1 Logic Reused
+- Existing `install.sh` and `<module>_detect` logic remains entirely untouched. Phase 7A operates strictly alongside V1 as an infrastructural engine without causing breakages.
+
+### Tests
+- Designed robust bash mock tests (`tests/test_state.sh`) checking state construction and valid/invalid permutations.
+- Environment limitation blocks local execution, relies on CI.
+
+### Cross-Platform Tests
+- The new `_detect_state` routines are package-manager agnostic. `node` relies on `fnm`, `python` on `command -v python3`, etc. It effectively relies entirely on generic binary existence and output rather than `dpkg-query` or `rpm -q`.
+
+### Known Limitations
+- The comparison engine is naive regarding version strings. Standard exact string equality is used for `VERSION_CHANGE_REQUIRED`. A future semver layer might be required for `<` `>` matching.

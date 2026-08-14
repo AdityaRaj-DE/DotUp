@@ -82,3 +82,10 @@ V2 introduces `dotup.yaml`, a declarative manifest describing the desired enviro
 - Validated structurally (checking for `schema_version`, missing fields) and semantically (ensuring module scripts exist).
 - The internal representation uses bash indexed arrays (`CONFIG_MODULES`) and dynamic variables (`CONFIG_MODULE_node_version`) to provide bash 3.2 compatibility.
 - V1 `.conf` files are still supported via the legacy fallback.
+
+### Phase 7A: Desired State / Actual State Model (Implemented)
+V2 introduces a robust declarative `State Engine` (`lib/state_engine.sh`) that evaluates the difference between desired and actual system states without modifying the machine.
+- **Desired State**: Constructed deterministically from the parsed configuration model.
+- **Actual State**: Detected side-effect free via the new module contract `<module>_detect_state`. Outputs are strictly line-oriented `key=value` formats for maximum security and portability.
+- **Difference Engine**: A central state comparator identifies required actions (`SATISFIED`, `INSTALL_REQUIRED`, `VERSION_CHANGE_REQUIRED`, `REPAIR_REQUIRED`).
+- **Separation of Concerns**: The detection process remains fully decoupled from the execution logic and the package manager backend.
