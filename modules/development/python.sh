@@ -29,6 +29,15 @@ python_configure() {
     fi
 }
 
+python_validate_options() {
+    local key="$1"
+    local val="$2"
+    if [[ "$key" == "version" ]]; then
+        return 0
+    fi
+    return 1
+}
+
 python_validate() {
     log_debug "Validating Python..."
     if ! command -v python3 >/dev/null 2>&1; then

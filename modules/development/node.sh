@@ -51,6 +51,15 @@ node_configure() {
     fi
 }
 
+node_validate_options() {
+    local key="$1"
+    local val="$2"
+    if [[ "$key" == "version" ]]; then
+        return 0
+    fi
+    return 1
+}
+
 node_validate() {
     log_debug "Validating Node.js..."
     export PATH="${HOME}/.local/share/fnm:$PATH"
