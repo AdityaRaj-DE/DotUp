@@ -13,6 +13,26 @@ node_detect() {
     fi
 }
 
+node_detect_state() {
+    if ! command -v fnm >/dev/null 2>&1; then
+        echo "status=NOT_INSTALLED"
+        return
+    fi
+    
+    # Check if fnm is there but node/npm are missing
+    if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+        echo "status=BROKEN"
+        return
+    fi
+    
+    echo "status=INSTALLED"
+    local v
+    v=$(node -v | sed 's/^v//')
+    if [[ -n "$v" ]]; then
+        echo "version=$v"
+    fi
+}
+
 node_install() {
     log_info "Installing fnm and Node.js..."
 

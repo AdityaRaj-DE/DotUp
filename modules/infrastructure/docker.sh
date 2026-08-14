@@ -2,10 +2,42 @@
 
 docker_detect() {
     log_debug "Detecting Docker..."
-    if command -v docker >/dev/null 2>&1 && command -v docker-compose >/dev/null 2>&1; then
-        echo "INSTALLED"
+    if command -v docker >/dev/null 2>&1; then
+        if docker info >/dev/null 2>&1; then
+            echo "INSTALLED"
+        else
+            echo "BROKEN" # Installed but daemon not running or no permissions
+        fi
     else
         echo "NOT_INSTALLED"
+    fi
+}
+
+docker_detect_state() {
+    # Check for platform support first
+    local os_id
+    os_id=$(platform_dist_id)
+    if [[ "$os_id" != "ubuntu" && "$os_id" != "debian" && "$os_id" != "fedora" && "$os_id" != "arch" && "$os_id" != "manjaro" ]]; then
+        echo "status=UNSUPPORTED"
+        return
+    fi
+
+    if ! command -v docker >/dev/null 2>&1; then
+        echo "status=NOT_INSTALLED"
+        return
+    fi
+    
+    if ! docker info >/dev/null 2>&1; then
+        echo "status=BROKEN"
+        return
+    fi
+    
+    echo "status=INSTALLED"
+    local v
+    # docker --version output is usually "Docker version 26.1.4, build 5650f9b"
+    v=$(docker --version | awk '{print $3}' | tr -d ',')
+    if [[ -n "$v" ]]; then
+        echo "version=$v"
     fi
 }
 

@@ -9,6 +9,21 @@ git_detect() {
     fi
 }
 
+git_detect_state() {
+    if ! command -v git >/dev/null 2>&1; then
+        echo "status=NOT_INSTALLED"
+        return
+    fi
+    
+    echo "status=INSTALLED"
+    local v
+    # git version output is usually "git version 2.45.2"
+    v=$(git --version | awk '{print $3}')
+    if [[ -n "$v" ]]; then
+        echo "version=$v"
+    fi
+}
+
 git_install() {
     log_info "Installing Git..."
     pkg_install git

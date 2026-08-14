@@ -12,6 +12,26 @@ python_detect() {
     echo "NOT_INSTALLED"
 }
 
+python_detect_state() {
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "status=NOT_INSTALLED"
+        return
+    fi
+    
+    if ! command -v pip3 >/dev/null 2>&1; then
+        echo "status=BROKEN"
+        return
+    fi
+    
+    echo "status=INSTALLED"
+    local v
+    # python3 --version output is usually "Python 3.12.3"
+    v=$(python3 --version 2>&1 | awk '{print $2}')
+    if [[ -n "$v" ]]; then
+        echo "version=$v"
+    fi
+}
+
 python_install() {
     log_info "Installing Python tools..."
     pkg_install python3 python3-pip python3-venv pipx
