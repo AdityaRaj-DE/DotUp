@@ -74,16 +74,23 @@ detect_os() {
 
     log_debug "Detected platform: ${_PLATFORM_DISTRIBUTION}"
     log_debug "Detected architecture: ${_PLATFORM_ARCHITECTURE}"
+}
 
-    if [[ "$_PLATFORM_PACKAGE_MANAGER" == "apt" ]]; then
-        log_success "DotUp installation support: Supported (${_PLATFORM_DISTRIBUTION})"
+verify_platform_support() {
+    local dist
+    dist=$(platform_distribution)
+    local pkg_mgr
+    pkg_mgr=$(platform_package_manager)
+
+    if [[ "$pkg_mgr" == "apt" ]]; then
+        log_success "DotUp installation support: Supported (${dist})"
         # Legacy compat for remaining V1 code
         # shellcheck disable=SC2034
         OS_FAMILY="debian"
         # shellcheck disable=SC2034
-        ARCH_NAME="${_PLATFORM_ARCHITECTURE}"
+        ARCH_NAME="$(platform_architecture)"
     else
-        fail_critical "DotUp installation support for '${_PLATFORM_DISTRIBUTION}' is Not implemented."
+        fail_critical "DotUp installation support for '${dist}' is Not implemented."
     fi
 }
 

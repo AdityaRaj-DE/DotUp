@@ -80,6 +80,7 @@ main() {
     setup_temp_dir
     check_network
     detect_os
+    verify_platform_support
     detect_package_manager
     setup_sudo
 
