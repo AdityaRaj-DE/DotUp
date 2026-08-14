@@ -61,6 +61,7 @@ The API consumes the `Platform Context` to route operations. Currently, an APT b
 
 **Note:** Vendor-specific installations (e.g. adding PPA keys, `.deb` installations for Chrome) purposefully remain separated from standard package operations.
 
+
 ### Phase 3: Fedora Support (Implemented)
 The Package API now explicitly routes identical module requests (`pkg_install curl`) to native `dnf` execution under Fedora. The platform detection logic allows Fedora as a supported installation platform for generic package modules.
 
@@ -74,3 +75,10 @@ The Package API now supports Pacman. `Platform Context` successfully identifies 
 ### Phase 5: Installation Capability Model (Implemented)
 Vendor packages and third-party repositories have been refactored. Rather than a complex generic repository API, vendor installers use `$PKG_MANAGER` branching to implement native APT `sources.list`, DNF `.repo` files, or Pacman configurations directly.
 Additionally, a `pkg_install_local` API handles generic execution for directly downloaded packages (`.deb`, `.rpm`).
+
+### Phase 6: Configuration Model and dotup.yaml (Implemented)
+V2 introduces `dotup.yaml`, a declarative manifest describing the desired environment configuration. 
+- It is structurally parsed by an internal `awk`-based parser `config_parser.sh` (to avoid external dependencies like `yq`).
+- Validated structurally (checking for `schema_version`, missing fields) and semantically (ensuring module scripts exist).
+- The internal representation uses bash indexed arrays (`CONFIG_MODULES`) and dynamic variables (`CONFIG_MODULE_node_version`) to provide bash 3.2 compatibility.
+- V1 `.conf` files are still supported via the legacy fallback.

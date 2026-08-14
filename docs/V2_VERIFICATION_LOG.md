@@ -150,8 +150,35 @@ Every completed V2 phase should record:
 - Unit tests pass for all mock environments (APT, DNF, Pacman).
 - Environment limitation blocks local execution, relies on CI.
 
-### Remaining Limitations
-- Arch Linux support for Chrome, VS Code, and gcloud remains deliberately unsupported by this script, as they require AUR helpers (e.g. `yay`) which are outside the scope of base package managers. These are properly logged and failed during `pkg_install`.
+### CI
+- PENDING CI
+
+---
+
+## Phase 6 — Configuration Model and dotup.yaml
+
+### Implementation
+- Documented V2 Configuration Model in `docs/V2_CONFIG_MODEL.md`.
+- Implemented `lib/config_parser.sh` using a targeted `awk` script to parse YAML safely without external dependencies.
+- Implemented `lib/config_validator.sh` to provide structural (schema versions, unknown fields) and semantic (unknown modules) validation.
+- Created external JSON Schema for `dotup.yaml` at `config/schema/dotup.schema.yaml`.
+- Created examples `examples/minimal.yaml` and `examples/backend.yaml`.
+- Modified `install.sh` to load V2 YAML configs via `--config` while retaining legacy V1 `.conf` behavior via `--profile`.
+
+### Tests
+- Wrote `tests/test_config.sh` covering valid profiles, missing schema, unknown root fields, unknown modules, and unknown module options.
+- Added strict `security_eval.yaml` test to verify that the parser does not evaluate arbitrary shell code embedded in string values.
+- Environment limitation blocks local execution, relies on CI.
+
+### Known Limitations
+- The YAML parser uses strict indentation matching (2 spaces for profile/modules, 4 spaces for options) which means differently indented YAML will fail to parse. This is an intentional restriction (RESTRICTED DOTUP YAML SUBSET) to maintain bootstrap security and portability without external dependencies.
+
+### Parser Decision
+**RESTRICTED DOTUP YAML SUBSET (Pure Bash)**
+- **Reason:** Replaced the initial AWK parser with a pure Bash `read` loop. This definitively eliminates the critical `eval` vulnerability present in the AWK generation approach. The strict subset guarantees that configurations are treated entirely as data, which is mandatory for the future web platform.
+
+### Validation Ownership
+- Semantic validation delegates to individual modules via `<module>_validate_options`. `node.sh` and `python.sh` now strictly validate the `version` option and reject unknown keys (e.g. `banana`).
 
 ### CI
 - PENDING CI

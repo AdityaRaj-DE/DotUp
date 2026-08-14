@@ -24,9 +24,9 @@
 - **Objective:** Standardize how third-party tools (tarballs, binaries, AppImages) are installed regardless of platform.
 - **Completion Criteria:** Abstraction for downloading and verifying binaries.
 
-## Phase 6 — Configuration
-- **Objective:** Move to a structured configuration model (e.g. `dotup.yaml`) with robust parsing.
-- **Completion Criteria:** Profiles and module variables are parsed dynamically.
+## Phase 6 — Configuration Model and dotup.yaml (Complete)
+- **Objective:** Introduce `dotup.yaml` to declaratively model the environment.
+- **Completion Criteria:** Config is parsed strictly using bash/awk, structural and semantic validation exists, dynamic execution via YAML is implemented, and V1 `.conf` loader remains backward compatible as a fallback.
 
 ## Phase 7 — Desired / Actual State
 - **Objective:** Implement the declarative state engine that `STATE_MODEL.md` originally intended.

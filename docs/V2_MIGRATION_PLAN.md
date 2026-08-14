@@ -21,7 +21,7 @@ Once all modules are migrated and tested across platforms, the old raw `apt` cal
 ## What Changes
 - **Modules**: Will use abstraction functions. `modules/infrastructure/docker.sh` uses Platform API. `modules/system/packages.sh` uses Package API (`pkg_is_installed`, `pkg_is_available`). Vendor modules (Docker, VS Code, Chrome, gcloud) natively branch to configure OS-specific third-party repositories for Fedora and Debian.
 - **Package Manager**: Routes commands to `apt`, `dnf`, or `pacman` dynamically based on Platform Context. Adds `pkg_install_local` for direct `.deb` or `.rpm` file installs.
-- **Profiles**: Will eventually migrate to YAML, but `.conf` will remain supported temporarily.
+- **Profiles**: Migrated to YAML `dotup.yaml` with a robust configuration schema and parser. V1 `.conf` remains supported temporarily but will eventually be deprecated.
 
 ## What Remains Unchanged
 - The CLI entrypoint (`dotup`).
