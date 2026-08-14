@@ -8,9 +8,9 @@
 - **Objective:** Introduce a `Platform Context` to reliably detect and expose OS details (OS family, version, architecture).
 - **Completion Criteria:** A central `lib/os.sh` abstraction providing clear facts for modules to branch on.
 
-## Phase 2 — Package Abstraction
-- **Objective:** Abstract package management behind a unified interface (`pkg_install`, `pkg_remove`).
-- **Completion Criteria:** No module calls `apt-get` directly.
+## Phase 2 — Package Abstraction (Complete)
+- **Objective:** Abstract package management behind a unified interface (`pkg_install`, `pkg_remove`, `pkg_is_installed`).
+- **Completion Criteria:** No module calls generic `apt-get` directly. Generic operations route through API.
 
 ## Phase 3 — Fedora Support
 - **Objective:** Implement the DNF backend for the package abstraction and verify module compatibility.

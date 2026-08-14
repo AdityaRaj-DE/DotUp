@@ -50,4 +50,15 @@ API:
 
 **Distinction:** The Platform Context distinguishes between *detected* platforms and *supported* platforms. While Fedora and Arch can be detected, they remain explicitly unsupported for installation until later phases.
 
-### Phase 2: Package Abstraction (Next)
+### Phase 2: Package Abstraction (Implemented)
+A Package API exists in `lib/package-manager.sh` defining generic functions:
+- `pkg_install`
+- `pkg_update`
+- `pkg_is_installed`
+- `pkg_is_available`
+
+The API consumes the `Platform Context` to route operations. Currently, an APT backend is fully implemented for Ubuntu/Debian. Modules request packages generically (e.g., `pkg_install curl`), removing direct OS assumptions.
+
+**Note:** Vendor-specific installations (e.g. adding PPA keys, `.deb` installations for Chrome) purposefully remain separated from standard package operations.
+
+### Phase 3-4: Cross-platform implementations (Fedora, Arch) (Next)

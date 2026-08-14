@@ -31,7 +31,7 @@ system_detect() {
     log_debug "Detecting system base packages..."
     local missing=0
     for pkg in "${SYSTEM_PACKAGES[@]}"; do
-        if ! dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "ok installed"; then
+        if ! pkg_is_installed "$pkg"; then
             missing=1
             break
         fi
@@ -51,7 +51,7 @@ system_install() {
     local to_install=("${SYSTEM_PACKAGES[@]}")
 
     for pkg in "${OPTIONAL_PACKAGES[@]}"; do
-        if apt-cache show "$pkg" >/dev/null 2>&1; then
+        if pkg_is_available "$pkg"; then
             to_install+=("$pkg")
         fi
     done
