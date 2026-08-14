@@ -96,6 +96,13 @@ verify_platform_support() {
         OS_FAMILY="fedora"
         # shellcheck disable=SC2034
         ARCH_NAME="$(platform_architecture)"
+    elif [[ "$pkg_mgr" == "pacman" ]]; then
+        log_success "DotUp installation support: Supported (${dist})"
+        # Legacy compat for remaining V1 code
+        # shellcheck disable=SC2034
+        OS_FAMILY="arch"
+        # shellcheck disable=SC2034
+        ARCH_NAME="$(platform_architecture)"
     else
         fail_critical "DotUp installation support for '${dist}' is Not implemented."
     fi

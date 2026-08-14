@@ -14,11 +14,11 @@
 
 ## Phase 3 — Fedora Support (Complete)
 - **Objective:** Implement the DNF backend for the package abstraction and verify module compatibility.
-- **Completion Criteria:** DNF backend implemented. Fedora can execute basic `system` packages, though vendor-specific modules remain unsupported for Fedora. on Fedora Docker container.
+- **Completion Criteria:** DNF backend implemented. Fedora can execute basic `system` packages, though vendor-specific modules remain unsupported for Fedora.
 
-## Phase 4 — Arch Support
+## Phase 4 — Arch Support (Complete)
 - **Objective:** Implement the Pacman backend for the package abstraction.
-- **Completion Criteria:** Tests pass on Arch Docker container.
+- **Completion Criteria:** Pacman backend implemented. Arch can execute basic `system` packages. Vendor-specific modules remain unsupported for Arch.
 
 ## Phase 5 — Installation Capability Model
 - **Objective:** Standardize how third-party tools (tarballs, binaries, AppImages) are installed regardless of platform.

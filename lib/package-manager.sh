@@ -7,12 +7,10 @@ detect_package_manager() {
     local pm
     pm=$(platform_package_manager)
 
-    if [[ "$pm" == "apt" || "$pm" == "dnf" ]]; then
+    if [[ "$pm" == "apt" || "$pm" == "dnf" || "$pm" == "pacman" ]]; then
         # shellcheck disable=SC2034
         PKG_MANAGER="$pm"
         log_debug "Package manager detected: $pm"
-    elif [[ "$pm" == "pacman" ]]; then
-        fail_critical "Package backend for '$pm' is detected but not implemented yet."
     else
         fail_critical "Package manager '$pm' is not currently supported for installation."
     fi
@@ -27,6 +25,10 @@ pkg_update() {
     elif [[ "$PKG_MANAGER" == "dnf" ]]; then
         if ! ${SUDO_CMD:-} dnf makecache -y >/dev/null 2>>"${LOG_FILE}"; then
             fail_critical "Failed to update package lists (dnf makecache)."
+        fi
+    elif [[ "$PKG_MANAGER" == "pacman" ]]; then
+        if ! ${SUDO_CMD:-} pacman -Sy >/dev/null 2>>"${LOG_FILE}"; then
+            fail_critical "Failed to update package lists (pacman -Sy)."
         fi
     else
         fail_critical "pkg_update not implemented for $PKG_MANAGER"
@@ -46,6 +48,11 @@ pkg_install() {
         if ! ${SUDO_CMD:-} dnf install -yq ${pkgs} >/dev/null 2>>"${LOG_FILE}"; then
             fail_critical "Failed to install packages: ${pkgs}"
         fi
+    elif [[ "$PKG_MANAGER" == "pacman" ]]; then
+        # shellcheck disable=SC2086
+        if ! ${SUDO_CMD:-} pacman -S --noconfirm --needed ${pkgs} >/dev/null 2>>"${LOG_FILE}"; then
+            fail_critical "Failed to install packages: ${pkgs}"
+        fi
     else
         fail_critical "pkg_install not implemented for $PKG_MANAGER"
     fi
@@ -57,6 +64,8 @@ pkg_is_installed() {
         dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "ok installed"
     elif [[ "$PKG_MANAGER" == "dnf" ]]; then
         rpm -q "$pkg" >/dev/null 2>&1
+    elif [[ "$PKG_MANAGER" == "pacman" ]]; then
+        pacman -Q "$pkg" >/dev/null 2>&1
     else
         fail_critical "pkg_is_installed not implemented for $PKG_MANAGER"
     fi
@@ -68,6 +77,8 @@ pkg_is_available() {
         apt-cache show "$pkg" >/dev/null 2>&1
     elif [[ "$PKG_MANAGER" == "dnf" ]]; then
         dnf list available "$pkg" >/dev/null 2>&1 || dnf list installed "$pkg" >/dev/null 2>&1
+    elif [[ "$PKG_MANAGER" == "pacman" ]]; then
+        pacman -Si "$pkg" >/dev/null 2>&1 || pacman -Qi "$pkg" >/dev/null 2>&1
     else
         fail_critical "pkg_is_available not implemented for $PKG_MANAGER"
     fi

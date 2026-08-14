@@ -66,4 +66,7 @@ The Package API now explicitly routes identical module requests (`pkg_install cu
 
 **Current Support Horizon**: While DNF is fully implemented, modules deploying third-party repositories (e.g. VS Code, Chrome, Docker) are intentionally incompatible with Fedora because they still encode Debian `.deb` constraints. These modules are deferred to future package-source adaptation phases.
 
-### Phase 4: Arch / Pacman Backend (Next)
+### Phase 4: Arch Support (Implemented)
+The Package API now supports Pacman. `Platform Context` successfully identifies Arch and directs generic operations (e.g. `pkg_install`) to `pacman` internally without affecting modules.
+
+**Current Support Horizon**: Similar to Fedora, third-party vendor modules remain incompatible with Arch until future package-source adaptation phases resolve their Debian/APT repository limitations.

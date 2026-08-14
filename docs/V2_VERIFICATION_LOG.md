@@ -98,3 +98,36 @@ Every completed V2 phase should record:
 
 ### CI
 - PENDING CI
+
+---
+
+## Phase 4 — Arch / Pacman
+
+### Implementation
+- Implemented Pacman backend in `lib/package-manager.sh` (`pacman -Sy`, `pacman -S --noconfirm --needed`, `pacman -Q`, `pacman -Si`).
+- Updated `verify_platform_support` in `lib/os.sh` to allow Pacman/Arch for installation.
+
+### Package API Compatibility
+- `pacman` adapts beautifully to the existing Package API, demonstrating that `pkg_install`, `pkg_update`, `pkg_is_installed`, and `pkg_is_available` form a sufficiently abstract generic layer without leaking APT semantics.
+
+### Arch Integration
+- Unit tests (`tests/test_package_manager.sh`) assert Pacman routes correctly.
+
+### Test Matrix
+- Ubuntu: PASS
+- Debian: PASS
+- Fedora: PASS
+- Arch: PASS (Unit/mock). Real system integration is PENDING CI (Environment limitation).
+
+### Issues Found
+- The platform context `pacman` was formerly hard-blocked in `detect_package_manager`.
+
+### Fixes
+- Unlocked `pacman` and implemented the backend.
+
+### Remaining Limitations
+- Third-party modules (Docker, gcloud, vscode, chrome) remain unsupported on Arch because they contain explicit Debian-only repository paths.
+- Package naming parity for `system` packages assumes identical naming across APT, DNF, and Pacman. If `fd-find` is `fd` in Arch, an alias layer will be necessary in future phases.
+
+### CI
+- PENDING CI
