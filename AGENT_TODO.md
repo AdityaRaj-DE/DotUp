@@ -1,11 +1,11 @@
 # Autonomous Agent Roadmap (AGENT_TODO.md)
 
 ## Project State
-**Current Version**: V1.0.0-rc
-**Current Phase**: Phase 11 (CLI Wrapper & Polish)
-**Current Task**: Implement unified `dotup` CLI and finalize V1 Definition of Done.
+**Current Version**: V2 Branch Baseline
+**Current Phase**: Phase 0 (Foundation, Stabilization & V2 Baseline)
+**Current Task**: Completed V1 audit, set regression baseline, and documented V2 architecture.
 
-## Completed Work
+## Completed Work (V1)
 - [x] Repository audit and status documentation
 - [x] Core module framework, logging, and sudo handling
 - [x] Implementation of System, Git, Terminal, Node, Python, Java, Docker, GCloud, VS Code, Chrome modules
@@ -17,27 +17,34 @@
 - [x] Local Docker test matrix
 - [x] V1 Documentation
 
-## Incomplete Work (Next Phases)
-### Phase 13: Documentation & Release Consistency
-- [x] Complete full repository documentation audit.
-- [x] Replace obsolete names ("DevBootstrap").
-- [x] Rewrite README.md for V1.1.0 context.
+## Completed Work (V2 Phase 0)
+- [x] Confirmed V2 branch and preserved Git state.
+- [x] Audited V1 baseline and version inconsistencies (updated `dotup` script to `v2.0.0-dev`).
+- [x] Corrected `STATE_MODEL.md` (no persistent state file exists yet).
+- [x] Created `docs/V2_ARCHITECTURE.md`, `docs/V2_IMPLEMENTATION_PLAN.md`, and `docs/V2_MIGRATION_PLAN.md`.
+- [x] Reconciled documentation and `AGENT_TODO.md` to reflect V2.
 
-*V1 implementation       COMPLETE*
-*V1 CI validation        COMPLETE*
-*V1 release validation   COMPLETE*
-*V1.1.0 release          COMPLETE*
-*Documentation audit     COMPLETE*
+## Incomplete Work (Next Phases)
+### Phase 1: Platform Model / Platform Context
+- [ ] Introduce a `Platform Context` to reliably detect OS details.
+- [ ] Centralize OS detection logic in `lib/os.sh`.
+
+### Phase 2: Package Abstraction
+- [ ] Abstract package management behind a unified interface (`pkg_install`, `pkg_remove`).
+- [ ] Remove hardcoded `apt-get` calls from modules.
+
+### Phase 3: Fedora Support
+- [ ] Implement DNF backend.
+- [ ] Verify module compatibility and add Fedora Docker tests.
 
 ## Known Problems
-- Local Docker tests cannot be verified on the current host due to Docker Engine errors (`500 Internal Server Error`). Tests must rely on GitHub Actions CI.
-- GUI applications (Chrome/VS Code/Antigravity) can only be partially validated in headless Docker matrices (e.g. checking if `apt-get` succeeded or the binary exists). Deep visual validation requires a true VM or host desktop.
+- Local Docker tests cannot be verified on the current host due to environment limitations (WSL missing `bash` or Docker Engine errors). Tests must rely on GitHub Actions CI.
+- GUI applications (Chrome/VS Code/Antigravity) can only be partially validated in headless Docker matrices.
 
-## Definition of Done (V1)
-- The project successfully installs and repairs a developer environment autonomously.
-- A user can run `curl | bash` securely.
-- After installation, the `dotup` CLI is available.
-- CI/CD pipelines automate testing and GitHub Release artifacts.
+## Definition of Done (V2 Baseline)
+- The V2 branch is clean, documented, and ready for platform abstraction work.
+- Existing V1 behavior remains unchanged.
+- The roadmap clearly dictates the next step: Platform Model.
 
 ## Agent Rules
 1. Read this `AGENT_TODO.md` at the start of every session.
@@ -47,4 +54,4 @@
 5. Proceed autonomously until the phase is complete or user input is blocked.
 
 ## Next Action
-Complete Phase 12 Validation tests, generate the final status report, and transition the repository into a release-ready state.
+Begin **Phase 1: Platform Model**. Update `lib/os.sh` to expose detailed platform context (OS family, version) without modifying the module contract yet.
