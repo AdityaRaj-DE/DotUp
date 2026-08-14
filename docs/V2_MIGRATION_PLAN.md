@@ -20,7 +20,7 @@ Once all modules are migrated and tested across platforms, the old raw `apt` cal
 
 ## What Changes
 - **Modules**: Will use abstraction functions. `modules/infrastructure/docker.sh` uses Platform API. `modules/system/packages.sh` uses Package API (`pkg_is_installed`, `pkg_is_available`).
-- **Package Manager**: Routes commands to `apt` (implemented), with structure ready for `dnf`, or `pacman`.
+- **Package Manager**: Routes commands to `apt` or `dnf` dynamically based on Platform Context.
 - **Profiles**: Will eventually migrate to YAML, but `.conf` will remain supported temporarily.
 
 ## What Remains Unchanged

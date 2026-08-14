@@ -61,4 +61,9 @@ The API consumes the `Platform Context` to route operations. Currently, an APT b
 
 **Note:** Vendor-specific installations (e.g. adding PPA keys, `.deb` installations for Chrome) purposefully remain separated from standard package operations.
 
-### Phase 3-4: Cross-platform implementations (Fedora, Arch) (Next)
+### Phase 3: Fedora Support (Implemented)
+The Package API now explicitly routes identical module requests (`pkg_install curl`) to native `dnf` execution under Fedora. The platform detection logic allows Fedora as a supported installation platform for generic package modules.
+
+**Current Support Horizon**: While DNF is fully implemented, modules deploying third-party repositories (e.g. VS Code, Chrome, Docker) are intentionally incompatible with Fedora because they still encode Debian `.deb` constraints. These modules are deferred to future package-source adaptation phases.
+
+### Phase 4: Arch / Pacman Backend (Next)

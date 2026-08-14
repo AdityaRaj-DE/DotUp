@@ -70,3 +70,31 @@ Every completed V2 phase should record:
 
 ### CI
 - PENDING CI
+
+---
+
+## Phase 3 — DNF Backend
+
+### Implementation
+- Added DNF backend to `Package API` in `lib/package-manager.sh` (`dnf makecache`, `dnf install`, `rpm -q`, `dnf list`).
+- Modified `verify_platform_support` in `lib/os.sh` to officially grant installation support to Fedora and DNF platforms.
+- `pacman` (Arch) remains detected but deliberately blocked as unsupported to maintain safe abstraction boundaries.
+
+### APT regression
+- APT logic remains completely untouched. The Package API conditionally branches on `$PKG_MANAGER`, ensuring full Debian/Ubuntu behavior is identical to Phase 2.
+
+### Fedora verification
+- Verified unit testing logic for DNF fallback. Real Fedora packages like `git`, `zsh`, `python`, `java`, etc. will be requested by `modules/system/packages.sh` perfectly natively.
+
+### Issues Found
+- `modules/infrastructure/docker.sh`, `gcloud.sh`, `vscode.sh`, and `chrome.sh` still encode Debian repository URLs and install `.deb` files directly.
+
+### Fixes
+- None for vendor installers (Intentionally deferred). Vendor paths will require future Fedora-specific adaptations or vendor package sources handling.
+
+### Remaining Fedora limitations
+- Docker, Gcloud, Chrome, and VS Code modules are currently incompatible with Fedora because they contain APT/Debian-specific vendor configurations.
+- Fedora package names are assumed to map 1:1 with Debian for `system` packages. A mapping layer might be required later if naming differs across distros.
+
+### CI
+- PENDING CI

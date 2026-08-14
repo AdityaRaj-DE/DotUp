@@ -40,6 +40,37 @@ apt-cache() {
     fi
 }
 
+dnf() {
+    if [[ "$1" == "list" && "$2" == "available" ]]; then
+        if [[ "$_MOCK_PKG_AVAILABLE" == "true" ]]; then
+            return 0
+        else
+            return 1
+        fi
+    elif [[ "$1" == "list" && "$2" == "installed" ]]; then
+        if [[ "$_MOCK_PKG_INSTALLED" == "true" ]]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+    echo "mock dnf $@"
+    if [[ "$_MOCK_DNF_FAIL" == "true" ]]; then
+        return 1
+    fi
+    return 0
+}
+
+rpm() {
+    if [[ "$1" == "-q" ]]; then
+        if [[ "$_MOCK_PKG_INSTALLED" == "true" ]]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+}
+
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 source "${SCRIPT_DIR}/../lib/package-manager.sh"
 
@@ -91,18 +122,37 @@ run_test "pkg_is_available (true)" "pkg_is_available" "btop" 0
 _MOCK_PKG_AVAILABLE="false"
 run_test "pkg_is_available (false)" "pkg_is_available" "btop" 1
 
-# Tests for unsupported package manager
+# Tests for DNF
 _MOCK_PLATFORM_PM="dnf"
 PKG_MANAGER="dnf"
-run_test "pkg_is_installed (dnf)" "pkg_is_installed" "curl" "fail" "not implemented"
-run_test "pkg_is_available (dnf)" "pkg_is_available" "curl" "fail" "not implemented"
-run_test "pkg_update (dnf)" "pkg_update" "" "fail" "not implemented"
-run_test "pkg_install (dnf)" "pkg_install" "curl" "fail" "not implemented"
+_MOCK_PKG_INSTALLED="true"
+run_test "pkg_is_installed (dnf, true)" "pkg_is_installed" "curl" 0
+
+_MOCK_PKG_INSTALLED="false"
+run_test "pkg_is_installed (dnf, false)" "pkg_is_installed" "curl" 1
+
+_MOCK_PKG_AVAILABLE="true"
+run_test "pkg_is_available (dnf, true)" "pkg_is_available" "btop" 0
+
+_MOCK_PKG_AVAILABLE="false"
+run_test "pkg_is_available (dnf, false)" "pkg_is_available" "btop" 1
+
+# Tests for unsupported package manager (pacman)
+_MOCK_PLATFORM_PM="pacman"
+PKG_MANAGER="pacman"
+run_test "pkg_is_installed (pacman)" "pkg_is_installed" "curl" "fail" "not implemented"
+run_test "pkg_is_available (pacman)" "pkg_is_available" "curl" "fail" "not implemented"
+run_test "pkg_update (pacman)" "pkg_update" "" "fail" "not implemented"
+run_test "pkg_install (pacman)" "pkg_install" "curl" "fail" "not implemented"
 
 # Test detect_package_manager success and fail
 _MOCK_PLATFORM_PM="apt"
 run_test "detect_package_manager (apt)" "detect_package_manager" "" 0
 _MOCK_PLATFORM_PM="dnf"
-run_test "detect_package_manager (dnf)" "detect_package_manager" "" "fail" "not currently supported"
+run_test "detect_package_manager (dnf)" "detect_package_manager" "" 0
+_MOCK_PLATFORM_PM="pacman"
+run_test "detect_package_manager (pacman)" "detect_package_manager" "" "fail" "not implemented yet"
+_MOCK_PLATFORM_PM="unknown"
+run_test "detect_package_manager (unknown)" "detect_package_manager" "" "fail" "not currently supported"
 
 echo "All package-manager tests passed!"
