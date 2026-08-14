@@ -1,0 +1,43 @@
+# DotUp Configuration Schema (V1)
+# This schema defines the structure of dotup.yaml
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DotUp Environment Configuration"
+type: "object"
+required:
+  - "schema_version"
+  - "profile"
+  - "modules"
+
+properties:
+  schema_version:
+    type: "integer"
+    enum: [1]
+    description: "The version of the configuration schema."
+
+  profile:
+    type: "object"
+    required:
+      - "name"
+    properties:
+      name:
+        type: "string"
+        description: "The name of the environment profile."
+      description:
+        type: "string"
+        description: "Optional description of the environment."
+    additionalProperties: false
+
+  modules:
+    type: "object"
+    description: "Map of modules to install and their optional configuration."
+    patternProperties:
+      "^[a-zA-Z0-9_-]+$":
+        type: ["object", "null"]
+        properties:
+          version:
+            type: ["string", "number"]
+            description: "Optional version constraint for the module."
+        additionalProperties: true
+
+additionalProperties: false

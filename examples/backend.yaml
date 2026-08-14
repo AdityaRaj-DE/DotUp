@@ -1,0 +1,17 @@
+schema_version: 1
+
+profile:
+  name: backend
+  description: "Standard backend development environment"
+
+modules:
+  system: {}
+  git: {}
+  zsh: {}
+  node:
+    version: "20"
+  python:
+    version: "3.13"
+  java: {}
+  docker: {}
+  gcloud: {}
