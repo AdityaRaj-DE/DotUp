@@ -16,15 +16,14 @@ docker_install() {
     ${SUDO_CMD:-} curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
     ${SUDO_CMD:-} chmod a+r /etc/apt/keyrings/docker.asc
 
-    # shellcheck disable=SC1091
-    source /etc/os-release
-    local id_name="${ID}"
+    local id_name
+    id_name=$(platform_dist_id)
     if [[ "$id_name" == "linuxmint" ]] || [[ "$id_name" == "pop" ]]; then
         id_name="ubuntu"
     fi
 
     echo \
-        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${id_name} \
+        "deb [arch=$(platform_architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${id_name} \
       $(lsb_release -cs) stable" |
         ${SUDO_CMD:-} tee /etc/apt/sources.list.d/docker.list >/dev/null
 

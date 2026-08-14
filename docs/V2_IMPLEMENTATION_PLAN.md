@@ -4,7 +4,7 @@
 - **Objective:** Audit the V1 baseline, correct documentation, and ensure a clean V2 foundation without modifying behavior.
 - **Completion Criteria:** Documentation reconciled, incorrect version markers removed, test regression suite verified.
 
-## Phase 1 — Platform Model
+## Phase 1 — Platform Model (Complete)
 - **Objective:** Introduce a `Platform Context` to reliably detect and expose OS details (OS family, version, architecture).
 - **Completion Criteria:** A central `lib/os.sh` abstraction providing clear facts for modules to branch on.
 

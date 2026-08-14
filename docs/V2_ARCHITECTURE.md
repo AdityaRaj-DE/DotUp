@@ -37,7 +37,17 @@ Orchestrator
    apt / dnf / pacman
 ```
 
-### Phase Mapping
-- **Phase 1-2:** Platform Context & Package Abstraction
-- **Phase 3-4:** Cross-platform implementations (Fedora, Arch)
-- **Future Phases:** Declarative state engine, plan/apply capabilities, advanced configuration.
+### Phase 1: Platform Context (Implemented)
+A centralized Platform Context now exists in `lib/os.sh` providing a clear API for querying OS capabilities. Modules no longer parse `/etc/os-release` independently.
+
+API:
+- `platform_distribution()`: e.g., Ubuntu, Fedora, Arch
+- `platform_version()`: e.g., 24.04, 40
+- `platform_dist_id()`: e.g., ubuntu, fedora, arch
+- `platform_architecture()`: normalized to amd64, arm64, armhf, unknown
+- `platform_package_manager()`: e.g., apt, dnf, pacman
+- `platform_init_system()`: e.g., systemd
+
+**Distinction:** The Platform Context distinguishes between *detected* platforms and *supported* platforms. While Fedora and Arch can be detected, they remain explicitly unsupported for installation until later phases.
+
+### Phase 2: Package Abstraction (Next)
