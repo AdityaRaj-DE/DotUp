@@ -143,6 +143,10 @@ run_test "pkg_is_available (true)" "pkg_is_available" "btop" 0
 _MOCK_PKG_AVAILABLE="false"
 run_test "pkg_is_available (false)" "pkg_is_available" "btop" 1
 
+MOCK_LOCAL_DEB="${TMP_DIR}/test.deb"
+touch "$MOCK_LOCAL_DEB"
+run_test "pkg_install_local (apt, success)" "pkg_install_local" "$MOCK_LOCAL_DEB" 0
+
 # Tests for DNF
 _MOCK_PLATFORM_PM="dnf"
 PKG_MANAGER="dnf"
@@ -157,6 +161,8 @@ run_test "pkg_is_available (dnf, true)" "pkg_is_available" "btop" 0
 
 _MOCK_PKG_AVAILABLE="false"
 run_test "pkg_is_available (dnf, false)" "pkg_is_available" "btop" 1
+
+run_test "pkg_install_local (dnf, success)" "pkg_install_local" "$MOCK_LOCAL_DEB" 0
 
 # Tests for Pacman
 _MOCK_PLATFORM_PM="pacman"
@@ -173,6 +179,8 @@ run_test "pkg_is_available (pacman, true)" "pkg_is_available" "btop" 0
 _MOCK_PKG_AVAILABLE="false"
 run_test "pkg_is_available (pacman, false)" "pkg_is_available" "btop" 1
 
+run_test "pkg_install_local (pacman, success)" "pkg_install_local" "$MOCK_LOCAL_DEB" 0
+
 # Tests for unsupported package manager (unknown)
 _MOCK_PLATFORM_PM="unknown"
 PKG_MANAGER="unknown"
@@ -180,6 +188,7 @@ run_test "pkg_is_installed (unknown)" "pkg_is_installed" "curl" "fail" "not impl
 run_test "pkg_is_available (unknown)" "pkg_is_available" "curl" "fail" "not implemented"
 run_test "pkg_update (unknown)" "pkg_update" "" "fail" "not implemented"
 run_test "pkg_install (unknown)" "pkg_install" "curl" "fail" "not implemented"
+run_test "pkg_install_local (unknown)" "pkg_install_local" "$MOCK_LOCAL_DEB" "fail" "not implemented"
 
 # Test detect_package_manager success and fail
 _MOCK_PLATFORM_PM="apt"
@@ -190,5 +199,8 @@ _MOCK_PLATFORM_PM="pacman"
 run_test "detect_package_manager (pacman)" "detect_package_manager" "" 0
 _MOCK_PLATFORM_PM="unknown"
 run_test "detect_package_manager (unknown)" "detect_package_manager" "" "fail" "not currently supported"
+
+# Cleanup mock file
+rm -f "$MOCK_LOCAL_DEB"
 
 echo "All package-manager tests passed!"

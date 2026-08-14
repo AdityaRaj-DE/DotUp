@@ -12,23 +12,35 @@ docker_detect() {
 docker_install() {
     log_info "Installing Docker..."
 
-    ${SUDO_CMD:-} install -m 0755 -d /etc/apt/keyrings
-    ${SUDO_CMD:-} curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-    ${SUDO_CMD:-} chmod a+r /etc/apt/keyrings/docker.asc
+    if [[ "$PKG_MANAGER" == "apt" ]]; then
+        ${SUDO_CMD:-} install -m 0755 -d /etc/apt/keyrings
+        ${SUDO_CMD:-} curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+        ${SUDO_CMD:-} chmod a+r /etc/apt/keyrings/docker.asc
 
-    local id_name
-    id_name=$(platform_dist_id)
-    if [[ "$id_name" == "linuxmint" ]] || [[ "$id_name" == "pop" ]]; then
-        id_name="ubuntu"
+        local id_name
+        id_name=$(platform_dist_id)
+        if [[ "$id_name" == "linuxmint" ]] || [[ "$id_name" == "pop" ]]; then
+            id_name="ubuntu"
+        fi
+
+        echo \
+            "deb [arch=$(platform_architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${id_name} \
+          $(lsb_release -cs) stable" |
+            ${SUDO_CMD:-} tee /etc/apt/sources.list.d/docker.list >/dev/null
+
+        pkg_update
+        pkg_install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    elif [[ "$PKG_MANAGER" == "dnf" ]]; then
+        pkg_install dnf-plugins-core
+        ${SUDO_CMD:-} dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+        pkg_update
+        pkg_install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    elif [[ "$PKG_MANAGER" == "pacman" ]]; then
+        pkg_update
+        pkg_install docker docker-compose
+    else
+        fail_critical "Unsupported package manager for Docker installation."
     fi
-
-    echo \
-        "deb [arch=$(platform_architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${id_name} \
-      $(lsb_release -cs) stable" |
-        ${SUDO_CMD:-} tee /etc/apt/sources.list.d/docker.list >/dev/null
-
-    pkg_update
-    pkg_install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 }
 
 docker_repair() {

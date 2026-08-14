@@ -18,10 +18,20 @@ chrome_install() {
         return
     fi
 
-    local tmp_deb="${TMP_DIR}/google-chrome-stable_current_amd64.deb"
-    curl -fsSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o "$tmp_deb" || fail_critical "Failed to download Google Chrome."
+    local tmp_file
+    if [[ "$PKG_MANAGER" == "apt" ]]; then
+        tmp_file="${TMP_DIR}/google-chrome-stable_current_amd64.deb"
+        curl -fsSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o "$tmp_file" || fail_critical "Failed to download Google Chrome."
+    elif [[ "$PKG_MANAGER" == "dnf" ]]; then
+        tmp_file="${TMP_DIR}/google-chrome-stable_current_x86_64.rpm"
+        curl -fsSL https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm -o "$tmp_file" || fail_critical "Failed to download Google Chrome."
+    elif [[ "$PKG_MANAGER" == "pacman" ]]; then
+        fail_critical "Google Chrome installation via script is unsupported on Arch. Use an AUR helper like yay to install google-chrome."
+    else
+        fail_critical "Unsupported package manager for Chrome installation."
+    fi
 
-    ${SUDO_CMD:-} apt-get install -yq "$tmp_deb" >/dev/null 2>>"${LOG_FILE}" || fail_critical "Failed to install Google Chrome."
+    pkg_install_local "$tmp_file"
 }
 
 chrome_repair() {

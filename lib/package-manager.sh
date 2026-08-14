@@ -58,6 +58,30 @@ pkg_install() {
     fi
 }
 
+pkg_install_local() {
+    local file_path="$1"
+    log_info "Installing local package: ${file_path}"
+    if [[ ! -f "$file_path" ]]; then
+        fail_critical "Local package file not found: $file_path"
+    fi
+
+    if [[ "$PKG_MANAGER" == "apt" ]]; then
+        if ! env DEBIAN_FRONTEND=noninteractive ${SUDO_CMD:-} apt-get install -yq "$file_path" >/dev/null 2>>"${LOG_FILE}"; then
+            fail_critical "Failed to install local package: ${file_path}"
+        fi
+    elif [[ "$PKG_MANAGER" == "dnf" ]]; then
+        if ! ${SUDO_CMD:-} dnf install -yq "$file_path" >/dev/null 2>>"${LOG_FILE}"; then
+            fail_critical "Failed to install local package: ${file_path}"
+        fi
+    elif [[ "$PKG_MANAGER" == "pacman" ]]; then
+        if ! ${SUDO_CMD:-} pacman -U --noconfirm "$file_path" >/dev/null 2>>"${LOG_FILE}"; then
+            fail_critical "Failed to install local package: ${file_path}"
+        fi
+    else
+        fail_critical "pkg_install_local not implemented for $PKG_MANAGER"
+    fi
+}
+
 pkg_is_installed() {
     local pkg="$1"
     if [[ "$PKG_MANAGER" == "apt" ]]; then

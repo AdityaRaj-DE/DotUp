@@ -19,8 +19,8 @@ Modules are updated one-by-one to use `pkg_install` instead of `apt-get install`
 Once all modules are migrated and tested across platforms, the old raw `apt` calls are deprecated and removed.
 
 ## What Changes
-- **Modules**: Will use abstraction functions. `modules/infrastructure/docker.sh` uses Platform API. `modules/system/packages.sh` uses Package API (`pkg_is_installed`, `pkg_is_available`).
-- **Package Manager**: Routes commands to `apt`, `dnf`, or `pacman` dynamically based on Platform Context.
+- **Modules**: Will use abstraction functions. `modules/infrastructure/docker.sh` uses Platform API. `modules/system/packages.sh` uses Package API (`pkg_is_installed`, `pkg_is_available`). Vendor modules (Docker, VS Code, Chrome, gcloud) natively branch to configure OS-specific third-party repositories for Fedora and Debian.
+- **Package Manager**: Routes commands to `apt`, `dnf`, or `pacman` dynamically based on Platform Context. Adds `pkg_install_local` for direct `.deb` or `.rpm` file installs.
 - **Profiles**: Will eventually migrate to YAML, but `.conf` will remain supported temporarily.
 
 ## What Remains Unchanged

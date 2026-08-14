@@ -12,14 +12,21 @@ gcloud_detect() {
 gcloud_install() {
     log_info "Installing Google Cloud CLI..."
 
-    pkg_install apt-transport-https ca-certificates gnupg curl
-
-    ${SUDO_CMD:-} curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | ${SUDO_CMD:-} gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg --yes
-
-    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | ${SUDO_CMD:-} tee /etc/apt/sources.list.d/google-cloud-sdk.list
-
-    pkg_update
-    pkg_install google-cloud-cli
+    if [[ "$PKG_MANAGER" == "apt" ]]; then
+        pkg_install apt-transport-https ca-certificates gnupg curl
+        ${SUDO_CMD:-} curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | ${SUDO_CMD:-} gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg --yes
+        echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | ${SUDO_CMD:-} tee /etc/apt/sources.list.d/google-cloud-sdk.list
+        pkg_update
+        pkg_install google-cloud-cli
+    elif [[ "$PKG_MANAGER" == "dnf" ]]; then
+        echo -e "[google-cloud-cli]\nname=Google Cloud CLI\nbaseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el9-x86_64\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=0\ngpgkey=https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg" | ${SUDO_CMD:-} tee /etc/yum.repos.d/google-cloud-sdk.repo >/dev/null
+        pkg_update
+        pkg_install google-cloud-cli
+    elif [[ "$PKG_MANAGER" == "pacman" ]]; then
+        fail_critical "Google Cloud CLI installation via script is unsupported on Arch. Use an AUR helper like yay to install google-cloud-cli."
+    else
+        fail_critical "Unsupported package manager for Google Cloud CLI installation."
+    fi
 }
 
 gcloud_repair() {

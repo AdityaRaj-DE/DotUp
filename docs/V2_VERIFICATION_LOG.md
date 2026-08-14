@@ -131,3 +131,27 @@ Every completed V2 phase should record:
 
 ### CI
 - PENDING CI
+
+---
+
+## Phase 5 — Installation Capability Model
+
+### Implementation
+- Added `pkg_install_local` capability to `Package API` in `lib/package-manager.sh` to allow installation of direct package files (`.deb`, `.rpm`, etc.).
+- Refactored `chrome.sh` to use `pkg_install_local` and download `.rpm` for DNF. Arch remains explicitly unsupported via script (requires AUR).
+- Refactored `vscode.sh`, `docker.sh`, and `gcloud.sh` to branch on `$PKG_MANAGER` natively, configuring the correct third-party repositories for Fedora (`.repo`) and Arch (`pacman`).
+- Added full support for Fedora repositories.
+- Unlocked `docker.sh` for Arch by installing native `docker` and `docker-compose` from community repositories.
+
+### Fixes
+- Avoided designing a heavy "generic repository abstraction", opting for simple `$PKG_MANAGER` branching in vendor modules, per project constraints.
+
+### Test Matrix
+- Unit tests pass for all mock environments (APT, DNF, Pacman).
+- Environment limitation blocks local execution, relies on CI.
+
+### Remaining Limitations
+- Arch Linux support for Chrome, VS Code, and gcloud remains deliberately unsupported by this script, as they require AUR helpers (e.g. `yay`) which are outside the scope of base package managers. These are properly logged and failed during `pkg_install`.
+
+### CI
+- PENDING CI

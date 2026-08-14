@@ -70,3 +70,7 @@ The Package API now explicitly routes identical module requests (`pkg_install cu
 The Package API now supports Pacman. `Platform Context` successfully identifies Arch and directs generic operations (e.g. `pkg_install`) to `pacman` internally without affecting modules.
 
 **Current Support Horizon**: Similar to Fedora, third-party vendor modules remain incompatible with Arch until future package-source adaptation phases resolve their Debian/APT repository limitations.
+
+### Phase 5: Installation Capability Model (Implemented)
+Vendor packages and third-party repositories have been refactored. Rather than a complex generic repository API, vendor installers use `$PKG_MANAGER` branching to implement native APT `sources.list`, DNF `.repo` files, or Pacman configurations directly.
+Additionally, a `pkg_install_local` API handles generic execution for directly downloaded packages (`.deb`, `.rpm`).
