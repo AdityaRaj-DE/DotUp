@@ -89,3 +89,9 @@ V2 introduces a robust declarative `State Engine` (`lib/state_engine.sh`) that e
 - **Actual State**: Detected side-effect free via the new module contract `<module>_detect_state`. Outputs are strictly line-oriented `key=value` formats for maximum security and portability.
 - **Difference Engine**: A central state comparator identifies required actions (`SATISFIED`, `INSTALL_REQUIRED`, `VERSION_CHANGE_REQUIRED`, `REPAIR_REQUIRED`).
 - **Separation of Concerns**: The detection process remains fully decoupled from the execution logic and the package manager backend.
+
+### Phase 7B: State Difference and Plan Engine (Implemented)
+Phase 7B connects the Phase 7A state differences into the active V2 loop in `install.sh`.
+- **Dry-Run Mode**: Introduced a `--plan` CLI flag that explicitly prints the differences without applying them.
+- **Execution Routing**: `execute_module_v2` was drafted to map `DIFF_STATE_*_action` dynamically to installation functions, but **this is currently disabled (Premature Phase 7C)**. Running `--config` without `--plan` now fails intentionally to enforce the read-only boundary of Phase 7B.
+- **V1 Legacy Isolation**: V1 `.conf` profile usage continues to route through the original legacy `execute_module` loop, providing a completely safe isolation of V2 logic from V1 workloads.

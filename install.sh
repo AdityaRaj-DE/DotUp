@@ -205,11 +205,14 @@ main() {
         if [[ $PLAN_MODE -eq 1 ]]; then
             print_plan
             exit 0
+        else
+            fail_critical "Phase 7C (V2 Apply) is not yet enabled. Please use --plan with V2 configurations."
         fi
 
-        for mod in "${modules_to_run[@]}"; do
-            execute_module_v2 "$mod"
-        done
+        # Premature Phase 7C functionality retained but disabled:
+        # for mod in "${modules_to_run[@]}"; do
+        #     execute_module_v2 "$mod"
+        # done
     else
         # V1 Legacy Profile Support
         local profile_file="${SCRIPT_DIR}/config/profiles/${PROFILE}.conf"
