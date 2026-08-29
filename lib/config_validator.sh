@@ -51,7 +51,7 @@ validate_config_semantics() {
         
         for var in ${!CONFIG_MODULE_*}; do
             if [[ "$var" == "$prefix"* ]]; then
-                local opt_key="${var#$prefix}"
+                local opt_key="${var#"$prefix"}"
                 local opt_val="${!var}"
                 
                 local mod_validate_fn="${safe_mod}_validate_options"

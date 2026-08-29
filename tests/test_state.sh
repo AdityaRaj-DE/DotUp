@@ -102,6 +102,7 @@ test_actual() {
         return 1
     fi
     
+    # shellcheck disable=SC2154
     if [[ "$ACTUAL_STATE_fake_module_status" != "UNKNOWN" ]]; then
         echo "Fake module status incorrect: $ACTUAL_STATE_fake_module_status"
         return 1
@@ -161,6 +162,7 @@ run_test "Compare Version Change Required" test_version_diff "pass"
 # Test semantic version match
 test_semantic_version() {
     # Override git actual version to match prefix of desired
+    # shellcheck disable=SC2034
     CONFIG_MODULE_git_version="2.45"
     
     collect_desired_state

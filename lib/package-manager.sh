@@ -66,6 +66,7 @@ pkg_install_local() {
     fi
 
     if [[ "$PKG_MANAGER" == "apt" ]]; then
+        # shellcheck disable=SC2086
         if ! env DEBIAN_FRONTEND=noninteractive ${SUDO_CMD:-} apt-get install -yq "$file_path" >/dev/null 2>>"${LOG_FILE}"; then
             fail_critical "Failed to install local package: ${file_path}"
         fi

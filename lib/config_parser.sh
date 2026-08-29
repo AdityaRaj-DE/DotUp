@@ -74,6 +74,7 @@ parse_config() {
             current_module=""
             
             if [[ "$key" == "schema_version" ]]; then
+                # shellcheck disable=SC2034
                 CONFIG_SCHEMA_VERSION="$val"
             elif [[ "$key" == "profile" ]]; then
                 in_profile=1
@@ -86,8 +87,10 @@ parse_config() {
             # Second level
             if [[ $in_profile -eq 1 ]]; then
                 if [[ "$key" == "name" ]]; then
+                    # shellcheck disable=SC2034
                     CONFIG_PROFILE_NAME="$val"
                 elif [[ "$key" == "description" ]]; then
+                    # shellcheck disable=SC2034
                     CONFIG_PROFILE_DESCRIPTION="$val"
                 else
                     fail_critical "Configuration parse error: Unknown profile field '${key}'"

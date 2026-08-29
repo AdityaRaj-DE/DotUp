@@ -66,10 +66,14 @@ run_test() {
     detect_os >/dev/null
 
     # Assertions
-    local actual_dist=$(platform_distribution)
-    local actual_arch=$(platform_architecture)
-    local actual_pkg=$(platform_package_manager)
-    local actual_init=$(platform_init_system)
+    local actual_dist
+    actual_dist=$(platform_distribution)
+    local actual_arch
+    actual_arch=$(platform_architecture)
+    local actual_pkg
+    actual_pkg=$(platform_package_manager)
+    local actual_init
+    actual_init=$(platform_init_system)
 
     if [[ "$actual_dist" != "$expected_dist" ]]; then
         echo "FAIL: Expected dist '$expected_dist', got '$actual_dist'"

@@ -26,7 +26,7 @@ collect_desired_state() {
         local prefix="CONFIG_MODULE_${safe_mod}_"
         for var in ${!CONFIG_MODULE_*}; do
             if [[ "$var" == "$prefix"* ]]; then
-                local opt_key="${var#$prefix}"
+                local opt_key="${var#"$prefix"}"
                 local opt_val="${!var}"
                 export "DESIRED_STATE_${safe_mod}_${opt_key}=${opt_val}"
             fi
