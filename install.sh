@@ -164,7 +164,7 @@ execute_module_v2() {
 main() {
     setup_logging
     echo -e "${BOLD}${CYAN}════════════════════════════════════${NC}"
-    echo -e "${BOLD}${CYAN} DotUp V1${NC}"
+    echo -e "${BOLD}${CYAN} DotUp${NC}"
     echo -e "${BOLD}${CYAN}════════════════════════════════════${NC}"
 
     log_info "Initializing..."
@@ -205,14 +205,12 @@ main() {
         if [[ $PLAN_MODE -eq 1 ]]; then
             print_plan
             exit 0
-        else
-            fail_critical "Phase 7C (V2 Apply) is not yet enabled. Please use --plan with V2 configurations."
         fi
 
-        # Premature Phase 7C functionality retained but disabled:
-        # for mod in "${modules_to_run[@]}"; do
-        #     execute_module_v2 "$mod"
-        # done
+        # Phase 7C: V2 Execution Routing
+        for mod in "${modules_to_run[@]}"; do
+            execute_module_v2 "$mod"
+        done
     else
         # V1 Legacy Profile Support
         local profile_file="${SCRIPT_DIR}/config/profiles/${PROFILE}.conf"

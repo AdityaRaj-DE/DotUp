@@ -215,3 +215,27 @@ Every completed V2 phase should record:
 
 ### Known Limitations
 - The comparison engine is naive regarding version strings. Standard exact string equality is used for `VERSION_CHANGE_REQUIRED`. A future semver layer might be required for `<` `>` matching.
+
+ - - - 
+ 
+ # #   P h a s e   7 C      V 2   A p p l y   /   E x e c u t i o n   R o u t i n g 
+ 
+ # # #   A r c h i t e c t u r e 
+ -   A c t i v a t e d   ` e x e c u t e _ m o d u l e _ v 2 `   i n   ` i n s t a l l . s h `   t o   c o n s u m e   t h e   ` D I F F _ S T A T E _ * _ a c t i o n `   f l a g s   f r o m   P h a s e   7 A . 
+ -   R e m o v e d   t h e   i n t e n t i o n a l   b l o c k a g e   t h a t   p r e v e n t e d   r u n n i n g   V 2   c o n f i g u r a t i o n s   w i t h o u t   ` - - p l a n ` . 
+ 
+ # # #   I m p l e m e n t a t i o n 
+ -   T h e   V 2   e x e c u t i o n   r o u t e r   p r o p e r l y   m a t c h e s   t h e   m o d u l e   l i f e c y c l e   h o o k s   ( ` _ i n s t a l l ` ,   ` _ c o n f i g u r e ` ,   ` _ r e p a i r ` ,   ` _ v a l i d a t e ` )   d y n a m i c a l l y . 
+ -   ` U N S U P P O R T E D `   s t a t e   a p p r o p r i a t e l y   s k i p s   e x e c u t i o n   w i t h   a   w a r n i n g . 
+ -   ` S A T I S F I E D `   s t a t e   s k i p s   i n s t a l l a t i o n   b u t   e n s u r e s   c o n f i g u r a t i o n   h o o k s   a r e   r u n   f o r   i d e m p o t e n c y . 
+ 
+ # # #   T e s t s 
+ -   E n v i r o n m e n t   l i m i t a t i o n   b l o c k s   l o c a l   e x e c u t i o n   ( W S L / D o c k e r ) ,   r e l i e s   o n   C I . 
+ 
+ # # #   K n o w n   L i m i t a t i o n s 
+ -   V 2   e x e c u t i o n   i s   u n t e s t e d   i n   f u l l   C I   p i p e l i n e s   a n d   r e q u i r e s   b r o a d   m a t r i x   t e s t i n g   f o r   r e g r e s s i o n s . 
+ 
+ # # #   C I 
+ -   P E N D I N G   C I 
+  
+ 
