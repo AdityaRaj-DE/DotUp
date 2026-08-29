@@ -30,6 +30,7 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 alias uname=mock_uname
 shopt -s expand_aliases
 
+# shellcheck disable=SC1091
 source "${SCRIPT_DIR}/../lib/os.sh"
 
 run_test() {

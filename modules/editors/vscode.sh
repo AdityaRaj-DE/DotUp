@@ -56,7 +56,9 @@ vscode_validate() {
 }
 
 vscode_validate_options() {
+    # shellcheck disable=SC2034
     local key="$1"
+    # shellcheck disable=SC2034
     local val="$2"
     return 1
 }

@@ -8,6 +8,7 @@ CONFIG_FILE=""
 while [[ "$#" -gt 0 ]]; do
     case $1 in
     --profile)
+        # shellcheck disable=SC2034
         PROFILE="$2"
         shift
         ;;

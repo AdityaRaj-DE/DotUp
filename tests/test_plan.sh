@@ -112,6 +112,7 @@ test_print_plan() {
        [[ "$output" == *"[UNSUPPORTED] unsupported_tool"* ]]; then
         return 0
     else
+        # shellcheck disable=SC2317
         echo "Output was: $output"
         return 1
     fi
