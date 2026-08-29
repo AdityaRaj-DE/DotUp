@@ -22,8 +22,10 @@ show_help() {
     echo "  version            Show dotup version"
     echo "  help               Show this help message"
     echo ""
-    echo "Options for install:"
-    echo "  --profile <name>   Specify the profile to install (e.g. full, minimal)"
+    echo "Options for install/doctor/repair:"
+    echo "  --config <path>    Specify a declarative V2 YAML configuration (Recommended)"
+    echo "  --plan             Dry-run mode to see what changes will be made (V2 only)"
+    echo "  --profile <name>   Specify a legacy V1 profile to install (e.g. full, minimal)"
 }
 
 COMMAND="${1:-help}"
