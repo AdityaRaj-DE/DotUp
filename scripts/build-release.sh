@@ -31,6 +31,7 @@ cp -r "${REPO_ROOT}/modules" "${STAGE_DIR}/"
 cp -r "${REPO_ROOT}/lib" "${STAGE_DIR}/"
 cp -r "${REPO_ROOT}/config" "${STAGE_DIR}/"
 cp -r "${REPO_ROOT}/docs" "${STAGE_DIR}/"
+cp -r "${REPO_ROOT}/examples" "${STAGE_DIR}/"
 cp "${REPO_ROOT}/README.md" "${STAGE_DIR}/"
 
 # Ensure all scripts are executable inside the release archive
