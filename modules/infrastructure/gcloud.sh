@@ -9,6 +9,14 @@ gcloud_detect() {
     fi
 }
 
+gcloud_detect_state() {
+    if command -v gcloud >/dev/null 2>&1; then
+        echo "status=INSTALLED"
+    else
+        echo "status=NOT_INSTALLED"
+    fi
+}
+
 gcloud_install() {
     log_info "Installing Google Cloud CLI..."
 

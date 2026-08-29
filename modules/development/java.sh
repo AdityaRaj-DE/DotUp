@@ -9,6 +9,19 @@ java_detect() {
     fi
 }
 
+java_detect_state() {
+    if command -v java >/dev/null 2>&1 && command -v javac >/dev/null 2>&1; then
+        echo "status=INSTALLED"
+        local v
+        v=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
+        if [[ -n "$v" ]]; then
+            echo "version=$v"
+        fi
+    else
+        echo "status=NOT_INSTALLED"
+    fi
+}
+
 java_install() {
     log_info "Installing Default JDK..."
     pkg_install default-jdk

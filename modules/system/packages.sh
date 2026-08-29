@@ -44,6 +44,22 @@ system_detect() {
     fi
 }
 
+system_detect_state() {
+    local missing=0
+    for pkg in "${SYSTEM_PACKAGES[@]}"; do
+        if ! pkg_is_installed "$pkg"; then
+            missing=1
+            break
+        fi
+    done
+
+    if [ $missing -eq 1 ]; then
+        echo "status=NOT_INSTALLED"
+    else
+        echo "status=INSTALLED"
+    fi
+}
+
 system_install() {
     log_info "Installing system base packages..."
     pkg_update

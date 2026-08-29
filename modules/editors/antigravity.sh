@@ -9,6 +9,14 @@ antigravity_detect() {
     fi
 }
 
+antigravity_detect_state() {
+    if command -v antigravity >/dev/null 2>&1; then
+        echo "status=INSTALLED"
+    else
+        echo "status=NOT_INSTALLED"
+    fi
+}
+
 antigravity_install() {
     log_info "Installing Antigravity..."
     log_warn "Antigravity installation skipped: No reliable/official Linux installation source available for V1."

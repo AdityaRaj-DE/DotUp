@@ -9,6 +9,14 @@ vscode_detect() {
     fi
 }
 
+vscode_detect_state() {
+    if command -v code >/dev/null 2>&1; then
+        echo "status=INSTALLED"
+    else
+        echo "status=NOT_INSTALLED"
+    fi
+}
+
 vscode_install() {
     log_info "Installing VS Code..."
     

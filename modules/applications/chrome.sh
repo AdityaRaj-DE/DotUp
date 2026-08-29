@@ -11,6 +11,16 @@ chrome_detect() {
     fi
 }
 
+chrome_detect_state() {
+    if command -v google-chrome >/dev/null 2>&1 || command -v google-chrome-stable >/dev/null 2>&1; then
+        echo "status=INSTALLED"
+    elif [[ -z "${DISPLAY:-}" && -z "${WAYLAND_DISPLAY:-}" ]]; then
+        echo "status=UNSUPPORTED"
+    else
+        echo "status=NOT_INSTALLED"
+    fi
+}
+
 chrome_install() {
     log_info "Installing Google Chrome..."
     if [[ -z "${DISPLAY:-}" && -z "${WAYLAND_DISPLAY:-}" ]]; then

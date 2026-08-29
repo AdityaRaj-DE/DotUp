@@ -13,6 +13,16 @@ zsh_detect() {
     echo "$state"
 }
 
+zsh_detect_state() {
+    if ! command -v zsh >/dev/null 2>&1; then
+        echo "status=NOT_INSTALLED"
+    elif [[ ! -d "${HOME}/.oh-my-zsh" ]]; then
+        echo "status=BROKEN"
+    else
+        echo "status=INSTALLED"
+    fi
+}
+
 zsh_install() {
     log_info "Installing zsh..."
     pkg_install zsh
