@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2317
 set -Eeuo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
@@ -185,13 +186,4 @@ if [[ $FAILURES -eq 0 ]]; then
 else
     echo -e "\n${RED}${FAILURES} state tests failed.${NC}"
     exit 1
-fi
-
-# Dummy calls to satisfy shellcheck SC2317 (unreachable code) for dynamically invoked functions
-if false; then
-    test_desired
-    test_actual
-    test_compare
-    test_version_diff
-    test_semantic_version
 fi

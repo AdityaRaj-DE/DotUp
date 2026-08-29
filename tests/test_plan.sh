@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2317
 set -Eeuo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
@@ -110,12 +111,9 @@ test_print_plan() {
        [[ "$output" == *"[INSTALL] python"* ]] && \
        [[ "$output" == *"[REPAIR] broken_tool"* ]] && \
        [[ "$output" == *"[UNSUPPORTED] unsupported_tool"* ]]; then
-        # shellcheck disable=SC2317
         return 0
     else
-        # shellcheck disable=SC2317
         echo "Output was: $output"
-        # shellcheck disable=SC2317
         return 1
     fi
 }
@@ -131,9 +129,4 @@ if [[ $FAILURES -eq 0 ]]; then
 else
     echo -e "\n${RED}${FAILURES} plan tests failed.${NC}"
     exit 1
-fi
-
-# Dummy calls to satisfy shellcheck SC2317 (unreachable code) for dynamically invoked functions
-if false; then
-    test_print_plan
 fi
