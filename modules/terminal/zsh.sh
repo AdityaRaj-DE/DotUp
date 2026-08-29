@@ -87,3 +87,9 @@ zsh_validate() {
     fi
     log_success "zsh and Oh My Zsh fully validated."
 }
+
+zsh_validate_options() {
+    local key="$1"
+    local val="$2"
+    return 1
+}

@@ -43,3 +43,12 @@ java_validate() {
     fi
     log_success "Java fully validated."
 }
+
+java_validate_options() {
+    local key="$1"
+    local val="$2"
+    if [[ "$key" == "version" ]]; then
+        return 0
+    fi
+    return 1
+}

@@ -54,3 +54,9 @@ vscode_validate() {
     fi
     log_success "VS Code fully validated."
 }
+
+vscode_validate_options() {
+    local key="$1"
+    local val="$2"
+    return 1
+}

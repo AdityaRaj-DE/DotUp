@@ -56,3 +56,9 @@ gcloud_validate() {
     fi
     log_success "Google Cloud CLI fully validated."
 }
+
+gcloud_validate_options() {
+    local key="$1"
+    local val="$2"
+    return 1
+}

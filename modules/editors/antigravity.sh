@@ -35,3 +35,9 @@ antigravity_validate() {
     log_debug "Validating Antigravity..."
     log_warn "Antigravity validation skipped."
 }
+
+antigravity_validate_options() {
+    local key="$1"
+    local val="$2"
+    return 1
+}

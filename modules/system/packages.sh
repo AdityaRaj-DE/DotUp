@@ -106,3 +106,9 @@ system_validate() {
     fi
     log_success "System base packages fully validated."
 }
+
+pkg_validate_options() {
+    local key="$1"
+    local val="$2"
+    return 1
+}

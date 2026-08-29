@@ -104,7 +104,7 @@ compare_state() {
             local desired_version="${!desired_version_var:-}"
             local actual_version="${!actual_version_var:-}"
             
-            if [[ -n "$desired_version" && "$desired_version" != "$actual_version" ]]; then
+            if [[ -n "$desired_version" && "$actual_version" != "$desired_version" && "$actual_version" != "$desired_version."* && "$actual_version" != "$desired_version-"* ]]; then
                 action="VERSION_CHANGE_REQUIRED"
             else
                 action="SATISFIED"

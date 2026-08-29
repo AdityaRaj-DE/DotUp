@@ -158,6 +158,23 @@ test_version_diff() {
 run_test "Compare Version Change Required" test_version_diff "pass"
 
 
+# Test semantic version match
+test_semantic_version() {
+    # Override git actual version to match prefix of desired
+    CONFIG_MODULE_git_version="2.45"
+    
+    collect_desired_state
+    collect_actual_state
+    compare_state
+    
+    if [[ "$DIFF_STATE_git_action" != "SATISFIED" ]]; then
+        echo "Git diff incorrect: $DIFF_STATE_git_action"
+        return 1
+    fi
+    return 0
+}
+run_test "Compare Semantic Version Match" test_semantic_version "pass"
+
 if [[ $FAILURES -eq 0 ]]; then
     echo -e "\n${GREEN}All state engine tests passed!${NC}"
     exit 0
@@ -165,3 +182,4 @@ else
     echo -e "\n${RED}${FAILURES} state tests failed.${NC}"
     exit 1
 fi
+

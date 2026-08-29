@@ -115,3 +115,9 @@ docker_validate() {
         log_success "Docker is fully validated and reachable."
     fi
 }
+
+docker_validate_options() {
+    local key="$1"
+    local val="$2"
+    return 1
+}

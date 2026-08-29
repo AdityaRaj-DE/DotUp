@@ -20,7 +20,7 @@ run_test() {
     bash "${REPO_ROOT}/scripts/build-release.sh" test
 
     echo "Running bootstrap and idempotency test on ${os_name}..."
-    docker run --rm -v "${REPO_ROOT}/dist:/dist" "$image_name" bash -c "DOTUP_LOCAL_TAR=/dist/dotup-test.tar.gz DOTUP_LOCAL_SHA=/dist/SHA256SUMS bash ./bootstrap.sh --profile minimal && echo '--- SECOND RUN ---' && cd /tmp/tmp.*/dotup-test && bash ./install.sh --profile minimal"
+    docker run --rm -v "${REPO_ROOT}/dist:/dist" "$image_name" bash -c "DOTUP_LOCAL_TAR=/dist/dotup-test.tar.gz DOTUP_LOCAL_SHA=/dist/SHA256SUMS bash ./bootstrap.sh --config examples/minimal.yaml && echo '--- SECOND RUN ---' && cd /tmp/tmp.*/dotup-test && bash ./install.sh --config examples/minimal.yaml"
 
     echo "Test on ${os_name} PASSED!"
 }

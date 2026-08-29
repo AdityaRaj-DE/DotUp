@@ -64,3 +64,9 @@ chrome_validate() {
     fi
     log_success "Google Chrome fully validated."
 }
+
+chrome_validate_options() {
+    local key="$1"
+    local val="$2"
+    return 1
+}

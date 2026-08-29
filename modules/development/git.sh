@@ -69,3 +69,9 @@ git_validate() {
     fi
     log_success "Git is fully validated."
 }
+
+git_validate_options() {
+    local key="$1"
+    local val="$2"
+    return 1
+}
