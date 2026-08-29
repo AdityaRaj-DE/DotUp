@@ -47,11 +47,13 @@ echo "Running State Engine Tests..."
 # Mock configuration
 CONFIG_MODULES=("git" "node" "python")
 CONFIG_MODULE_node_version="20"
+# shellcheck disable=SC2034
 CONFIG_MODULE_python_version="3.12"
 
 test_desired() {
     collect_desired_state
     
+    # shellcheck disable=SC2154
     if [[ "$DESIRED_STATE_git_status" != "INSTALLED" ]]; then
         echo "Git status incorrect: $DESIRED_STATE_git_status"
         return 1
@@ -185,3 +187,11 @@ else
     exit 1
 fi
 
+# Dummy calls to satisfy shellcheck SC2317 (unreachable code) for dynamically invoked functions
+if false; then
+    test_desired
+    test_actual
+    test_compare
+    test_version_diff
+    test_semantic_version
+fi

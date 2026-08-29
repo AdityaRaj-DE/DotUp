@@ -56,7 +56,7 @@ parse_config() {
 
         # Determine indentation level by counting leading spaces
         local indent
-        indent=$(expr "$line" : '^\( *\)')
+        indent=$(expr "$line" : '^\( *\)' || true)
         local indent_len=${#indent}
 
         local key

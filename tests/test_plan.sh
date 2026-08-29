@@ -132,3 +132,8 @@ else
     echo -e "\n${RED}${FAILURES} plan tests failed.${NC}"
     exit 1
 fi
+
+# Dummy calls to satisfy shellcheck SC2317 (unreachable code) for dynamically invoked functions
+if false; then
+    test_print_plan
+fi
