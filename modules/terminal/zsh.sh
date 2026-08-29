@@ -36,16 +36,22 @@ zsh_repair() {
 zsh_configure() {
     log_info "Configuring zsh and Oh My Zsh..."
 
-    if [[ "$SHELL" != *"zsh"* ]]; then
-        log_info "Changing default shell to zsh..."
-        if command -v zsh >/dev/null 2>&1; then
-            ${SUDO_CMD:-} chsh -s "$(command -v zsh)" "${USER:-$(whoami)}" || log_warn "Failed to change default shell to zsh. You may need to do it manually."
+    local zsh_path
+    if command -v zsh >/dev/null 2>&1; then
+        zsh_path=$(command -v zsh)
+        if [[ "$SHELL" != "$zsh_path" ]]; then
+            log_info "Changing default shell to zsh..."
+            if grep -q "$zsh_path" /etc/shells 2>/dev/null; then
+                ${SUDO_CMD:-} chsh -s "$zsh_path" "${USER:-$(whoami)}" || log_warn "Failed to change default shell to zsh. You may need to do it manually."
+            else
+                log_warn "zsh is not in /etc/shells. Skipping chsh."
+            fi
         fi
     fi
 
     if [[ ! -d "${HOME}/.oh-my-zsh" ]]; then
         log_info "Installing Oh My Zsh..."
-        RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || fail_critical "Failed to install Oh My Zsh"
+        git clone https://github.com/ohmyzsh/ohmyzsh.git "${HOME}/.oh-my-zsh" >/dev/null 2>&1 || fail_critical "Failed to clone Oh My Zsh repository."
     fi
 
     local p10k_dir="${HOME}/.oh-my-zsh/custom/themes/powerlevel10k"
@@ -56,18 +62,17 @@ zsh_configure() {
 
     local zshrc="${HOME}/.zshrc"
     if [[ ! -f "$zshrc" ]]; then
-        log_info "Creating default .zshrc..."
-        cat >"$zshrc" <<'EOF'
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(git)
-source $ZSH/oh-my-zsh.sh
-EOF
-    else
-        if ! grep -q "ZSH_THEME=\"powerlevel10k/powerlevel10k\"" "$zshrc"; then
-            log_info "Backing up .zshrc and updating theme..."
-            cp "$zshrc" "${zshrc}.backup.$(date +%s)"
+        log_info "Creating default .zshrc from template..."
+        cp "${HOME}/.oh-my-zsh/templates/zshrc.zsh-template" "$zshrc" || fail_critical "Failed to copy .zshrc template."
+    fi
+
+    if ! grep -q "ZSH_THEME=\"powerlevel10k/powerlevel10k\"" "$zshrc"; then
+        log_info "Backing up .zshrc and updating theme..."
+        cp "$zshrc" "${zshrc}.backup.$(date +%s)"
+        if grep -q "^ZSH_THEME=" "$zshrc"; then
             sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$zshrc"
+        else
+            echo 'ZSH_THEME="powerlevel10k/powerlevel10k"' >> "$zshrc"
         fi
     fi
 }

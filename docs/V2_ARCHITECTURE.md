@@ -111,3 +111,11 @@ Phase 7B connects the Phase 7A state differences into the active V2 loop in `ins
 - **Dry-Run Mode**: Introduced a `--plan` CLI flag that explicitly prints the differences without applying them.
 - **Execution Routing**: `execute_module_v2` is now enabled (Phase 7C), actively mapping `DIFF_STATE_*_action` to installation functions (`_install`, `_configure`, `_validate`, `_repair`). Running `--config` will execute the installation steps unless `--plan` is provided.
 - **V1 Legacy Isolation**: V1 `.conf` profile usage continues to route through the original legacy `execute_module` loop, providing a completely safe isolation of V2 logic from V1 workloads.
+
+### Phase 8: Shell Configuration & User Space (Implemented)
+
+The `zsh` terminal module has been refactored to eliminate insecure remote execution (`curl | sh`).
+- Oh My Zsh is deterministically installed via direct `git clone`.
+- The `.zshrc` is safely scaffolded from standard Oh My Zsh templates rather than hardcoded bash strings.
+- Shell handoff (`chsh`) safely validates environment constraints.
+- Avoids root (`sudo`) escalation unnecessarily during user-space plugin operations.
