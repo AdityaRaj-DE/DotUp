@@ -83,6 +83,5 @@ if ! tar -xzf "$TAR_FILE" -C "${TMP_DIR}"; then
 fi
 
 echo -e "${GREEN}Starting dotup installer...${NC}"
-cd "${TMP_DIR}/dotup-${VERSION}"
-chmod +x install.sh
-exec ./install.sh "$@"
+chmod +x "${TMP_DIR}/dotup-${VERSION}/install.sh"
+exec "${TMP_DIR}/dotup-${VERSION}/install.sh" "$@"
