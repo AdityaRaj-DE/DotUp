@@ -46,6 +46,7 @@ java_validate() {
 
 java_validate_options() {
     local key="$1"
+    # shellcheck disable=SC2034
     local val="$2"
     if [[ "$key" == "version" ]]; then
         return 0

@@ -110,10 +110,12 @@ test_print_plan() {
        [[ "$output" == *"[INSTALL] python"* ]] && \
        [[ "$output" == *"[REPAIR] broken_tool"* ]] && \
        [[ "$output" == *"[UNSUPPORTED] unsupported_tool"* ]]; then
+        # shellcheck disable=SC2317
         return 0
     else
         # shellcheck disable=SC2317
         echo "Output was: $output"
+        # shellcheck disable=SC2317
         return 1
     fi
 }
