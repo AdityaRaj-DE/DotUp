@@ -1,7 +1,12 @@
 # Changelog
 
-## [V1.0.0] - 2026-08-08
+## [V2.0.2] - 2026-09-04
 
+### Changed
+- **Git Module**: Replaced non-interactive git configuration warnings with interactive prompts for `user.name`, `user.email`, and SSH key generation, complete with existing config detection and automated safe backups. Added CI-detection to seamlessly skip prompts during non-interactive runs.
+- **Terminal Module**: Completely automated the Zsh/Powerlevel10k setup. Added JetBrains Mono Nerd Font download and system-wide installation. Replaced the generic `.zshrc` with parameterized custom dotfiles and added the `zsh-syntax-highlighting` plugin. Added `.bak` rotation for existing user configurations.
+
+## [V1.0.0] - 2026-08-08
 ### Added
 - **Core Framework**: Idempotent execution, structured logging, safe temporary directory management, and sudo privilege escalation.
 - **Profiles**: `minimal`, `full`, `backend`, `frontend`, `devops`.
