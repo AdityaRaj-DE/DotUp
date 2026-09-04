@@ -37,7 +37,7 @@ trim_quotes() {
 # Parses a dotup.yaml file and populates the global variables
 parse_config() {
     local file="$1"
-    
+
     if [[ ! -f "$file" ]]; then
         fail_critical "Configuration file not found: $file"
     fi
@@ -62,7 +62,7 @@ parse_config() {
         local key
         key="${line%%:*}"
         key="${key#"${key%%[![:space:]]*}"}" # trim leading space
-        
+
         local val
         val="${line#*:}"
         val=$(trim_quotes "$val")
@@ -72,7 +72,7 @@ parse_config() {
             in_profile=0
             in_modules=0
             current_module=""
-            
+
             if [[ "$key" == "schema_version" ]]; then
                 # shellcheck disable=SC2034
                 CONFIG_SCHEMA_VERSION="$val"
@@ -113,5 +113,5 @@ parse_config() {
         else
             fail_critical "Configuration parse error: Invalid indentation level (${indent_len} spaces)."
         fi
-    done < "$file"
+    done <"$file"
 }

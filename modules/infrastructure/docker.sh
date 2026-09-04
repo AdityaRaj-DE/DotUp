@@ -26,12 +26,12 @@ docker_detect_state() {
         echo "status=NOT_INSTALLED"
         return
     fi
-    
+
     if ! docker info >/dev/null 2>&1; then
         echo "status=BROKEN"
         return
     fi
-    
+
     echo "status=INSTALLED"
     local v
     # docker --version output is usually "Docker version 26.1.4, build 5650f9b"

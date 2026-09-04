@@ -18,13 +18,13 @@ node_detect_state() {
         echo "status=NOT_INSTALLED"
         return
     fi
-    
+
     # Check if fnm is there but node/npm are missing
     if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
         echo "status=BROKEN"
         return
     fi
-    
+
     echo "status=INSTALLED"
     local v
     v=$(node -v | sed 's/^v//')

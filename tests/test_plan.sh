@@ -17,10 +17,10 @@ run_test() {
     local expected_output="$5"
 
     echo -n "Test: ${name}... "
-    
+
     local output
     local exit_code=0
-    
+
     if output=$($func "$arg" 2>&1); then
         exit_code=0
     else
@@ -49,7 +49,7 @@ echo "Running Plan Engine Tests..."
 TEST_DIR="${SCRIPT_DIR}/tests/tmp"
 mkdir -p "$TEST_DIR"
 
-cat << 'EOF' > "${TEST_DIR}/plan_config.yaml"
+cat <<'EOF' >"${TEST_DIR}/plan_config.yaml"
 schema_version: 1
 profile:
   name: plan-test
@@ -79,7 +79,7 @@ test_print_plan() {
     DIFF_STATE_broken_tool_action="REPAIR_REQUIRED"
     # shellcheck disable=SC2034
     DIFF_STATE_unsupported_tool_action="UNSUPPORTED"
-    
+
     # We must source install.sh but we can't because it will run main.
     # Instead, we will extract print_plan and test it.
     local output
@@ -110,12 +110,12 @@ test_print_plan() {
         DIFF_STATE_unsupported_tool_action=\"UNSUPPORTED\"
         print_plan
     ")
-    
-    if [[ "$output" == *"[SATISFIED] git"* ]] && \
-       [[ "$output" == *"[UPDATE] node"* ]] && \
-       [[ "$output" == *"[INSTALL] python"* ]] && \
-       [[ "$output" == *"[REPAIR] broken_tool"* ]] && \
-       [[ "$output" == *"[UNSUPPORTED] unsupported_tool"* ]]; then
+
+    if [[ "$output" == *"[SATISFIED] git"* ]] &&
+        [[ "$output" == *"[UPDATE] node"* ]] &&
+        [[ "$output" == *"[INSTALL] python"* ]] &&
+        [[ "$output" == *"[REPAIR] broken_tool"* ]] &&
+        [[ "$output" == *"[UNSUPPORTED] unsupported_tool"* ]]; then
         return 0
     else
         echo "Output was: $output"

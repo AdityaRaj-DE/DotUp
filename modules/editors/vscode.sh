@@ -19,7 +19,7 @@ vscode_detect_state() {
 
 vscode_install() {
     log_info "Installing VS Code..."
-    
+
     if [[ "$PKG_MANAGER" == "apt" ]]; then
         pkg_install wget gpg apt-transport-https
         ${SUDO_CMD:-} wget -qO- https://packages.microsoft.com/keys/microsoft.asc | ${SUDO_CMD:-} gpg --dearmor >"${TMP_DIR}/packages.microsoft.gpg"

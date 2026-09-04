@@ -89,31 +89,31 @@ print_plan() {
     echo -e "\n${BOLD}${CYAN}════════════════════════════════════${NC}"
     echo -e "${BOLD}${CYAN} Execution Plan${NC}"
     echo -e "${BOLD}${CYAN}════════════════════════════════════${NC}"
-    
+
     for mod in "${CONFIG_MODULES[@]}"; do
         local safe_mod="${mod//-/_}"
         local action_var="DIFF_STATE_${safe_mod}_action"
         local action="${!action_var:-UNKNOWN}"
-        
+
         case "$action" in
-            SATISFIED)
-                echo -e "  [${GREEN}SATISFIED${NC}] ${mod}"
-                ;;
-            INSTALL_REQUIRED)
-                echo -e "  [${YELLOW}INSTALL${NC}]   ${mod}"
-                ;;
-            VERSION_CHANGE_REQUIRED)
-                echo -e "  [${YELLOW}UPDATE${NC}]    ${mod}"
-                ;;
-            REPAIR_REQUIRED)
-                echo -e "  [${RED}REPAIR${NC}]    ${mod}"
-                ;;
-            UNSUPPORTED)
-                echo -e "  [${RED}UNSUPPORTED${NC}] ${mod}"
-                ;;
-            *)
-                echo -e "  [${RED}UNKNOWN${NC}]   ${mod}"
-                ;;
+        SATISFIED)
+            echo -e "  [${GREEN}SATISFIED${NC}] ${mod}"
+            ;;
+        INSTALL_REQUIRED)
+            echo -e "  [${YELLOW}INSTALL${NC}]   ${mod}"
+            ;;
+        VERSION_CHANGE_REQUIRED)
+            echo -e "  [${YELLOW}UPDATE${NC}]    ${mod}"
+            ;;
+        REPAIR_REQUIRED)
+            echo -e "  [${RED}REPAIR${NC}]    ${mod}"
+            ;;
+        UNSUPPORTED)
+            echo -e "  [${RED}UNSUPPORTED${NC}] ${mod}"
+            ;;
+        *)
+            echo -e "  [${RED}UNKNOWN${NC}]   ${mod}"
+            ;;
         esac
     done
     echo ""
@@ -126,38 +126,38 @@ execute_module_v2() {
     local action="${!action_var:-UNKNOWN}"
 
     log_info "Processing module [V2]: ${module} (Action: ${action})"
-    
+
     local install_fn="${safe_mod}_install"
     local repair_fn="${safe_mod}_repair"
     local config_fn="${safe_mod}_configure"
     local validate_fn="${safe_mod}_validate"
 
     case "$action" in
-        INSTALL_REQUIRED|VERSION_CHANGE_REQUIRED)
-            "$install_fn"
-            "$config_fn"
+    INSTALL_REQUIRED | VERSION_CHANGE_REQUIRED)
+        "$install_fn"
+        "$config_fn"
+        "$validate_fn"
+        ;;
+    REPAIR_REQUIRED)
+        "$repair_fn"
+        "$config_fn"
+        "$validate_fn"
+        ;;
+    SATISFIED)
+        log_info "${module} already satisfied, ensuring configuration..."
+        "$config_fn"
+        "$validate_fn"
+        ;;
+    UNSUPPORTED)
+        log_warn "Module ${module} is UNSUPPORTED on this platform (skipped)."
+        ;;
+    *)
+        log_warn "Module ${module} has UNKNOWN state. Attempting configuration anyway..."
+        "$config_fn"
+        if declare -F "$validate_fn" >/dev/null; then
             "$validate_fn"
-            ;;
-        REPAIR_REQUIRED)
-            "$repair_fn"
-            "$config_fn"
-            "$validate_fn"
-            ;;
-        SATISFIED)
-            log_info "${module} already satisfied, ensuring configuration..."
-            "$config_fn"
-            "$validate_fn"
-            ;;
-        UNSUPPORTED)
-            log_warn "Module ${module} is UNSUPPORTED on this platform (skipped)."
-            ;;
-        *)
-            log_warn "Module ${module} has UNKNOWN state. Attempting configuration anyway..."
-            "$config_fn"
-            if declare -F "$validate_fn" >/dev/null; then
-                "$validate_fn"
-            fi
-            ;;
+        fi
+        ;;
     esac
 }
 
@@ -184,7 +184,7 @@ main() {
         log_info "Loading YAML config: ${CONFIG_FILE}"
         parse_config "$CONFIG_FILE"
         validate_config
-        
+
         # In V2, we dynamically source exactly the modules requested
         for mod in "${CONFIG_MODULES[@]}"; do
             modules_to_run+=("$mod")
@@ -196,12 +196,12 @@ main() {
                 fi
             done
         done
-        
+
         # Phase 7B: Execute State Engine
         collect_desired_state
         collect_actual_state
         compare_state
-        
+
         if [[ $PLAN_MODE -eq 1 ]]; then
             print_plan
             exit 0
@@ -223,7 +223,7 @@ main() {
             [[ -z "$line" || "$line" =~ ^#.*$ ]] && continue
             modules_to_run+=("$line")
         done <"$profile_file"
-        
+
         if [[ $PLAN_MODE -eq 1 ]]; then
             fail_critical "--plan is only supported for V2 YAML configurations (--config)."
         fi

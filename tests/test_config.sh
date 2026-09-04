@@ -19,10 +19,10 @@ run_test() {
     local expected_output="$5"
 
     echo -n "Test: ${name}... "
-    
+
     local output
     local exit_code=0
-    
+
     if output=$($func "$arg" 2>&1); then
         exit_code=0
     else
@@ -50,7 +50,7 @@ run_test() {
 TEST_DIR="${SCRIPT_DIR}/tests/tmp"
 mkdir -p "$TEST_DIR"
 
-cat << 'EOF' > "${TEST_DIR}/valid.yaml"
+cat <<'EOF' >"${TEST_DIR}/valid.yaml"
 schema_version: 1
 profile:
   name: valid
@@ -60,14 +60,14 @@ modules:
     version: "20"
 EOF
 
-cat << 'EOF' > "${TEST_DIR}/missing_schema.yaml"
+cat <<'EOF' >"${TEST_DIR}/missing_schema.yaml"
 profile:
   name: invalid
 modules:
   system: {}
 EOF
 
-cat << 'EOF' > "${TEST_DIR}/unknown_field.yaml"
+cat <<'EOF' >"${TEST_DIR}/unknown_field.yaml"
 schema_version: 1
 fake_root_field: true
 profile:
@@ -76,7 +76,7 @@ modules:
   system: {}
 EOF
 
-cat << 'EOF' > "${TEST_DIR}/unknown_module.yaml"
+cat <<'EOF' >"${TEST_DIR}/unknown_module.yaml"
 schema_version: 1
 profile:
   name: invalid
@@ -84,7 +84,7 @@ modules:
   imaginary-tool: {}
 EOF
 
-cat << 'EOF' > "${TEST_DIR}/unknown_option.yaml"
+cat <<'EOF' >"${TEST_DIR}/unknown_option.yaml"
 schema_version: 1
 profile:
   name: invalid
@@ -93,7 +93,7 @@ modules:
     banana: true
 EOF
 
-cat << 'EOF' > "${TEST_DIR}/security_eval.yaml"
+cat <<'EOF' >"${TEST_DIR}/security_eval.yaml"
 schema_version: 1
 profile:
   name: $(touch /tmp/security_test_failed)
@@ -118,7 +118,7 @@ else
 fi
 
 # Verify colons in description are handled correctly
-cat << 'EOF' > "${TEST_DIR}/colon_test.yaml"
+cat <<'EOF' >"${TEST_DIR}/colon_test.yaml"
 schema_version: 1
 profile:
   name: valid
@@ -133,7 +133,6 @@ else
     echo -e "Test: Parser handles colons in values... ${RED}FAIL${NC} (Got: $CONFIG_PROFILE_DESCRIPTION)"
     FAILURES=$((FAILURES + 1))
 fi
-
 
 run_test "Missing schema_version" "validate_config_structure" "" "fail" "schema_version' is missing"
 # We must parse missing_schema to trigger the validation failure correctly

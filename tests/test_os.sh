@@ -49,7 +49,7 @@ run_test() {
     MOCK_SYSTEMCTL="$mock_systemctl_val"
 
     if [[ -n "$mock_os_release" ]]; then
-        echo -e "$mock_os_release" > /tmp/os-release-mock
+        echo -e "$mock_os_release" >/tmp/os-release-mock
         export DOTUP_OS_RELEASE_FILE="/tmp/os-release-mock"
     else
         export DOTUP_OS_RELEASE_FILE="/tmp/non-existent-file"

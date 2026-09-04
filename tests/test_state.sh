@@ -17,10 +17,10 @@ run_test() {
     local expected_output="$3"
 
     echo -n "Test: ${name}... "
-    
+
     local output
     local exit_code=0
-    
+
     if output=$($func 2>&1); then
         exit_code=0
     else
@@ -53,7 +53,7 @@ CONFIG_MODULE_python_version="3.12"
 
 test_desired() {
     collect_desired_state
-    
+
     # shellcheck disable=SC2154
     if [[ "$DESIRED_STATE_git_status" != "INSTALLED" ]]; then
         echo "Git status incorrect: $DESIRED_STATE_git_status"
@@ -66,7 +66,6 @@ test_desired() {
     return 0
 }
 run_test "Collect Desired State" test_desired "pass"
-
 
 # --- 2. Actual State Tests ---
 # Mock module detection functions
@@ -89,32 +88,31 @@ CONFIG_MODULES=("git" "node" "python" "fake_module")
 
 test_actual() {
     collect_actual_state
-    
+
     if [[ "$ACTUAL_STATE_git_status" != "INSTALLED" || "$ACTUAL_STATE_git_version" != "2.45.0" ]]; then
         echo "Git actual state incorrect"
         return 1
     fi
-    
+
     if [[ "$ACTUAL_STATE_node_status" != "NOT_INSTALLED" ]]; then
         echo "Node actual state incorrect"
         return 1
     fi
-    
+
     if [[ "$ACTUAL_STATE_python_status" != "BROKEN" ]]; then
         echo "Python actual state incorrect"
         return 1
     fi
-    
+
     # shellcheck disable=SC2154
     if [[ "$ACTUAL_STATE_fake_module_status" != "UNKNOWN" ]]; then
         echo "Fake module status incorrect: $ACTUAL_STATE_fake_module_status"
         return 1
     fi
-    
+
     return 0
 }
 run_test "Collect Actual State" test_actual "pass"
-
 
 # --- 3. Difference (Compare) Tests ---
 
@@ -122,7 +120,7 @@ test_compare() {
     collect_desired_state
     collect_actual_state
     compare_state
-    
+
     if [[ "$DIFF_STATE_git_action" != "SATISFIED" ]]; then
         echo "Git diff incorrect: $DIFF_STATE_git_action"
         return 1
@@ -143,16 +141,15 @@ test_compare() {
 }
 run_test "Compare State Actions" test_compare "pass"
 
-
 # Test version change
 test_version_diff() {
     # Override git actual version to mismatch desired
     CONFIG_MODULE_git_version="3.0"
-    
+
     collect_desired_state
     collect_actual_state
     compare_state
-    
+
     if [[ "$DIFF_STATE_git_action" != "VERSION_CHANGE_REQUIRED" ]]; then
         echo "Git diff incorrect: $DIFF_STATE_git_action"
         return 1
@@ -161,17 +158,16 @@ test_version_diff() {
 }
 run_test "Compare Version Change Required" test_version_diff "pass"
 
-
 # Test semantic version match
 test_semantic_version() {
     # Override git actual version to match prefix of desired
     # shellcheck disable=SC2034
     CONFIG_MODULE_git_version="2.45"
-    
+
     collect_desired_state
     collect_actual_state
     compare_state
-    
+
     if [[ "$DIFF_STATE_git_action" != "SATISFIED" ]]; then
         echo "Git diff incorrect: $DIFF_STATE_git_action"
         return 1

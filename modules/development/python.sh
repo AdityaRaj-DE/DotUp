@@ -17,12 +17,12 @@ python_detect_state() {
         echo "status=NOT_INSTALLED"
         return
     fi
-    
+
     if ! command -v pip3 >/dev/null 2>&1; then
         echo "status=BROKEN"
         return
     fi
-    
+
     echo "status=INSTALLED"
     local v
     # python3 --version output is usually "Python 3.12.3"

@@ -75,7 +75,7 @@ if [[ -n "$CONFIG_FILE" ]]; then
     done
 else
     log_info "Running Legacy V1 comprehensive diagnostics on all modules..."
-    
+
     check_module() {
         local module="$1"
         local name="$2"

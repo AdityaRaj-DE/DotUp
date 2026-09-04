@@ -72,7 +72,7 @@ zsh_configure() {
         if grep -q "^ZSH_THEME=" "$zshrc"; then
             sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$zshrc"
         else
-            echo 'ZSH_THEME="powerlevel10k/powerlevel10k"' >> "$zshrc"
+            echo 'ZSH_THEME="powerlevel10k/powerlevel10k"' >>"$zshrc"
         fi
     fi
 }

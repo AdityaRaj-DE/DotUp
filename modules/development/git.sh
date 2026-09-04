@@ -14,7 +14,7 @@ git_detect_state() {
         echo "status=NOT_INSTALLED"
         return
     fi
-    
+
     echo "status=INSTALLED"
     local v
     # git version output is usually "git version 2.45.2"
