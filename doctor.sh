@@ -27,6 +27,8 @@ done
 source "${SCRIPT_DIR}/lib/colors.sh"
 source "${SCRIPT_DIR}/lib/logger.sh"
 source "${SCRIPT_DIR}/lib/utils.sh"
+source "${SCRIPT_DIR}/lib/os.sh"
+source "${SCRIPT_DIR}/lib/package-manager.sh"
 source "${SCRIPT_DIR}/lib/config_parser.sh"
 source "${SCRIPT_DIR}/lib/state_engine.sh"
 
@@ -43,6 +45,8 @@ source "${SCRIPT_DIR}/modules/editors/vscode.sh"
 source "${SCRIPT_DIR}/modules/editors/antigravity.sh"
 
 setup_logging
+detect_os
+detect_package_manager
 
 echo -e "${BOLD}${CYAN}DotUp Doctor${NC}"
 echo -e "${CYAN}────────────────────────────${NC}\n"
