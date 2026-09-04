@@ -108,6 +108,7 @@ echo "Running Config Parser Tests..."
 run_test "Parse valid config" "parse_config" "${TEST_DIR}/valid.yaml" 0 ""
 # Verify global state after parsing valid config
 parse_config "${TEST_DIR}/valid.yaml" >/dev/null
+# shellcheck disable=SC2154
 if [[ "$CONFIG_SCHEMA_VERSION" == "1" ]] && [[ "$CONFIG_PROFILE_NAME" == "valid" ]] && [[ "${CONFIG_MODULES[*]}" == *"system"* ]] && [[ "$CONFIG_MODULE_node_version" == "20" ]]; then
     echo -e "Test: Parsed state verification... ${GREEN}PASS${NC}"
 else

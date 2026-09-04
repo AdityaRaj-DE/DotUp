@@ -16,7 +16,7 @@ platform_package_manager() {
 
 # Mock apt-get, dpkg-query, apt-cache
 apt-get() {
-    echo "mock apt-get $@"
+    echo "mock apt-get $*"
     if [[ "$_MOCK_APT_FAIL" == "true" ]]; then
         return 1
     fi
@@ -54,7 +54,7 @@ dnf() {
             return 1
         fi
     fi
-    echo "mock dnf $@"
+    echo "mock dnf $*"
     if [[ "$_MOCK_DNF_FAIL" == "true" ]]; then
         return 1
     fi
@@ -85,7 +85,7 @@ pacman() {
             return 1
         fi
     fi
-    echo "mock pacman $@"
+    echo "mock pacman $*"
     if [[ "$_MOCK_PACMAN_FAIL" == "true" ]]; then
         return 1
     fi
@@ -93,6 +93,7 @@ pacman() {
 }
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck disable=SC1091
 source "${SCRIPT_DIR}/../lib/package-manager.sh"
 
 run_test() {
@@ -183,6 +184,7 @@ run_test "pkg_install_local (pacman, success)" "pkg_install_local" "$MOCK_LOCAL_
 
 # Tests for unsupported package manager (unknown)
 _MOCK_PLATFORM_PM="unknown"
+# shellcheck disable=SC2034
 PKG_MANAGER="unknown"
 run_test "pkg_is_installed (unknown)" "pkg_is_installed" "curl" "fail" "not implemented"
 run_test "pkg_is_available (unknown)" "pkg_is_available" "curl" "fail" "not implemented"

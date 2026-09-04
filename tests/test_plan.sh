@@ -21,7 +21,7 @@ run_test() {
     local output
     local exit_code=0
     
-    if output=$($func $arg 2>&1); then
+    if output=$($func "$arg" 2>&1); then
         exit_code=0
     else
         exit_code=$?
@@ -69,10 +69,15 @@ source "${SCRIPT_DIR}/lib/state_engine.sh"
 test_print_plan() {
     # Mock data
     CONFIG_MODULES=("git" "node" "python" "broken_tool" "unsupported_tool")
+    # shellcheck disable=SC2034
     DIFF_STATE_git_action="SATISFIED"
+    # shellcheck disable=SC2034
     DIFF_STATE_node_action="VERSION_CHANGE_REQUIRED"
+    # shellcheck disable=SC2034
     DIFF_STATE_python_action="INSTALL_REQUIRED"
+    # shellcheck disable=SC2034
     DIFF_STATE_broken_tool_action="REPAIR_REQUIRED"
+    # shellcheck disable=SC2034
     DIFF_STATE_unsupported_tool_action="UNSUPPORTED"
     
     # We must source install.sh but we can't because it will run main.
