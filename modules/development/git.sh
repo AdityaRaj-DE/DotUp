@@ -38,7 +38,7 @@ git_configure() {
     log_info "Configuring Git..."
 
     local interactive="true"
-    if [[ ! -t 0 ]] || [[ "${CI:-}" == "true" ]]; then
+    if [[ "${CI:-}" == "true" ]] || [[ ! -t 1 ]]; then
         interactive="false"
         log_debug "Non-interactive mode detected. Skipping prompts."
     fi
