@@ -34,7 +34,7 @@ source "${SCRIPT_DIR}/lib/package-manager.sh"
 source "${SCRIPT_DIR}/lib/config_parser.sh"
 source "${SCRIPT_DIR}/lib/state_engine.sh"
 
-source "${SCRIPT_DIR}/modules/system/packages.sh"
+source "${SCRIPT_DIR}/modules/system/system.sh"
 source "${SCRIPT_DIR}/modules/development/git.sh"
 source "${SCRIPT_DIR}/modules/terminal/zsh.sh"
 source "${SCRIPT_DIR}/modules/development/node.sh"
