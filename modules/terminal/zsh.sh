@@ -60,21 +60,46 @@ zsh_configure() {
         git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$p10k_dir" >/dev/null 2>&1 || fail_critical "Failed to install Powerlevel10k"
     fi
 
-    local zshrc="${HOME}/.zshrc"
-    if [[ ! -f "$zshrc" ]]; then
-        log_info "Creating default .zshrc from template..."
-        cp "${HOME}/.oh-my-zsh/templates/zshrc.zsh-template" "$zshrc" || fail_critical "Failed to copy .zshrc template."
+    local syntax_plugin_dir="${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    if [[ ! -d "$syntax_plugin_dir" ]]; then
+        log_info "Installing zsh-syntax-highlighting plugin..."
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$syntax_plugin_dir" >/dev/null 2>&1 || fail_critical "Failed to clone zsh-syntax-highlighting."
     fi
 
-    if ! grep -q "ZSH_THEME=\"powerlevel10k/powerlevel10k\"" "$zshrc"; then
-        log_info "Backing up .zshrc and updating theme..."
-        cp "$zshrc" "${zshrc}.backup.$(date +%s)"
-        if grep -q "^ZSH_THEME=" "$zshrc"; then
-            sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$zshrc"
-        else
-            echo 'ZSH_THEME="powerlevel10k/powerlevel10k"' >>"$zshrc"
-        fi
+    local fonts_dir="${HOME}/.local/share/fonts"
+    if [[ ! -f "${fonts_dir}/JetBrainsMonoNerdFont-Regular.ttf" ]]; then
+        log_info "Installing JetBrains Mono Nerd Font..."
+        pkg_install unzip fontconfig >/dev/null 2>&1 || true
+        mkdir -p "${fonts_dir}"
+        local tmp_font_dir
+        tmp_font_dir=$(mktemp -d)
+        curl -sSLo "${tmp_font_dir}/JetBrainsMono.zip" https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/JetBrainsMono.zip
+        unzip -q "${tmp_font_dir}/JetBrainsMono.zip" -d "${fonts_dir}"
+        fc-cache -f -v >/dev/null 2>&1 || true
+        rm -rf "${tmp_font_dir}"
+        log_success "JetBrains Mono Nerd Font installed."
     fi
+
+    local zshrc="${HOME}/.zshrc"
+    local p10k="${HOME}/.p10k.zsh"
+    local repo_root
+    repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+
+    if [[ -f "$zshrc" ]]; then
+        log_info "Backing up existing .zshrc..."
+        cp "$zshrc" "${zshrc}.backup.$(date +%s)"
+    fi
+    log_info "Deploying custom .zshrc..."
+    cp "${repo_root}/docs/.zshrc.txt" "$zshrc" || fail_critical "Failed to copy .zshrc.txt"
+
+    if [[ -f "$p10k" ]]; then
+        log_info "Backing up existing .p10k.zsh..."
+        cp "$p10k" "${p10k}.backup.$(date +%s)"
+    fi
+    log_info "Deploying custom .p10k.zsh..."
+    cp "${repo_root}/docs/.p10k.zsh.txt" "$p10k" || fail_critical "Failed to copy .p10k.zsh.txt"
+
+    log_success "Zsh configuration complete! Please restart your terminal or log out and log back in to apply."
 }
 
 zsh_validate() {
