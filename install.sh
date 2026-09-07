@@ -157,6 +157,37 @@ execute_module_v2() {
     esac
 }
 
+execute_components_v2() {
+    local modules=("$@")
+    
+    # Phase 7B: Execute State Engine
+    collect_desired_state
+    collect_actual_state
+    compare_state
+
+    if [[ $PLAN_MODE -eq 1 ]]; then
+        print_plan
+        exit 0
+    fi
+
+    # Phase 7C: V2 Execution Routing
+    for mod in "${modules[@]}"; do
+        execute_module_v2 "$mod"
+    done
+}
+
+execute_components_v1() {
+    local modules=("$@")
+    
+    if [[ $PLAN_MODE -eq 1 ]]; then
+        fail_critical "--plan is only supported for V2 YAML configurations (--config)."
+    fi
+
+    for mod in "${modules[@]}"; do
+        execute_module "$mod"
+    done
+}
+
 main() {
     setup_logging
     echo -e "${BOLD}${CYAN}════════════════════════════════════${NC}"
@@ -191,20 +222,7 @@ main() {
             fi
         done
 
-        # Phase 7B: Execute State Engine
-        collect_desired_state
-        collect_actual_state
-        compare_state
-
-        if [[ $PLAN_MODE -eq 1 ]]; then
-            print_plan
-            exit 0
-        fi
-
-        # Phase 7C: V2 Execution Routing
-        for mod in "${modules_to_run[@]}"; do
-            execute_module_v2 "$mod"
-        done
+        execute_components_v2 "${modules_to_run[@]}"
     else
         # V1 Legacy Profile Support
         local profile_file="${SCRIPT_DIR}/config/profiles/${PROFILE}.conf"
@@ -218,13 +236,7 @@ main() {
             modules_to_run+=("$line")
         done <"$profile_file"
 
-        if [[ $PLAN_MODE -eq 1 ]]; then
-            fail_critical "--plan is only supported for V2 YAML configurations (--config)."
-        fi
-
-        for mod in "${modules_to_run[@]}"; do
-            execute_module "$mod"
-        done
+        execute_components_v1 "${modules_to_run[@]}"
     fi
 
     log_info "Installing dotup CLI wrapper..."
