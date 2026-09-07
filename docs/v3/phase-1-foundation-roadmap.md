@@ -367,22 +367,22 @@ Plan 2.
 
 ---
 
-## Plan 8 — Phase 1 Architecture Review and Freeze
+## Plan 8 — Phase 1 Architecture Review and Freeze (COMPLETED)
 
 ### Objective
 Finalize Phase 1 and define "Done".
 
 ### Acceptance Criteria Checklist
-- [ ] Existing CLI behavior remains compatible.
-- [ ] Existing profiles continue working.
-- [ ] Existing YAML configurations continue working.
-- [ ] Doctor, Repair, Update, and Bootstrap continue working.
-- [ ] V1/V2 contract confusion is isolated via the Module Adapter.
-- [ ] There is one canonical module interface defined and proven (e.g., Git).
-- [ ] Configuration no longer depends on dynamic Bash variable generation.
-- [ ] Modules can be addressed independently by the core (`execute_components`).
-- [ ] State detection and planning are cleanly separated via sub-processes.
-- [ ] A local module registry exists.
-- [ ] Real CLI integration tests exist and pass.
-- [ ] Documentation accurately reflects Phase 1 state.
-- [ ] No known critical regressions.
+- [x] Existing CLI behavior remains compatible.
+- [x] Existing profiles continue working.
+- [x] Existing YAML configurations continue working.
+- [x] Doctor, Repair, Update, and Bootstrap continue working.
+- [x] V1/V2 contract confusion is isolated via the Module Adapter.
+- [x] There is one canonical module interface defined and proven (e.g., Git).
+- [x] Configuration no longer depends on dynamic Bash variable generation.
+- [x] Modules can be addressed independently by the core (`execute_components`).
+- [x] State detection and planning are cleanly separated via sub-processes.
+- [x] A local module registry exists.
+- [x] Real CLI integration tests exist and pass.
+- [x] Documentation accurately reflects Phase 1 state.
+- [x] No known critical regressions.
