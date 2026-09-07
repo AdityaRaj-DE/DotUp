@@ -42,6 +42,7 @@ source "${SCRIPT_DIR}/lib/config_parser.sh"
 source "${SCRIPT_DIR}/lib/config_validator.sh"
 source "${SCRIPT_DIR}/lib/state_engine.sh"
 source "${SCRIPT_DIR}/lib/module_adapter.sh"
+source "${SCRIPT_DIR}/lib/registry.sh"
 
 source "${SCRIPT_DIR}/modules/system/system.sh"
 source "${SCRIPT_DIR}/modules/development/git.sh"
@@ -183,13 +184,11 @@ main() {
         # In V2, we dynamically source exactly the modules requested
         for mod in "${CONFIG_MODULES[@]}"; do
             modules_to_run+=("$mod")
-            for mod_file in "${SCRIPT_DIR}/modules"/*/"${mod}.sh"; do
-                if [[ -f "$mod_file" ]]; then
-                    # shellcheck source=/dev/null
-                    source "$mod_file"
-                    break
-                fi
-            done
+            local mod_path
+            if mod_path=$(registry_resolve_module "$mod"); then
+                # shellcheck source=/dev/null
+                source "$mod_path"
+            fi
         done
 
         # Phase 7B: Execute State Engine

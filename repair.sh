@@ -34,6 +34,7 @@ source "${SCRIPT_DIR}/lib/package-manager.sh"
 source "${SCRIPT_DIR}/lib/config_parser.sh"
 source "${SCRIPT_DIR}/lib/state_engine.sh"
 source "${SCRIPT_DIR}/lib/module_adapter.sh"
+source "${SCRIPT_DIR}/lib/registry.sh"
 
 source "${SCRIPT_DIR}/modules/system/system.sh"
 source "${SCRIPT_DIR}/modules/development/git.sh"
@@ -85,7 +86,8 @@ if [[ -n "$CONFIG_FILE" ]]; then
     done
 else
     log_info "Running Legacy V1 comprehensive repair on all modules..."
-    ALL_MODULES=(system git zsh node python java docker gcloud chrome vscode antigravity)
+    local ALL_MODULES
+    read -r -a ALL_MODULES <<< "$(registry_list_all_modules)"
     for module in "${ALL_MODULES[@]}"; do
         state=$(execute_module_action "$module" "detect")
         if [[ "$state" == "BROKEN" ]] || [[ "$state" == "NOT_INSTALLED" ]]; then

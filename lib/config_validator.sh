@@ -26,18 +26,11 @@ validate_config_structure() {
 # Validates the semantic meaning (e.g. do the modules exist and do they support options?)
 validate_config_semantics() {
     log_debug "Validating configuration semantics..."
+    source "${SCRIPT_DIR}/lib/registry.sh"
 
     for mod in "${CONFIG_MODULES[@]}"; do
-        local mod_path=""
-        # Check if a module file exists in any of the module directories
-        for mod_file in "${SCRIPT_DIR}/modules"/*/"${mod}.sh"; do
-            if [[ -f "$mod_file" ]]; then
-                mod_path="$mod_file"
-                break
-            fi
-        done
-
-        if [[ -z "$mod_path" ]]; then
+        local mod_path
+        if ! mod_path=$(registry_resolve_module "$mod"); then
             fail_critical "Validation failed: Unknown module '${mod}'."
         fi
 

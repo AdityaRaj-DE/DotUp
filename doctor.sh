@@ -32,6 +32,7 @@ source "${SCRIPT_DIR}/lib/package-manager.sh"
 source "${SCRIPT_DIR}/lib/config_parser.sh"
 source "${SCRIPT_DIR}/lib/state_engine.sh"
 source "${SCRIPT_DIR}/lib/module_adapter.sh"
+source "${SCRIPT_DIR}/lib/registry.sh"
 
 source "${SCRIPT_DIR}/modules/system/system.sh"
 source "${SCRIPT_DIR}/modules/development/git.sh"
@@ -97,26 +98,13 @@ else
         fi
     }
 
-    echo -e "${BOLD}System${NC}"
-    check_module system "System Packages"
-    echo ""
-    echo -e "${BOLD}Development${NC}"
-    check_module git "Git"
-    check_module node "Node.js (fnm)"
-    check_module python "Python"
-    check_module java "Java JDK"
-    echo ""
-    echo -e "${BOLD}Infrastructure${NC}"
-    check_module docker "Docker"
-    check_module gcloud "Google Cloud CLI"
-    echo ""
-    echo -e "${BOLD}Terminal${NC}"
-    check_module zsh "Zsh & Oh My Zsh"
-    echo ""
-    echo -e "${BOLD}Editors & Applications${NC}"
-    check_module vscode "VS Code"
-    check_module chrome "Google Chrome"
-    check_module antigravity "Antigravity"
+    local all_modules
+    read -r -a all_modules <<< "$(registry_list_all_modules)"
+    
+    echo -e "${BOLD}Installed Components${NC}"
+    for mod in "${all_modules[@]}"; do
+        check_module "$mod" "$mod"
+    done
     echo ""
 fi
 

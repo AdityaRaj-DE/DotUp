@@ -123,7 +123,7 @@ Plan 1.
 
 ---
 
-## Plan 3 — Establish Module Registry
+## Plan 3 — Establish Module Registry (COMPLETED)
 
 ### Objective
 Abstract module resolution so the core doesn't blindly search `modules/*/*.sh`.
