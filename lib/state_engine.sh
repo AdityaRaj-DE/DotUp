@@ -39,14 +39,10 @@ collect_actual_state() {
 
     for mod in "${CONFIG_MODULES[@]}"; do
         local safe_mod="${mod//-/_}"
-        local detect_fn="${safe_mod}_detect_state"
-
-        # Fallback to NOT_INSTALLED if the module doesn't implement detect_state yet
-        if ! declare -F "$detect_fn" >/dev/null; then
-            export "ACTUAL_STATE_${safe_mod}_status=UNKNOWN"
-            continue
-        fi
-
+        
+        # We process the detect action via the adapter
+        # The adapter normalizes both V1 and V2 detection into key=value lines
+        
         # Read the strict key=value format safely
         while IFS="=" read -r key val || [[ -n "$key" ]]; do
             # Skip empty lines
@@ -62,7 +58,7 @@ collect_actual_state() {
             if [[ "$key" =~ ^[a-zA-Z0-9_]+$ ]]; then
                 export "ACTUAL_STATE_${safe_mod}_${key}=${val}"
             fi
-        done < <("$detect_fn")
+        done < <(execute_module_action "$mod" "detect")
 
         # Ensure status is at least populated if module output was empty
         local current_status_var="ACTUAL_STATE_${safe_mod}_status"

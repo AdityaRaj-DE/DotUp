@@ -6,6 +6,8 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "${SCRIPT_DIR}/lib/colors.sh"
 source "${SCRIPT_DIR}/lib/logger.sh"
 source "${SCRIPT_DIR}/lib/state_engine.sh"
+source "${SCRIPT_DIR}/lib/registry.sh"
+source "${SCRIPT_DIR}/lib/module_adapter.sh"
 
 export LOG_FILE="/dev/null"
 export VERBOSE=1
@@ -68,20 +70,22 @@ test_desired() {
 run_test "Collect Desired State" test_desired "pass"
 
 # --- 2. Actual State Tests ---
-# Mock module detection functions
-git_detect_state() {
-    echo "status=INSTALLED"
-    echo "version=2.45.0"
-}
-node_detect_state() {
-    echo "status=NOT_INSTALLED"
-}
-python_detect_state() {
-    echo "status=BROKEN"
-}
-# Unknown module
-unknown_module_detect_state() {
-    echo "status=UNKNOWN"
+# Mock adapter function for detection
+execute_module_action() {
+    local mod="$1"
+    local action="$2"
+    if [[ "$action" != "detect" ]]; then return 0; fi
+    
+    if [[ "$mod" == "git" ]]; then
+        echo "status=INSTALLED"
+        echo "version=2.45.0"
+    elif [[ "$mod" == "node" ]]; then
+        echo "status=NOT_INSTALLED"
+    elif [[ "$mod" == "python" ]]; then
+        echo "status=BROKEN"
+    elif [[ "$mod" == "fake_module" ]]; then
+        echo "status=UNKNOWN"
+    fi
 }
 
 CONFIG_MODULES=("git" "node" "python" "fake_module")

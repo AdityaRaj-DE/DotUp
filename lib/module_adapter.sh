@@ -40,7 +40,17 @@ execute_module_action() {
     source "$mod_path"
 
     local fn_name="${safe_mod}_${action}"
-    if declare -F "$fn_name" >/dev/null; then
+    
+    if [[ "$action" == "detect" ]]; then
+        local detect_state_fn="${safe_mod}_detect_state"
+        if declare -F "$detect_state_fn" >/dev/null; then
+            "$detect_state_fn"
+        elif declare -F "${safe_mod}_detect" >/dev/null; then
+            echo "status=$("${safe_mod}_detect")"
+        else
+            echo "status=UNKNOWN"
+        fi
+    elif declare -F "$fn_name" >/dev/null; then
         "$fn_name"
     elif [[ "$action" == "validate" || "$action" == "configure" ]]; then
         # Some modules might not implement validate or configure, which is okay in legacy

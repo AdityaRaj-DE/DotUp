@@ -173,7 +173,7 @@ Plan 2.
 
 ---
 
-## Plan 4 — Separate State Detection from Planning
+## Plan 4 — Separate State Detection from Planning (COMPLETED)
 
 ### Objective
 Isolate the Side-Effect-Free detection phase from the orchestrator's state evaluation.
