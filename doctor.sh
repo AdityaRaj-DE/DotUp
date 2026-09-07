@@ -31,6 +31,7 @@ source "${SCRIPT_DIR}/lib/os.sh"
 source "${SCRIPT_DIR}/lib/package-manager.sh"
 source "${SCRIPT_DIR}/lib/config_parser.sh"
 source "${SCRIPT_DIR}/lib/state_engine.sh"
+source "${SCRIPT_DIR}/lib/module_adapter.sh"
 
 source "${SCRIPT_DIR}/modules/system/system.sh"
 source "${SCRIPT_DIR}/modules/development/git.sh"
@@ -84,7 +85,7 @@ else
         local module="$1"
         local name="$2"
         local state
-        state=$("${module}_detect")
+        state=$(execute_module_action "$module" "detect")
 
         if [[ "$state" == "INSTALLED" ]]; then
             echo -e "${GREEN}✓${NC} ${name}"

@@ -33,6 +33,7 @@ source "${SCRIPT_DIR}/lib/sudo.sh"
 source "${SCRIPT_DIR}/lib/package-manager.sh"
 source "${SCRIPT_DIR}/lib/config_parser.sh"
 source "${SCRIPT_DIR}/lib/state_engine.sh"
+source "${SCRIPT_DIR}/lib/module_adapter.sh"
 
 source "${SCRIPT_DIR}/modules/system/system.sh"
 source "${SCRIPT_DIR}/modules/development/git.sh"
@@ -74,9 +75,9 @@ if [[ -n "$CONFIG_FILE" ]]; then
 
         if [[ "$action" == "REPAIR_REQUIRED" ]]; then
             echo -e "${YELLOW}Repairing ${module}...${NC}"
-            "${module}_repair"
-            "${module}_configure"
-            "${module}_validate"
+            execute_module_action "$module" "repair"
+            execute_module_action "$module" "configure"
+            execute_module_action "$module" "validate"
             ((repaired++))
         else
             echo -e "${GREEN}Skipping ${module}...${NC} (Status: ${action})"
@@ -86,12 +87,12 @@ else
     log_info "Running Legacy V1 comprehensive repair on all modules..."
     ALL_MODULES=(system git zsh node python java docker gcloud chrome vscode antigravity)
     for module in "${ALL_MODULES[@]}"; do
-        state=$("${module}_detect")
+        state=$(execute_module_action "$module" "detect")
         if [[ "$state" == "BROKEN" ]] || [[ "$state" == "NOT_INSTALLED" ]]; then
             echo -e "${YELLOW}Repairing ${module}...${NC}"
-            "${module}_repair"
-            "${module}_configure"
-            "${module}_validate"
+            execute_module_action "$module" "repair"
+            execute_module_action "$module" "configure"
+            execute_module_action "$module" "validate"
             ((repaired++))
         else
             echo -e "${GREEN}Skipping ${module}...${NC} (Status: ${state})"

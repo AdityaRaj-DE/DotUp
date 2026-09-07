@@ -41,6 +41,7 @@ source "${SCRIPT_DIR}/lib/package-manager.sh"
 source "${SCRIPT_DIR}/lib/config_parser.sh"
 source "${SCRIPT_DIR}/lib/config_validator.sh"
 source "${SCRIPT_DIR}/lib/state_engine.sh"
+source "${SCRIPT_DIR}/lib/module_adapter.sh"
 
 source "${SCRIPT_DIR}/modules/system/system.sh"
 source "${SCRIPT_DIR}/modules/development/git.sh"
@@ -57,32 +58,33 @@ source "${SCRIPT_DIR}/modules/editors/antigravity.sh"
 execute_module() {
     local module="$1"
     log_info "Executing module: ${module}..."
-    local detect_fn="${module}_detect"
-    local install_fn="${module}_install"
-    local repair_fn="${module}_repair"
-    local config_fn="${module}_configure"
-    local validate_fn="${module}_validate"
-
-    if ! declare -F "$detect_fn" >/dev/null; then
-        fail_critical "Module function not found: $detect_fn"
-    fi
-
+    
+    # We still need to call detect directly for the old logic, but through the adapter it would just be `execute_module_action detect` 
+    # Actually, the adapter doesn't return state, it just executes the function.
+    # To return state, we should just let it run or modify the adapter to echo.
+    # Wait, the adapter handles sourcing. So we can just rely on the adapter to source it, then call detect.
+    # Let's keep it simple: the adapter handles the action.
+    
+    # In V1, detect is expected to echo the state.
+    # Let's source the module explicitly for detect here, or add 'detect' to adapter.
+    # But adapter currently just executes it. If it executes it, stdout is preserved!
+    
     local state
-    state=$("$detect_fn")
+    state=$(execute_module_action "$module" "detect") || fail_critical "Module function not found for $module detect"
 
     if [[ "$state" == "NOT_INSTALLED" ]]; then
-        "$install_fn"
-        "$config_fn"
+        execute_module_action "$module" "install"
+        execute_module_action "$module" "configure"
     elif [[ "$state" == "BROKEN" ]]; then
-        "$repair_fn"
-        "$config_fn"
+        execute_module_action "$module" "repair"
+        execute_module_action "$module" "configure"
     elif [[ "$state" == "NOT_APPLICABLE" ]]; then
         log_warn "Module ${module} is not applicable (skipped)."
     else
         log_info "${module} already installed, ensuring configuration..."
-        "$config_fn"
+        execute_module_action "$module" "configure"
     fi
-    "$validate_fn"
+    execute_module_action "$module" "validate"
 }
 
 print_plan() {
@@ -127,36 +129,29 @@ execute_module_v2() {
 
     log_info "Processing module [V2]: ${module} (Action: ${action})"
 
-    local install_fn="${safe_mod}_install"
-    local repair_fn="${safe_mod}_repair"
-    local config_fn="${safe_mod}_configure"
-    local validate_fn="${safe_mod}_validate"
-
     case "$action" in
     INSTALL_REQUIRED | VERSION_CHANGE_REQUIRED)
-        "$install_fn"
-        "$config_fn"
-        "$validate_fn"
+        execute_module_action "$module" "install"
+        execute_module_action "$module" "configure"
+        execute_module_action "$module" "validate"
         ;;
     REPAIR_REQUIRED)
-        "$repair_fn"
-        "$config_fn"
-        "$validate_fn"
+        execute_module_action "$module" "repair"
+        execute_module_action "$module" "configure"
+        execute_module_action "$module" "validate"
         ;;
     SATISFIED)
         log_info "${module} already satisfied, ensuring configuration..."
-        "$config_fn"
-        "$validate_fn"
+        execute_module_action "$module" "configure"
+        execute_module_action "$module" "validate"
         ;;
     UNSUPPORTED)
         log_warn "Module ${module} is UNSUPPORTED on this platform (skipped)."
         ;;
     *)
         log_warn "Module ${module} has UNKNOWN state. Attempting configuration anyway..."
-        "$config_fn"
-        if declare -F "$validate_fn" >/dev/null; then
-            "$validate_fn"
-        fi
+        execute_module_action "$module" "configure"
+        execute_module_action "$module" "validate"
         ;;
     esac
 }
