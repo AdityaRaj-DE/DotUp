@@ -9,6 +9,7 @@ echo "Running Unit Tests..."
 "${SCRIPT_DIR}/test_config.sh"
 "${SCRIPT_DIR}/test_state.sh"
 "${SCRIPT_DIR}/test_plan.sh"
+"${SCRIPT_DIR}/test_programmatic.sh"
 
 echo ""
 echo "Running Integration Tests..."

@@ -58,7 +58,7 @@ MOCK
 
 
 test_desired() {
-    collect_desired_state
+    collect_desired_state "${CONFIG_MODULES[@]}"
 
     # shellcheck disable=SC2154
     if [[ "$DESIRED_STATE_git_status" != "INSTALLED" ]]; then
@@ -95,7 +95,7 @@ execute_module_action() {
 CONFIG_MODULES=("git" "node" "python" "fake_module")
 
 test_actual() {
-    collect_actual_state
+    collect_actual_state "${CONFIG_MODULES[@]}"
 
     if [[ "$ACTUAL_STATE_git_status" != "INSTALLED" || "$ACTUAL_STATE_git_version" != "2.45.0" ]]; then
         echo "Git actual state incorrect"
@@ -125,9 +125,9 @@ run_test "Collect Actual State" test_actual "pass"
 # --- 3. Difference (Compare) Tests ---
 
 test_compare() {
-    collect_desired_state
-    collect_actual_state
-    compare_state
+    collect_desired_state "${CONFIG_MODULES[@]}"
+    collect_actual_state "${CONFIG_MODULES[@]}"
+    compare_state "${CONFIG_MODULES[@]}"
 
     if [[ "$DIFF_STATE_git_action" != "SATISFIED" ]]; then
         echo "Git diff incorrect: $DIFF_STATE_git_action"
@@ -154,9 +154,9 @@ test_version_diff() {
     # Override git actual version to mismatch desired
     echo "git.version=3.0" >> "$DOTUP_CONFIG_FILE"
 
-    collect_desired_state
-    collect_actual_state
-    compare_state
+    collect_desired_state "${CONFIG_MODULES[@]}"
+    collect_actual_state "${CONFIG_MODULES[@]}"
+    compare_state "${CONFIG_MODULES[@]}"
 
     if [[ "$DIFF_STATE_git_action" != "VERSION_CHANGE_REQUIRED" ]]; then
         echo "Git diff incorrect: $DIFF_STATE_git_action"
@@ -171,9 +171,9 @@ test_semantic_version() {
     # Override git actual version to match prefix of desired
     echo "git.version=2.45" >> "$DOTUP_CONFIG_FILE"
 
-    collect_desired_state
-    collect_actual_state
-    compare_state
+    collect_desired_state "${CONFIG_MODULES[@]}"
+    collect_actual_state "${CONFIG_MODULES[@]}"
+    compare_state "${CONFIG_MODULES[@]}"
 
     if [[ "$DIFF_STATE_git_action" != "SATISFIED" ]]; then
         echo "Git diff incorrect: $DIFF_STATE_git_action"

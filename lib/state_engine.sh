@@ -13,10 +13,10 @@ state_engine_reset() {
 }
 
 collect_desired_state() {
-    log_debug "Collecting desired state from configuration..."
+    local modules=("$@")
+    log_debug "Collecting desired state for ${#modules[@]} modules..."
 
-    # Iterate over parsed configuration
-    for mod in "${CONFIG_MODULES[@]}"; do
+    for mod in "${modules[@]}"; do
         local safe_mod="${mod//-/_}"
 
         # Every module explicitly listed in the config is desired to be INSTALLED
@@ -36,9 +36,10 @@ collect_desired_state() {
 }
 
 collect_actual_state() {
-    log_debug "Collecting actual state from machine..."
+    local modules=("$@")
+    log_debug "Collecting actual state for ${#modules[@]} modules..."
 
-    for mod in "${CONFIG_MODULES[@]}"; do
+    for mod in "${modules[@]}"; do
         local safe_mod="${mod//-/_}"
         
         # We process the detect action via the adapter
@@ -70,9 +71,10 @@ collect_actual_state() {
 }
 
 compare_state() {
-    log_debug "Comparing desired and actual state..."
+    local modules=("$@")
+    log_debug "Comparing desired and actual state for ${#modules[@]} modules..."
 
-    for mod in "${CONFIG_MODULES[@]}"; do
+    for mod in "${modules[@]}"; do
         local safe_mod="${mod//-/_}"
 
         local desired_status_var="DESIRED_STATE_${safe_mod}_status"

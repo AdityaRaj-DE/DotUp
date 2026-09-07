@@ -15,3 +15,6 @@ Because modules are isolated via the adapter:
 The `compare_state` logic analyzes the difference between the Desired State (populated from configuration) and the Actual State (from the adapter). It generates a Diff Action (e.g., `INSTALL_REQUIRED`, `VERSION_CHANGE_REQUIRED`).
 
 The generated plan is then executed by the Orchestrator routing actions back through the Module Adapter, completely decoupling the engine's planning logic from the execution mechanics of individual tools.
+
+## Parameterized Execution
+The State Engine operates purely on programmatic array inputs (e.g., `collect_actual_state "git" "node"`). It no longer relies on the globally parsed `$CONFIG_MODULES` array. This parameterization is the final component enabling DotUp to accept arbitrary `Setup Definition` objects or remote component lists in Phase 2 without writing temporary YAML configurations to disk.

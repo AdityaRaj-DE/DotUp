@@ -3,6 +3,10 @@
 # registry.sh
 # Provides module discovery and resolution for DotUp.
 
+if [[ -z "${SCRIPT_DIR:-}" ]]; then
+    SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+fi
+
 # Resolves a module name to its absolute file path.
 # Prints the path to stdout. Returns 0 if found, 1 if not found.
 registry_resolve_module() {

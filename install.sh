@@ -150,9 +150,9 @@ execute_components_v2() {
     local modules=("$@")
     
     # Phase 7B: Execute State Engine
-    collect_desired_state
-    collect_actual_state
-    compare_state
+    collect_desired_state "${modules[@]}"
+    collect_actual_state "${modules[@]}"
+    compare_state "${modules[@]}"
 
     if [[ $PLAN_MODE -eq 1 ]]; then
         print_plan

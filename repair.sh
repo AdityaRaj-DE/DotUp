@@ -54,9 +54,9 @@ repaired=0
 if [[ -n "$CONFIG_FILE" ]]; then
     log_info "Running V2 diagnostics via configuration: ${CONFIG_FILE}"
     parse_config "$CONFIG_FILE"
-    collect_desired_state
-    collect_actual_state
-    compare_state
+    collect_desired_state "${CONFIG_MODULES[@]}"
+    collect_actual_state "${CONFIG_MODULES[@]}"
+    compare_state "${CONFIG_MODULES[@]}"
 
     for module in "${CONFIG_MODULES[@]}"; do
         safe_mod="${module//-/_}"
