@@ -220,7 +220,7 @@ Plan 2, Plan 3.
 
 ---
 
-## Plan 5 — Decouple Configuration from Bash Environment Variables
+## Plan 5 — Decouple Configuration from Bash Environment Variables (COMPLETED)
 
 ### Objective
 Prepare for a memory-safe configuration parser (like a compiled binary) by shifting away from dynamic bash variables.

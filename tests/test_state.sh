@@ -49,9 +49,13 @@ echo "Running State Engine Tests..."
 # --- 1. Desired State Tests ---
 # Mock configuration
 CONFIG_MODULES=("git" "node" "python")
-CONFIG_MODULE_node_version="20"
-# shellcheck disable=SC2034
-CONFIG_MODULE_python_version="3.12"
+
+export DOTUP_CONFIG_FILE="/tmp/dotup-test-state-config.tmp"
+cat << 'MOCK' > "$DOTUP_CONFIG_FILE"
+node.version=20
+python.version=3.12
+MOCK
+
 
 test_desired() {
     collect_desired_state
@@ -148,7 +152,7 @@ run_test "Compare State Actions" test_compare "pass"
 # Test version change
 test_version_diff() {
     # Override git actual version to mismatch desired
-    CONFIG_MODULE_git_version="3.0"
+    echo "git.version=3.0" >> "$DOTUP_CONFIG_FILE"
 
     collect_desired_state
     collect_actual_state
@@ -165,8 +169,7 @@ run_test "Compare Version Change Required" test_version_diff "pass"
 # Test semantic version match
 test_semantic_version() {
     # Override git actual version to match prefix of desired
-    # shellcheck disable=SC2034
-    CONFIG_MODULE_git_version="2.45"
+    echo "git.version=2.45" >> "$DOTUP_CONFIG_FILE"
 
     collect_desired_state
     collect_actual_state

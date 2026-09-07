@@ -23,14 +23,15 @@ collect_desired_state() {
         export "DESIRED_STATE_${safe_mod}_status=INSTALLED"
 
         # Copy configuration options (like version) into desired state
-        local prefix="CONFIG_MODULE_${safe_mod}_"
-        for var in ${!CONFIG_MODULE_*}; do
-            if [[ "$var" == "$prefix"* ]]; then
-                local opt_key="${var#"$prefix"}"
-                local opt_val="${!var}"
-                export "DESIRED_STATE_${safe_mod}_${opt_key}=${opt_val}"
-            fi
-        done
+        if [[ -f "${DOTUP_CONFIG_FILE:-}" ]]; then
+            while IFS="=" read -r key val || [[ -n "$key" ]]; do
+                [[ -z "$key" ]] && continue
+                if [[ "$key" == "${safe_mod}."* ]]; then
+                    local opt_key="${key#*.}"
+                    export "DESIRED_STATE_${safe_mod}_${opt_key}=${val}"
+                fi
+            done < "$DOTUP_CONFIG_FILE"
+        fi
     done
 }
 

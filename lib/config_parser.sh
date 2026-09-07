@@ -13,12 +13,13 @@ config_reset() {
     CONFIG_PROFILE_NAME=""
     CONFIG_PROFILE_DESCRIPTION=""
     CONFIG_MODULES=()
-    # Unset any dynamic module options
-    for var in ${!CONFIG_MODULE_*}; do
-        if [[ "$var" != "CONFIG_MODULES" ]]; then
-            unset "$var"
-        fi
-    done
+    
+    # Initialize the intermediate config file
+    if [[ -z "${TMP_DIR:-}" ]]; then
+        TMP_DIR=$(mktemp -d)
+    fi
+    export DOTUP_CONFIG_FILE="${TMP_DIR}/dotup-config.tmp"
+    > "$DOTUP_CONFIG_FILE"
 }
 
 # Removes surrounding quotes and leading/trailing whitespace
@@ -106,7 +107,7 @@ parse_config() {
             # Third level (Module Options)
             if [[ $in_modules -eq 1 && -n "$current_module" ]]; then
                 local safe_mod="${current_module//-/_}"
-                export "CONFIG_MODULE_${safe_mod}_${key}=${val}"
+                echo "${safe_mod}.${key}=${val}" >> "$DOTUP_CONFIG_FILE"
             else
                 fail_critical "Configuration parse error: Invalid 4-space indentation outside module definition."
             fi

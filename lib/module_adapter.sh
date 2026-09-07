@@ -25,6 +25,19 @@ execute_module_action() {
         fail_critical "Module adapter failed: Unknown module '${module}'."
     fi
 
+    # V3 Environment Injection: Read from structured file and inject as explicit env vars
+    if [[ -f "${DOTUP_CONFIG_FILE:-}" ]]; then
+        while IFS="=" read -r key val || [[ -n "$key" ]]; do
+            [[ -z "$key" ]] && continue
+            if [[ "$key" == "${safe_mod}."* ]]; then
+                local opt_key="${key#*.}"
+                # Convert to uppercase manually for cross-platform bash support, or use tr
+                local upper_opt_key=$(echo "$opt_key" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+                export "DOTUP_MOD_${upper_opt_key}=${val}"
+            fi
+        done < "$DOTUP_CONFIG_FILE"
+    fi
+
     # Check if this is a V3 standalone module (executable and handles its own args)
     # For now, we assume V1/V2 legacy if it's just a .sh file we used to source.
     # In V3, modules will have +x bit and act as independent processes.

@@ -40,24 +40,26 @@ validate_config_semantics() {
 
         # Check all provided options for this module
         local safe_mod="${mod//-/_}"
-        local prefix="CONFIG_MODULE_${safe_mod}_"
 
-        for var in ${!CONFIG_MODULE_*}; do
-            if [[ "$var" == "$prefix"* ]]; then
-                local opt_key="${var#"$prefix"}"
-                local opt_val="${!var}"
+        if [[ -f "${DOTUP_CONFIG_FILE:-}" ]]; then
+            while IFS="=" read -r key val || [[ -n "$key" ]]; do
+                [[ -z "$key" ]] && continue
+                if [[ "$key" == "${safe_mod}."* ]]; then
+                    local opt_key="${key#*.}"
+                    local opt_val="$val"
 
-                local mod_validate_fn="${safe_mod}_validate_options"
+                    local mod_validate_fn="${safe_mod}_validate_options"
 
-                if declare -F "$mod_validate_fn" >/dev/null; then
-                    if ! "$mod_validate_fn" "$opt_key" "$opt_val"; then
-                        fail_critical "Validation failed: Invalid option '${opt_key}'='${opt_val}' for module '${mod}'."
+                    if declare -F "$mod_validate_fn" >/dev/null; then
+                        if ! "$mod_validate_fn" "$opt_key" "$opt_val"; then
+                            fail_critical "Validation failed: Invalid option '${opt_key}'='${opt_val}' for module '${mod}'."
+                        fi
+                    else
+                        fail_critical "Validation failed: Module '${mod}' does not support option '${opt_key}'."
                     fi
-                else
-                    fail_critical "Validation failed: Module '${mod}' does not support option '${opt_key}'."
                 fi
-            fi
-        done
+            done < "$DOTUP_CONFIG_FILE"
+        fi
     done
 
     log_debug "Semantic validation passed."
