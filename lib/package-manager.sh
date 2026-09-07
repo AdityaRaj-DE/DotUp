@@ -9,7 +9,7 @@ detect_package_manager() {
 
     if [[ "$pm" == "apt" || "$pm" == "dnf" || "$pm" == "pacman" ]]; then
         # shellcheck disable=SC2034
-        PKG_MANAGER="$pm"
+        export PKG_MANAGER="$pm"
         log_debug "Package manager detected: $pm"
     else
         fail_critical "Package manager '$pm' is not currently supported for installation."

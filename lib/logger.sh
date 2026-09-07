@@ -3,9 +3,11 @@
 # Setup logging
 DEVBOOTSTRAP_DIR="${HOME}/.devbootstrap"
 LOG_DIR="${DEVBOOTSTRAP_DIR}/logs"
-TIMESTAMP=$(date +"%Y-%m-%d-%H%M%S")
-LOG_FILE="${LOG_DIR}/${TIMESTAMP}.log"
-LATEST_LOG="${LOG_DIR}/latest.log"
+if [[ -z "${LOG_FILE:-}" ]]; then
+    TIMESTAMP=$(date +"%Y-%m-%d-%H%M%S")
+    export LOG_FILE="${LOG_DIR}/${TIMESTAMP}.log"
+fi
+export LATEST_LOG="${LOG_DIR}/latest.log"
 
 setup_logging() {
     mkdir -p "${LOG_DIR}"

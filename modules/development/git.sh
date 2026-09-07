@@ -1,40 +1,40 @@
 #!/usr/bin/env bash
+# dotup-module-v3
 
-git_detect() {
-    log_debug "Detecting Git..."
-    if command -v git >/dev/null 2>&1; then
-        echo "INSTALLED"
-    else
-        echo "NOT_INSTALLED"
-    fi
-}
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "${SCRIPT_DIR}/lib/colors.sh"
+source "${SCRIPT_DIR}/lib/logger.sh"
+source "${SCRIPT_DIR}/lib/package-manager.sh"
+source "${SCRIPT_DIR}/lib/utils.sh"
 
-git_detect_state() {
+ACTION="${1:-}"
+
+detect() {
     if ! command -v git >/dev/null 2>&1; then
         echo "status=NOT_INSTALLED"
-        return
+        return 0
     fi
 
     echo "status=INSTALLED"
     local v
-    # git version output is usually "git version 2.45.2"
     v=$(git --version | awk '{print $3}')
     if [[ -n "$v" ]]; then
         echo "version=$v"
     fi
+    return 0
 }
 
-git_install() {
+install() {
     log_info "Installing Git..."
     pkg_install git
 }
 
-git_repair() {
+repair() {
     log_warn "Repairing Git..."
-    git_install
+    install
 }
 
-git_configure() {
+configure() {
     log_info "Configuring Git..."
 
     local interactive="true"
@@ -136,7 +136,7 @@ git_configure() {
     fi
 }
 
-git_validate() {
+validate() {
     log_debug "Validating Git..."
     if ! command -v git >/dev/null 2>&1; then
         fail_critical "Git validation failed: executable not found."
@@ -144,10 +144,16 @@ git_validate() {
     log_success "Git is fully validated."
 }
 
-git_validate_options() {
-    # shellcheck disable=SC2034
-    local key="$1"
-    # shellcheck disable=SC2034
-    local val="$2"
+validate_options() {
     return 1
 }
+
+case "$ACTION" in
+    detect) detect ;;
+    install) install ;;
+    repair) repair ;;
+    configure) configure ;;
+    validate) validate ;;
+    validate_options) validate_options ;;
+    *) fail_critical "Git module: Unknown action '$ACTION'" ;;
+esac

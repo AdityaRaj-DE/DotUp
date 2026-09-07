@@ -44,17 +44,6 @@ source "${SCRIPT_DIR}/lib/state_engine.sh"
 source "${SCRIPT_DIR}/lib/module_adapter.sh"
 source "${SCRIPT_DIR}/lib/registry.sh"
 
-source "${SCRIPT_DIR}/modules/system/system.sh"
-source "${SCRIPT_DIR}/modules/development/git.sh"
-source "${SCRIPT_DIR}/modules/terminal/zsh.sh"
-source "${SCRIPT_DIR}/modules/development/node.sh"
-source "${SCRIPT_DIR}/modules/development/python.sh"
-source "${SCRIPT_DIR}/modules/development/java.sh"
-source "${SCRIPT_DIR}/modules/infrastructure/docker.sh"
-source "${SCRIPT_DIR}/modules/infrastructure/gcloud.sh"
-source "${SCRIPT_DIR}/modules/applications/chrome.sh"
-source "${SCRIPT_DIR}/modules/editors/vscode.sh"
-source "${SCRIPT_DIR}/modules/editors/antigravity.sh"
 
 execute_module() {
     local module="$1"
@@ -212,14 +201,9 @@ main() {
         parse_config "$CONFIG_FILE"
         validate_config
 
-        # In V2, we dynamically source exactly the modules requested
+        # In V2, we simply build the array of modules requested
         for mod in "${CONFIG_MODULES[@]}"; do
             modules_to_run+=("$mod")
-            local mod_path
-            if mod_path=$(registry_resolve_module "$mod"); then
-                # shellcheck source=/dev/null
-                source "$mod_path"
-            fi
         done
 
         execute_components_v2 "${modules_to_run[@]}"

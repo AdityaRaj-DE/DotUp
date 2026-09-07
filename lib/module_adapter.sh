@@ -41,7 +41,7 @@ execute_module_action() {
     # Check if this is a V3 standalone module (executable and handles its own args)
     # For now, we assume V1/V2 legacy if it's just a .sh file we used to source.
     # In V3, modules will have +x bit and act as independent processes.
-    if [[ -x "$mod_path" && "$(head -n 1 "$mod_path")" == *"bash"* && "$mod_path" == *"v3_modules"* ]]; then
+    if [[ -x "$mod_path" && "$(head -n 2 "$mod_path" | grep -q 'dotup-module-v3'; echo $?)" == "0" ]]; then
         # Future V3 execution path
         "$mod_path" "$action"
         return $?

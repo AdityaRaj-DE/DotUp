@@ -36,17 +36,6 @@ source "${SCRIPT_DIR}/lib/state_engine.sh"
 source "${SCRIPT_DIR}/lib/module_adapter.sh"
 source "${SCRIPT_DIR}/lib/registry.sh"
 
-source "${SCRIPT_DIR}/modules/system/system.sh"
-source "${SCRIPT_DIR}/modules/development/git.sh"
-source "${SCRIPT_DIR}/modules/terminal/zsh.sh"
-source "${SCRIPT_DIR}/modules/development/node.sh"
-source "${SCRIPT_DIR}/modules/development/python.sh"
-source "${SCRIPT_DIR}/modules/development/java.sh"
-source "${SCRIPT_DIR}/modules/infrastructure/docker.sh"
-source "${SCRIPT_DIR}/modules/infrastructure/gcloud.sh"
-source "${SCRIPT_DIR}/modules/applications/chrome.sh"
-source "${SCRIPT_DIR}/modules/editors/vscode.sh"
-source "${SCRIPT_DIR}/modules/editors/antigravity.sh"
 
 setup_logging
 
@@ -86,18 +75,20 @@ if [[ -n "$CONFIG_FILE" ]]; then
     done
 else
     log_info "Running Legacy V1 comprehensive repair on all modules..."
-    local ALL_MODULES
+    ALL_MODULES
     read -r -a ALL_MODULES <<< "$(registry_list_all_modules)"
     for module in "${ALL_MODULES[@]}"; do
         state=$(execute_module_action "$module" "detect")
-        if [[ "$state" == "BROKEN" ]] || [[ "$state" == "NOT_INSTALLED" ]]; then
+        local status_val
+        status_val=$(echo "$state" | grep "status=" | cut -d= -f2 || echo "UNKNOWN")
+        if [[ "$status_val" == "BROKEN" ]] || [[ "$status_val" == "NOT_INSTALLED" ]]; then
             echo -e "${YELLOW}Repairing ${module}...${NC}"
             execute_module_action "$module" "repair"
             execute_module_action "$module" "configure"
             execute_module_action "$module" "validate"
-            ((repaired++))
+            repaired=$((repaired + 1))
         else
-            echo -e "${GREEN}Skipping ${module}...${NC} (Status: ${state})"
+            echo -e "${GREEN}Skipping ${module}...${NC} (Status: ${status_val})"
         fi
     done
 fi

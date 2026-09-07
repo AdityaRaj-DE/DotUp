@@ -12,7 +12,7 @@ setup_sudo() {
     if command -v sudo >/dev/null 2>&1; then
         if sudo -n true 2>/dev/null; then
             log_debug "Sudo privileges already active."
-            SUDO_CMD="sudo"
+            export SUDO_CMD="sudo"
         else
             log_info "Sudo privileges required for package management. Please authenticate."
             if sudo -v; then
@@ -23,7 +23,7 @@ setup_sudo() {
                     kill -0 "$$" || exit
                 done 2>/dev/null) &
                 # shellcheck disable=SC2034
-                SUDO_CMD="sudo"
+                export SUDO_CMD="sudo"
                 log_success "Sudo privileges acquired."
             else
                 fail_critical "Failed to acquire sudo privileges."
