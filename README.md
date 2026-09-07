@@ -30,7 +30,7 @@ modules:
   git: {}        # Installs Git
   zsh: {}        # Installs the Zsh terminal with a beautiful theme
   node:          
-    version: "20" # Installs Node.js version 20
+    version: "20" # Note: In the current implementation, some modules (like Node) ignore version configuration and install LTS
   docker: {}     # Installs Docker
 ```
 

@@ -1,3 +1,4 @@
+**Note: This documents the legacy V1 profile state model. For the current declarative V2 state model, see `V2_STATE_MODEL.md`.**
 # State Model
 
 DotUp tracks the state of installed components, but there is currently **NO** persistent state file or desired state engine. Actual system inspection is authoritative and state is evaluated dynamically at runtime.

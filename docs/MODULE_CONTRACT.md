@@ -1,3 +1,4 @@
+**Note: This documents the legacy V1 profile contract. For the current declarative YAML V2 contract, see `V2_STATE_MODEL.md`. The repository currently contains a mix of both.**
 # Module Contract
 
 Every installer module in DotUp must adhere to a consistent contract to allow the orchestrator to manage them seamlessly.

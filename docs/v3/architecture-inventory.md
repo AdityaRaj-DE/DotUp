@@ -1,0 +1,15 @@
+# DotUp V3 Architecture Inventory
+
+| Area | Current implementation | Important files | Responsibility | V3 relevance | Recommendation |
+| ---- | ---------------------- | --------------- | -------------- | ------------ | -------------- |
+| **CLI Entrypoint** | Bash script router | `dotup` | Routes commands (`install`, `doctor`, etc.) to respective scripts. | Will be replaced by a compiled binary (Go/Rust). | **REPLACE** |
+| **Bootstrapper** | Curl-to-bash script pulling GitHub release tarballs | `bootstrap.sh` | Fetches the correct release version, extracts it, and executes the installer. | Needs to support direct execution of remote setup configurations (e.g., `curl \| bash`). | **EXTEND** |
+| **Configuration Parser** | Custom `awk`/bash parser | `lib/config_parser.sh`, `lib/config_validator.sh` | Parses `dotup.yaml` into dynamic Bash variables; structurally validates it. | Cannot safely parse remote, untrusted YAML. Requires a robust, memory-safe parser. | **REPLACE** |
+| **State Engine** | In-memory Bash variable evaluator | `lib/state_engine.sh` | Computes Desired vs Actual state and produces an execution plan (`SATISFIED`, `INSTALL_REQUIRED`, etc.). | Needs to transition to a persistent, strongly-typed state model (e.g., local database or JSON store). | **REPLACE** |
+| **Platform Context** | Native Bash detection | `lib/os.sh` | Detects OS distribution, version, architecture, package manager, and init system. | Logic remains valid but needs porting to the new core language. | **REFACTOR** |
+| **Package Abstraction** | Bash abstraction layer | `lib/package-manager.sh` | Provides generic APIs (`pkg_install`, `pkg_update`) abstracting `apt`, `dnf`, `pacman`. | Core shell logic is sound but needs integration into the new runner architecture. | **KEEP / REFACTOR** |
+| **Modules** | Standalone Bash scripts | `modules/**/*.sh` | Implements the actual detection, installation, configuration, and validation for specific tools. | The shell execution commands are valuable, but the contract must be strictly enforced (some modules currently ignore configuration or fail critically). | **REFACTOR** |
+| **V1 Legacy Profiles** | Text files listing modules | `config/profiles/*.conf` | Provides imperative lists of tools for older setups. | Should be fully deprecated or migrated to declarative YAML. | **REPLACE** |
+| **Logging & UI** | Bash color codes and echo | `lib/logger.sh`, `lib/colors.sh` | Outputs standard formatted logs and CLI user interfaces. | Will be handled by the native logging framework of the V3 core language. | **REPLACE** |
+| **Sudo Management** | Bash privilege escalation | `lib/sudo.sh` | Ensures the script runs with required privileges for package management. | Needs a secure execution model in V3, potentially dropping privileges when running user-level configurations. | **REFACTOR** |
+| **Testing Infrastructure** | Bash unit tests & Docker | `tests/*.sh`, `tests/docker/*` | Verifies parser, state engine logic, and full installation flows in containers. | Needs complete rewrite to test the compiled V3 core and individual module contracts reliably. | **REPLACE** |
