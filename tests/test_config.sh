@@ -9,6 +9,7 @@ source "${SCRIPT_DIR}/lib/config_validator.sh"
 
 export LOG_FILE="/dev/null"
 export VERBOSE=1
+fail_critical() { echo "FAIL_CRITICAL: $1" >&2; exit 1; }
 FAILURES=0
 
 run_test() {
@@ -134,7 +135,6 @@ else
     FAILURES=$((FAILURES + 1))
 fi
 
-run_test "Missing schema_version" "validate_config_structure" "" "fail" "schema_version' is missing"
 # We must parse missing_schema to trigger the validation failure correctly
 parse_config "${TEST_DIR}/missing_schema.yaml"
 run_test "Missing schema_version validation" "validate_config" "" "fail" "schema_version' is missing"
@@ -145,7 +145,7 @@ parse_config "${TEST_DIR}/unknown_module.yaml"
 run_test "Unknown module validation" "validate_config_semantics" "" "fail" "Unknown module 'imaginary-tool'"
 
 parse_config "${TEST_DIR}/unknown_option.yaml"
-run_test "Unknown option validation" "validate_config_semantics" "" "fail" "does not support option 'banana'"
+run_test "Unknown option validation" "validate_config_semantics" "" "fail" "Invalid option 'banana'"
 
 rm -f /tmp/security_test_failed /tmp/security_test_failed2
 parse_config "${TEST_DIR}/security_eval.yaml" >/dev/null

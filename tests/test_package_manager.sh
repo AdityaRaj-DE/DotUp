@@ -144,6 +144,7 @@ run_test "pkg_is_available (true)" "pkg_is_available" "btop" 0
 _MOCK_PKG_AVAILABLE="false"
 run_test "pkg_is_available (false)" "pkg_is_available" "btop" 1
 
+TMP_DIR=$(mktemp -d)
 MOCK_LOCAL_DEB="${TMP_DIR}/test.deb"
 touch "$MOCK_LOCAL_DEB"
 run_test "pkg_install_local (apt, success)" "pkg_install_local" "$MOCK_LOCAL_DEB" 0

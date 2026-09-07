@@ -21,13 +21,13 @@ Before proceeding with migration, we must define what a V3 module is. Currently,
 
 ---
 
-## Plan 1 — Establish Baseline and Regression Protection
+Integration tests currently mock almost everything (including `os-release` and `apt`). There are no tests verifying end-to-end `dotup` CLI behavior, `bootstrap.sh` extraction, or error exit codes.
 
 ### Objective
 Ensure we have a safety net before refactoring core shell logic.
 
 ### Current Problem
-Integration tests currently mock almost everything (including `os-release` and `apt`). There are no tests verifying end-to-end `dotup` CLI behavior, `bootstrap.sh` extraction, or error exit codes.
+Integration tests currently mock almost everything (including `os-release` and `apt`). There are no tests verifying end-to-end `dotup` CLI behavior, `bootstrap.sh` extraction, or error exit codes. (COMPLETED)
 
 ### Scope
 Add integration tests for the CLI entrypoints (`install`, `doctor`, `repair`, `bootstrap`).

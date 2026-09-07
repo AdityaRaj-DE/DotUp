@@ -45,6 +45,7 @@ run_test() {
 
     echo "Running test: $name"
 
+    unset ID ID_LIKE VERSION_ID PRETTY_NAME
     MOCK_UNAME_OUT="$mock_uname_val"
     MOCK_SYSTEMCTL="$mock_systemctl_val"
 
