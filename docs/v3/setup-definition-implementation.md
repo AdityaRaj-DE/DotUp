@@ -153,3 +153,36 @@ Invalid V3 setups fail clearly; V2 validations remain intact.
 
 ### Regression risks
 Minimal. V2 validation won't trigger the new V3 checks if `CONFIG_IS_V3` is 0.
+
+## Step 3 — Integrate V3 Configuration into Execution Paths
+
+### Objective
+Ensure `install.sh`, `doctor.sh`, and `repair.sh` accurately log and execute V3 setups.
+
+### Current behavior
+`install.sh` has `log_info "Loading YAML config"`.
+`doctor.sh` has `log_info "Running V2 diagnostics via configuration"`.
+`repair.sh` has `log_info "Running V2 diagnostics via configuration"`.
+While the parsing engine transparently converts V3 into internal variables, the CLI scripts still report "V2" semantics. Also, we lack E2E coverage for V3.
+
+### Required change
+1. Update log messages in `doctor.sh` and `repair.sh` to remove explicit "V2" text or generalize it.
+2. Add end-to-end integration tests using a V3 configuration.
+
+### Files expected to change
+- `doctor.sh`
+- `repair.sh`
+- `tests/test_cli_integration.sh`
+
+### Implementation approach
+Remove explicit "V2" strings from `doctor.sh` and `repair.sh` logs since it could be V2 or V3.
+In `tests/test_cli_integration.sh`, introduce a valid V3 YAML (`v3_integration.yaml`). Run an installation and assert that V3 components are evaluated by the execution pipeline.
+
+### Tests
+Integration test runs `install`, `doctor`, and `repair` over the V3 setup definition.
+
+### Acceptance criteria
+The system successfully runs an install, doctor, and repair using a canonical V3 setup definition and tests pass.
+
+### Regression risks
+Minimal; no core structural changes to execution.

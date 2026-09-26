@@ -52,7 +52,7 @@ setup_sudo
 repaired=0
 
 if [[ -n "$CONFIG_FILE" ]]; then
-    log_info "Running V2 diagnostics via configuration: ${CONFIG_FILE}"
+    log_info "Running diagnostics via configuration: ${CONFIG_FILE}"
     parse_config "$CONFIG_FILE"
     collect_desired_state "${CONFIG_MODULES[@]}"
     collect_actual_state "${CONFIG_MODULES[@]}"

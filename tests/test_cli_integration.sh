@@ -76,13 +76,36 @@ run_cli_test "install --plan without --config" "bash ${SCRIPT_DIR}/dotup install
 
 # Test doctor without config (runs ALL_MODULES fallback). Expect exit 1 because the CI machine likely misses some modules (like python or java)
 run_cli_test "doctor V1 fallback (no config)" "bash ${SCRIPT_DIR}/dotup doctor" 1 "Legacy V1 comprehensive diagnostics"
-
 # Test doctor with V2 config. Assuming system is installed.
-run_cli_test "doctor V2 config" "bash ${SCRIPT_DIR}/dotup doctor --config /tmp/dotup-test-mock.yaml" 0 "V2 diagnostics via configuration"
+run_cli_test "doctor V2 config" "bash ${SCRIPT_DIR}/dotup doctor --config /tmp/dotup-test-mock.yaml" 0 "diagnostics via configuration"
+
+# Create a mock module for V3 integration tests
+mkdir -p "${SCRIPT_DIR}/modules/mock-test"
+cat << 'MOCKMOD' > "${SCRIPT_DIR}/modules/mock-test/mock-test.sh"
+mock_test_detect_state() { echo "status=NOT_INSTALLED"; }
+mock_test_install() { echo "Installing mock-test..."; return 0; }
+mock_test_configure() { return 0; }
+mock_test_validate() { return 0; }
+MOCKMOD
+
+# V3 config
+cat <<'YAMLEOF' > /tmp/v3_integration.yaml
+schemaVersion: "1"
+setup:
+  id: "v3-test"
+  version: "1.0.0"
+components:
+  - id: "mock-test"
+YAMLEOF
+
+# Test install with V3 config
+run_cli_test "install V3 config" "bash ${SCRIPT_DIR}/install.sh --config /tmp/v3_integration.yaml" 0 "Installing mock-test..."
+
 
 # Clean up
-rm -f /tmp/dotup-test-mock.yaml
+rm -f /tmp/dotup-test-mock.yaml /tmp/v3_integration.yaml
 rm -rf "$MOCK_DIR"
+rm -rf "${SCRIPT_DIR}/modules/mock-test"
 
 if [[ $FAILURES -eq 0 ]]; then
     echo -e "\n${GREEN}All CLI integration tests passed!${NC}"
