@@ -103,6 +103,19 @@ modules:
   system: {}
 EOF
 
+cat <<'EOF' >"${TEST_DIR}/v3_valid.yaml"
+schemaVersion: "1"
+setup:
+  id: backend-dev
+  version: "1.0.0"
+components:
+  - id: git
+  - id: node
+    options:
+      version: "24"
+EOF
+
+
 # --- Run Tests ---
 echo "Running Config Parser Tests..."
 
@@ -155,6 +168,21 @@ else
     echo -e "Test: Security eval injection prevented... ${RED}FAIL${NC}"
     FAILURES=$((FAILURES + 1))
     rm -f /tmp/security_test_failed /tmp/security_test_failed2
+fi
+
+# --- V3 Format Tests ---
+echo "Running V3 Config Parser Tests..."
+
+run_test "Parse valid V3 config" "parse_config" "${TEST_DIR}/v3_valid.yaml" 0 ""
+# Verify global state after parsing valid V3 config
+parse_config "${TEST_DIR}/v3_valid.yaml" >/dev/null
+local_node_ver_v3=$(grep "^node.version=" "$DOTUP_CONFIG_FILE" | cut -d= -f2)
+if [[ "$CONFIG_SCHEMA_VERSION" == "1" ]] && [[ "$CONFIG_PROFILE_NAME" == "backend-dev" ]] && [[ "$CONFIG_SETUP_VERSION" == "1.0.0" ]] && [[ "${CONFIG_MODULES[*]}" == *"git"* ]] && [[ "${CONFIG_MODULES[*]}" == *"node"* ]] && [[ "$local_node_ver_v3" == "24" ]]; then
+    echo -e "Test: V3 parsed state verification... ${GREEN}PASS${NC}"
+else
+    echo -e "Test: V3 parsed state verification... ${RED}FAIL${NC}"
+    echo "State: VERSION=$CONFIG_SCHEMA_VERSION NAME=$CONFIG_PROFILE_NAME SETUP_VER=$CONFIG_SETUP_VERSION MODULES=${CONFIG_MODULES[*]} NODE_VER=$local_node_ver_v3"
+    FAILURES=$((FAILURES + 1))
 fi
 
 # Cleanup
