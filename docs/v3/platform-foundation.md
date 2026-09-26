@@ -27,37 +27,49 @@ The local development environment uses `docker compose up --build` to orchestrat
 - `backend`: FastAPI running on port 8000.
 - `frontend`: Next.js running on port 3000.
 - `postgres`: PostgreSQL running on port 5432.
-- Environment variables are defined via `.env` (copied from `.env.example`).
-
-## Planned Container Architecture
-```text
-                    Docker Compose
-                         │
-          ┌──────────────┼──────────────┐
-          │              │              │
-          ▼              ▼              ▼
-     ┌─────────┐    ┌─────────┐    ┌──────────┐
-     │ Next.js │    │ FastAPI │    │PostgreSQL│
-     │ frontend│───▶│ backend │───▶│ database │
-     └─────────┘    └─────────┘    └──────────┘
-```
-
 ## Implementation Roadmap
 1. [x] **Step 0**: Inspect repository & Architecture Plan
-2. [ ] **Step 1**: Establish Backend Foundation
-3. [ ] **Step 2**: Establish PostgreSQL Foundation
-4. [ ] **Step 3**: Database Connection Layer
-5. [ ] **Step 4**: Migration Infrastructure
-6. [ ] **Step 5**: Establish Next.js Foundation
-7. [ ] **Step 6**: Frontend → Backend Communication
-8. [ ] **Step 7**: Backend → PostgreSQL Verification
-9. [ ] **Step 8**: Docker Compose
-10. [ ] **Step 9**: Service Startup Dependencies
-11. [ ] **Step 10**: Environment Configuration
-12. [ ] **Step 11**: Local Developer Experience
-13. [ ] **Step 12**: Tests
-14. [ ] **Step 13**: DotUp Regression
-15. [ ] **Step 14**: Docker Build Verification
-16. [ ] **Step 15**: Failure Testing
-17. [ ] **Step 16**: Security Baseline
-18. [ ] **Step 17**: Documentation Updates & Verification Report
+2. [x] **Step 1**: Establish Backend Foundation
+3. [x] **Step 2**: Establish PostgreSQL Foundation
+4. [x] **Step 3**: Database Connection Layer
+5. [x] **Step 4**: Migration Infrastructure
+6. [x] **Step 5**: Establish Next.js Foundation
+7. [x] **Step 6**: Frontend → Backend Communication
+8. [x] **Step 7**: Backend → PostgreSQL Verification
+9. [x] **Step 8**: Docker Compose
+10. [x] **Step 9**: Service Startup Dependencies
+11. [x] **Step 10**: Environment Configuration
+12. [x] **Step 11**: Local Developer Experience
+13. [x] **Step 12**: Tests
+14. [x] **Step 13**: DotUp Regression
+15. [x] **Step 14**: Docker Build Verification
+16. [x] **Step 15**: Failure Testing
+17. [x] **Step 16**: Security Baseline
+18. [x] **Step 17**: Documentation Updates & Verification Report
+
+## Final Architecture
+See `docs/v3/platform-foundation-verification.md` for a comprehensive view of the completed architecture and verified endpoints.
+
+## Local Development
+Run the platform using Docker Compose:
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+### Service Ports
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **Backend Docs**: http://localhost:8000/docs
+- **PostgreSQL**: localhost:5432
+
+## Database Connection
+Backend uses SQLAlchemy and Alembic for schema migrations. Connects to `postgres` via the `DATABASE_URL` environment variable.
+
+## Deferred V3 Work
+The following items remain intentionally deferred to future milestones:
+- Authentication & Authorization
+- Setup CRUD & versions
+- Frontend Dashboard & Builder UI
+- DotUp ↔ Backend integration
+- Production/Cloud deployment
