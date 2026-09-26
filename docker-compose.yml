@@ -35,13 +35,17 @@ services:
       dockerfile: Dockerfile
     container_name: dotup-backend
     restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     env_file:
       - .env
     environment:
       - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/dotup}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - PYTHONPATH=/app
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
@@ -59,14 +63,19 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: deps
     container_name: dotup-frontend
     restart: unless-stopped
+    command: npm run dev
     env_file:
       - .env
     environment:
       - BACKEND_URL=${BACKEND_URL:-http://backend:8000}
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       backend:
         condition: service_healthy
