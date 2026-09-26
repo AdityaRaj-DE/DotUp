@@ -1,48 +1,84 @@
-version: '3.8'
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
 
 services:
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
+    container_name: dotup-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-dotup}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-dotup}"]
+      interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    logging: *default-logging
+    networks:
+      - dotup-network
+
   backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile
+    container_name: dotup-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/dotup}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - FRONTEND_URL=${FRONTEND_URL}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 5s
+      interval: 10s
       timeout: 3s
       retries: 5
+      start_period: 10s
     depends_on:
       postgres:
         condition: service_healthy
+    logging: *default-logging
+    networks:
+      - dotup-network
 
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dotup-frontend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - BACKEND_URL=${BACKEND_URL:-http://backend:8000}
     ports:
       - "3000:3000"
-    environment:
-      - BACKEND_URL=${BACKEND_URL}
     depends_on:
       backend:
         condition: service_healthy
+    logging: *default-logging
+    networks:
+      - dotup-network
+
+networks:
+  dotup-network:
+    driver: bridge
+    name: dotup-network
 
 volumes:
   postgres_data:
+    name: dotup_postgres_data
