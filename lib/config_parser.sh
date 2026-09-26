@@ -13,6 +13,7 @@ config_reset() {
     CONFIG_PROFILE_NAME=""
     CONFIG_PROFILE_DESCRIPTION=""
     CONFIG_SETUP_VERSION=""
+    CONFIG_IS_V3=0
     CONFIG_MODULES=()
     
     # Initialize the intermediate config file
@@ -90,6 +91,9 @@ parse_config() {
             if [[ "$key" == "schema_version" ]] || [[ "$key" == "schemaVersion" ]]; then
                 # shellcheck disable=SC2034
                 CONFIG_SCHEMA_VERSION="$val"
+                if [[ "$key" == "schemaVersion" ]]; then
+                    CONFIG_IS_V3=1
+                fi
             elif [[ "$key" == "profile" ]]; then
                 in_profile=1
             elif [[ "$key" == "modules" ]]; then

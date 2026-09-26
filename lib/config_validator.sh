@@ -12,8 +12,17 @@ validate_config_structure() {
         fail_critical "Validation failed: Unsupported schema_version '${CONFIG_SCHEMA_VERSION}'. Expected '1'."
     fi
 
-    if [[ -z "$CONFIG_PROFILE_NAME" ]]; then
-        fail_critical "Validation failed: 'profile.name' is missing."
+    if [[ ${CONFIG_IS_V3:-0} -eq 1 ]]; then
+        if [[ -z "$CONFIG_PROFILE_NAME" ]]; then
+            fail_critical "Validation failed: 'setup.id' is missing."
+        fi
+        if [[ -z "$CONFIG_SETUP_VERSION" ]]; then
+            fail_critical "Validation failed: 'setup.version' is missing."
+        fi
+    else
+        if [[ -z "$CONFIG_PROFILE_NAME" ]]; then
+            fail_critical "Validation failed: 'profile.name' is missing."
+        fi
     fi
 
     if [[ ${#CONFIG_MODULES[@]} -eq 0 ]]; then

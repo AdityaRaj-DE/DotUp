@@ -119,3 +119,37 @@ A valid V3 config successfully populates the existing Bash global variables and 
 
 ### Regression risks
 Breaking V2 parsing if the line parser's state machine loses track. We will carefully scope V3-specific states.
+
+## Step 2 — Update Configuration Validator
+
+### Objective
+Ensure the existing validation steps (`validate_config_structure`) correctly assert the necessary fields based on whether a V2 or V3 config was loaded.
+
+### Current behavior
+`validate_config_structure` strictly expects V2 structure elements: `CONFIG_PROFILE_NAME` and `CONFIG_MODULES`. Since V3 maps `setup.id` to `CONFIG_PROFILE_NAME` and `components` to `CONFIG_MODULES`, some validation naturally passes. However, we should explicitly assert that V3 configs include a `setup.version` (mapped to `CONFIG_SETUP_VERSION`) if we consider it required, or we should clarify the validation boundary. Wait, `CONFIG_SCHEMA_VERSION` is already validated to be "1". For V3, `setup.id` (mapped to `CONFIG_PROFILE_NAME`) is checked. What about `setup.version`? The prompt states `setup.version` is required.
+
+### Required change
+1. Update `validate_config_structure` to check if `CONFIG_SETUP_VERSION` is provided when parsing a V3-style configuration (or we can just enforce it generally if V3 schema dictates). Since V2 doesn't have `setup.version`, we should use a heuristic (e.g., if it's a V3 setup, maybe we need an explicit flag, or we just check if `CONFIG_SETUP_VERSION` is empty when it shouldn't be). Actually, V2 and V3 both map to "schema_version=1" internally.
+2. Check the prompt: `setup.version` is "Required." `setup.id` is "Required."
+3. Introduce a way for the parser to signal it saw V3, or just check: if V3 YAML was used (maybe a new `CONFIG_IS_V3=1`), then assert `CONFIG_SETUP_VERSION` is not empty.
+
+### Files expected to change
+- `lib/config_parser.sh` (to export `CONFIG_IS_V3`)
+- `lib/config_validator.sh` (to check `CONFIG_SETUP_VERSION` if `CONFIG_IS_V3==1`)
+- `tests/test_config.sh`
+
+### Implementation approach
+1. In `config_reset`, add `CONFIG_IS_V3=0`.
+2. In `parse_config`, when `schemaVersion` is encountered, set `CONFIG_IS_V3=1`.
+3. In `validate_config_structure`, add a check: if `CONFIG_IS_V3 -eq 1`, ensure `CONFIG_SETUP_VERSION` is non-empty.
+4. Add tests for missing V3 properties (missing `setup.id`, missing `setup.version`).
+
+### Tests
+Add `v3_missing_id.yaml` and `v3_missing_version.yaml` to `test_config.sh`.
+Assert that validation fails with a clear message.
+
+### Acceptance criteria
+Invalid V3 setups fail clearly; V2 validations remain intact.
+
+### Regression risks
+Minimal. V2 validation won't trigger the new V3 checks if `CONFIG_IS_V3` is 0.

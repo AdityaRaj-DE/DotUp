@@ -115,6 +115,22 @@ components:
       version: "24"
 EOF
 
+cat <<'EOF' >"${TEST_DIR}/v3_missing_id.yaml"
+schemaVersion: "1"
+setup:
+  version: "1.0.0"
+components:
+  - id: git
+EOF
+
+cat <<'EOF' >"${TEST_DIR}/v3_missing_version.yaml"
+schemaVersion: "1"
+setup:
+  id: backend-dev
+components:
+  - id: git
+EOF
+
 
 # --- Run Tests ---
 echo "Running Config Parser Tests..."
@@ -184,6 +200,12 @@ else
     echo "State: VERSION=$CONFIG_SCHEMA_VERSION NAME=$CONFIG_PROFILE_NAME SETUP_VER=$CONFIG_SETUP_VERSION MODULES=${CONFIG_MODULES[*]} NODE_VER=$local_node_ver_v3"
     FAILURES=$((FAILURES + 1))
 fi
+
+parse_config "${TEST_DIR}/v3_missing_id.yaml"
+run_test "Missing setup.id validation" "validate_config" "" "fail" "setup.id' is missing"
+
+parse_config "${TEST_DIR}/v3_missing_version.yaml"
+run_test "Missing setup.version validation" "validate_config" "" "fail" "setup.version' is missing"
 
 # Cleanup
 rm -rf "$TEST_DIR"
