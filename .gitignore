@@ -5,3 +5,7 @@ backend/__pycache__/
 backend/.pytest_cache/
 frontend/node_modules/
 frontend/.next/
+/.venv
+/dist
+/frontend/.next
+/backend/.venv

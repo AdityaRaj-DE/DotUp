@@ -35,7 +35,7 @@ validate_config_structure() {
 # Validates the semantic meaning (e.g. do the modules exist and do they support options?)
 validate_config_semantics() {
     log_debug "Validating configuration semantics..."
-    source "${SCRIPT_DIR}/lib/registry.sh"
+    source "${ENGINE_DIR}/lib/registry.sh"
 
     for mod in "${CONFIG_MODULES[@]}"; do
         local mod_path

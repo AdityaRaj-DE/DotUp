@@ -3,7 +3,8 @@
 set -Eeuo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-source "${SCRIPT_DIR}/lib/colors.sh"
+export ENGINE_DIR="${SCRIPT_DIR}/engine"
+source "${SCRIPT_DIR}/engine/lib/colors.sh"
 
 export LOG_FILE="/dev/null"
 export VERBOSE=1
@@ -64,7 +65,7 @@ EOF
 # Wait, this is an integration test. It might fail on WSL due to missing bash in the execution environment.
 # Let's write a mock test for `print_plan` directly.
 
-source "${SCRIPT_DIR}/lib/state_engine.sh"
+source "${SCRIPT_DIR}/engine/lib/state_engine.sh"
 
 test_print_plan() {
     # Mock data
@@ -84,7 +85,7 @@ test_print_plan() {
     # Instead, we will extract print_plan and test it.
     local output
     output=$(bash -c "
-        source ${SCRIPT_DIR}/lib/colors.sh
+        source ${SCRIPT_DIR}/engine/lib/colors.sh
         # Re-define print_plan here for the mock test
         print_plan() {
             for mod in \"\${CONFIG_MODULES[@]}\"; do

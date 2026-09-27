@@ -13,7 +13,7 @@ execute_module_action() {
     if declare -F "registry_resolve_module" >/dev/null; then
         mod_path=$(registry_resolve_module "$module")
     else
-        for f in "${SCRIPT_DIR}/modules"/*/"${module}.sh"; do
+        for f in "${ENGINE_DIR}/modules"/*/"${module}.sh"; do
             if [[ -f "$f" ]]; then
                 mod_path="$f"
                 break

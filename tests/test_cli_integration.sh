@@ -2,7 +2,8 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-source "${SCRIPT_DIR}/lib/colors.sh"
+export ENGINE_DIR="${SCRIPT_DIR}/engine"
+source "${SCRIPT_DIR}/engine/lib/colors.sh"
 
 FAILURES=0
 export LOG_FILE="/dev/null"
@@ -80,8 +81,8 @@ run_cli_test "doctor V1 fallback (no config)" "bash ${SCRIPT_DIR}/dotup doctor" 
 run_cli_test "doctor V2 config" "bash ${SCRIPT_DIR}/dotup doctor --config /tmp/dotup-test-mock.yaml" 0 "diagnostics via configuration"
 
 # Create a mock module for V3 integration tests
-mkdir -p "${SCRIPT_DIR}/modules/mock-test"
-cat << 'MOCKMOD' > "${SCRIPT_DIR}/modules/mock-test/mock-test.sh"
+mkdir -p "${SCRIPT_DIR}/engine/modules/mock-test"
+cat << 'MOCKMOD' > "${SCRIPT_DIR}/engine/modules/mock-test/mock-test.sh"
 mock_test_detect_state() { echo "status=NOT_INSTALLED"; }
 mock_test_install() { echo "Installing mock-test..."; return 0; }
 mock_test_configure() { return 0; }
@@ -105,7 +106,7 @@ run_cli_test "install V3 config" "bash ${SCRIPT_DIR}/install.sh --config /tmp/v3
 # Clean up
 rm -f /tmp/dotup-test-mock.yaml /tmp/v3_integration.yaml
 rm -rf "$MOCK_DIR"
-rm -rf "${SCRIPT_DIR}/modules/mock-test"
+rm -rf "${SCRIPT_DIR}/engine/modules/mock-test"
 
 if [[ $FAILURES -eq 0 ]]; then
     echo -e "\n${GREEN}All CLI integration tests passed!${NC}"

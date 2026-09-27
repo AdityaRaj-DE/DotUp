@@ -2,6 +2,7 @@
 set -e
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+export ENGINE_DIR="${SCRIPT_DIR}/engine"
 
 echo "Running Unit Tests..."
 "${SCRIPT_DIR}/test_os.sh"

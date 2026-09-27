@@ -93,8 +93,9 @@ pacman() {
 }
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+export ENGINE_DIR="${SCRIPT_DIR}/engine"
 # shellcheck disable=SC1091
-source "${SCRIPT_DIR}/../lib/package-manager.sh"
+source "${SCRIPT_DIR}/../engine/lib/package-manager.sh"
 
 run_test() {
     local name="$1"

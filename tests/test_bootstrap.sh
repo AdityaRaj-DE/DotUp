@@ -2,7 +2,8 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-source "${SCRIPT_DIR}/lib/colors.sh"
+export ENGINE_DIR="${SCRIPT_DIR}/engine"
+source "${SCRIPT_DIR}/engine/lib/colors.sh"
 
 FAILURES=0
 

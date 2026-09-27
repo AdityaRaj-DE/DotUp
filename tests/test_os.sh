@@ -27,11 +27,12 @@ command() {
 }
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+export ENGINE_DIR="${SCRIPT_DIR}/engine"
 alias uname=mock_uname
 shopt -s expand_aliases
 
 # shellcheck disable=SC1091
-source "${SCRIPT_DIR}/../lib/os.sh"
+source "${SCRIPT_DIR}/../engine/lib/os.sh"
 
 run_test() {
     local name="$1"

@@ -3,11 +3,12 @@
 set -Eeuo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-source "${SCRIPT_DIR}/lib/colors.sh"
-source "${SCRIPT_DIR}/lib/logger.sh"
-source "${SCRIPT_DIR}/lib/state_engine.sh"
-source "${SCRIPT_DIR}/lib/registry.sh"
-source "${SCRIPT_DIR}/lib/module_adapter.sh"
+export ENGINE_DIR="${SCRIPT_DIR}/engine"
+source "${SCRIPT_DIR}/engine/lib/colors.sh"
+source "${SCRIPT_DIR}/engine/lib/logger.sh"
+source "${SCRIPT_DIR}/engine/lib/state_engine.sh"
+source "${SCRIPT_DIR}/engine/lib/registry.sh"
+source "${SCRIPT_DIR}/engine/lib/module_adapter.sh"
 
 export LOG_FILE="/dev/null"
 export VERBOSE=1

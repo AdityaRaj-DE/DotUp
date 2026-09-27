@@ -3,8 +3,8 @@
 # registry.sh
 # Provides module discovery and resolution for DotUp.
 
-if [[ -z "${SCRIPT_DIR:-}" ]]; then
-    SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+if [[ -z "${ENGINE_DIR:-}" ]]; then
+    ENGINE_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 fi
 
 # Resolves a module name to its absolute file path.
@@ -14,7 +14,7 @@ registry_resolve_module() {
     
     # In the future, this could consult a static JSON map or remote registry.
     # For now, it abstracts the filesystem structure.
-    for f in "${SCRIPT_DIR}/modules"/*/"${module}.sh"; do
+    for f in "${ENGINE_DIR}/modules"/*/"${module}.sh"; do
         if [[ -f "$f" ]]; then
             echo "$f"
             return 0
@@ -33,7 +33,7 @@ registry_list_all_modules() {
         local filename
         filename=$(basename "$file")
         modules+=("${filename%.sh}")
-    done < <(find "${SCRIPT_DIR}/modules" -mindepth 2 -maxdepth 2 -name "*.sh" -print0 | sort -z)
+    done < <(find "${ENGINE_DIR}/modules" -mindepth 2 -maxdepth 2 -name "*.sh" -print0 | sort -z)
     
     echo "${modules[@]}"
 }

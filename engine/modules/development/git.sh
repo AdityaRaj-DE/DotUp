@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # dotup-module-v3
 
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "${SCRIPT_DIR}/lib/colors.sh"
-source "${SCRIPT_DIR}/lib/logger.sh"
-source "${SCRIPT_DIR}/lib/package-manager.sh"
-source "${SCRIPT_DIR}/lib/utils.sh"
+ENGINE_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "${ENGINE_DIR}/lib/colors.sh"
+source "${ENGINE_DIR}/lib/logger.sh"
+source "${ENGINE_DIR}/lib/package-manager.sh"
+source "${ENGINE_DIR}/lib/utils.sh"
 
 ACTION="${1:-}"
 

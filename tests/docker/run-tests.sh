@@ -2,6 +2,7 @@
 set -e
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+export ENGINE_DIR="${SCRIPT_DIR}/engine"
 REPO_ROOT="${SCRIPT_DIR}/../.."
 
 run_test() {
