@@ -83,15 +83,39 @@ docker_repair() {
 docker_configure() {
     log_info "Configuring Docker..."
 
-    if ! groups "${USER}" | grep -q "\bdocker\b"; then
-        log_info "Adding ${USER} to the docker group..."
-        ${SUDO_CMD:-} usermod -aG docker "${USER}"
-        log_warn "You will need to log out and log back in, or run 'newgrp docker' for group permissions to take effect."
+    local target_user="${SUDO_USER:-${USER:-$(id -un)}}"
+
+    # 1. Ensure docker group exists
+    if ! getent group docker >/dev/null 2>&1; then
+        log_info "Creating docker group..."
+        ${SUDO_CMD:-} groupadd docker 2>/dev/null || true
     fi
 
+    # 2. Add user to docker group if not already a member in /etc/group
+    local in_group=false
+    if id -nG "$target_user" 2>/dev/null | grep -qw "docker" || id -Gn 2>/dev/null | grep -qw "docker"; then
+        in_group=true
+    fi
+
+    if [[ "$in_group" != "true" ]]; then
+        log_info "Adding ${target_user} to the docker group..."
+        ${SUDO_CMD:-} usermod -aG docker "${target_user}" 2>/dev/null || true
+        log_warn "User ${target_user} added to docker group."
+        log_warn "To run docker without sudo in your current terminal session, run: newgrp docker"
+        log_warn "Or log out and log back into your desktop session for system-wide effect."
+    fi
+
+    # 3. Ensure Docker systemd service and socket are enabled and started
     if command -v systemctl >/dev/null 2>&1; then
         ${SUDO_CMD:-} systemctl enable docker.service >/dev/null 2>&1 || true
+        ${SUDO_CMD:-} systemctl enable docker.socket >/dev/null 2>&1 || true
         ${SUDO_CMD:-} systemctl start docker.service >/dev/null 2>&1 || true
+    fi
+
+    # 4. Ensure docker socket has correct group ownership if present
+    if [[ -S /var/run/docker.sock ]]; then
+        ${SUDO_CMD:-} chown root:docker /var/run/docker.sock 2>/dev/null || true
+        ${SUDO_CMD:-} chmod 660 /var/run/docker.sock 2>/dev/null || true
     fi
 }
 
