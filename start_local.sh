@@ -223,14 +223,12 @@ cmd_db() {
 
 cmd_migrate() {
     hr; echo -e "  ${BOLD}DATABASE MIGRATIONS${NC}"; hr; echo ""
-    if ! compose ps --services --filter "status=running" 2>/dev/null | grep -q '^postgres$'; then
-        step "Database not running. Starting it..."
-        compose up -d postgres --wait 2>/dev/null || fail "Database failed to start"
-    fi
+    step "Ensuring database is ready for migrations..."
+    compose up -d --wait --wait-timeout 60 postgres 2>/dev/null || fail "Database failed to start"
     
     if [ -d "backend/alembic" ] || [ -f "backend/alembic.ini" ]; then
         # Run alembic upgrade head
-        compose run --rm -it --no-deps backend alembic upgrade head || fail "Migration step failed"
+        compose run --rm backend alembic upgrade head || fail "Migration step failed"
         ok "Migrations complete"
     else
         warn "No Alembic migrations found. Skipping."
