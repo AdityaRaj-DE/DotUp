@@ -1,7 +1,9 @@
 
 dist/
 .env
-backend/__pycache__/
+__pycache__/
+*.py[cod]
+*$py.class
 backend/.pytest_cache/
 frontend/node_modules/
 frontend/.next/
