@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { CheckIcon } from './Icons';
+import { CheckIcon, ChevronDownIcon } from './Icons';
+import { VersionOption } from '../lib/modules';
 
 interface LiquidDropdownProps {
   value: string;
-  options: string[];
+  options: VersionOption[];
   onChange: (value: string) => void;
   placeholder?: string;
 }
@@ -19,7 +20,6 @@ export default function LiquidDropdown({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -30,7 +30,8 @@ export default function LiquidDropdown({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const selectedOption = options.find((opt) => opt.startsWith(value)) || value || placeholder;
+  const selectedItem = options.find((opt) => opt.value === value);
+  const displayLabel = selectedItem?.label || selectedItem?.value || value || placeholder;
 
   return (
     <div
@@ -38,106 +39,103 @@ export default function LiquidDropdown({
       style={{ position: 'relative', display: 'inline-block' }}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Trigger Pill */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="apple-btn"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-label={`Select version, currently ${displayLabel}`}
         style={{
-          display: 'flex',
+          display: 'inline-flex',
           alignItems: 'center',
-          gap: '0.45rem',
-          padding: '0.35rem 0.65rem 0.35rem 0.75rem',
+          gap: '0.4rem',
+          padding: '0.28rem 0.65rem',
           fontSize: '0.75rem',
           fontWeight: 600,
-          color: '#334155',
-          backgroundColor: isOpen ? '#eef2f6' : 'rgba(241, 245, 249, 0.85)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(203, 213, 225, 0.6)',
-          borderRadius: '9999px',
-          boxShadow: isOpen
-            ? '0 0 0 2px rgba(37, 99, 235, 0.2), 0 2px 6px rgba(15, 23, 42, 0.06)'
-            : '0 1px 3px rgba(15, 23, 42, 0.04)',
+          fontFamily: 'var(--font-mono, monospace)',
+          color: '#1e293b',
+          backgroundColor: '#f1f5f9',
+          border: '1px solid #cbd5e1',
+          borderRadius: '6px',
           cursor: 'pointer',
-          outline: 'none',
-          fontFamily: 'inherit',
-          transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+          transition: 'all 0.15s ease',
+          outline: 'none'
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.borderColor = '#2563eb';
+          e.currentTarget.style.boxShadow = '0 0 0 2px rgba(37, 99, 235, 0.2)';
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = '#cbd5e1';
+          e.currentTarget.style.boxShadow = 'none';
         }}
       >
-        <span>{selectedOption}</span>
-        {/* Apple subtle chevron */}
-        <svg
-          width="10"
-          height="10"
-          viewBox="0 0 10 10"
-          fill="none"
-          stroke="#64748b"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{
-            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)'
-          }}
-        >
-          <polyline points="2.5 3.75 5 6.25 7.5 3.75" />
-        </svg>
+        <span>v{value}</span>
+        <ChevronDownIcon size={11} className={isOpen ? 'rotate-180' : ''} />
       </button>
 
-      {/* Floating Liquid Glass Dropdown Menu */}
       {isOpen && (
         <div
+          role="listbox"
           style={{
             position: 'absolute',
-            top: 'calc(100% + 6px)',
             right: 0,
-            zIndex: 100,
-            minWidth: '135px',
+            marginTop: '0.35rem',
+            minWidth: '190px',
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05)',
             padding: '0.35rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.88)',
-            backdropFilter: 'blur(24px) saturate(190%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(190%)',
-            border: '1px solid rgba(226, 232, 240, 0.8)',
-            borderRadius: '14px',
-            boxShadow:
-              '0 12px 36px -4px rgba(15, 23, 42, 0.16), 0 4px 12px -2px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
-            animation: 'applePop 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+            zIndex: 60,
+            animation: 'applePop 0.15s var(--ease-apple)'
           }}
         >
+          <div
+            style={{
+              padding: '0.25rem 0.5rem',
+              fontSize: '0.65rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              color: '#94a3b8'
+            }}
+          >
+            Select Version
+          </div>
           {options.map((opt) => {
-            const rawVal = opt.split(' ')[0];
-            const isSelected = value === rawVal || selectedOption === opt;
-
+            const isSelected = opt.value === value;
             return (
               <div
-                key={opt}
+                key={opt.value}
+                role="option"
+                aria-selected={isSelected}
                 onClick={() => {
-                  onChange(rawVal);
+                  onChange(opt.value);
                   setIsOpen(false);
                 }}
-                className="apple-interactive"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '0.45rem 0.7rem',
-                  borderRadius: '9px',
+                  padding: '0.45rem 0.6rem',
                   fontSize: '0.75rem',
-                  fontWeight: isSelected ? 700 : 500,
-                  color: isSelected ? '#1d4ed8' : '#1e293b',
-                  backgroundColor: isSelected ? 'rgba(239, 246, 255, 0.95)' : 'transparent',
+                  borderRadius: '6px',
                   cursor: 'pointer',
-                  userSelect: 'none',
-                  transition: 'background-color 0.15s ease, color 0.15s ease'
+                  backgroundColor: isSelected ? '#eff6ff' : 'transparent',
+                  color: isSelected ? '#1d4ed8' : '#334155',
+                  fontWeight: isSelected ? 600 : 500,
+                  transition: 'background-color 0.1s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) e.currentTarget.style.backgroundColor = '#f8fafc';
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
-                <span>{opt}</span>
-                {isSelected && (
-                  <span style={{ color: '#2563eb' }}>
-                    <CheckIcon size={12} />
-                  </span>
-                )}
+                <span>{opt.label || `Version ${opt.value}`}</span>
+                {isSelected && <CheckIcon size={12} />}
               </div>
             );
           })}
@@ -146,4 +144,3 @@ export default function LiquidDropdown({
     </div>
   );
 }
-
