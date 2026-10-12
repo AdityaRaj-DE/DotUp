@@ -72,13 +72,6 @@ export const MODULES: ModuleDefinition[] = [
     description: 'Visual Studio Code editor with essential dev extensions',
     icon: '💻'
   },
-  {
-    id: 'antigravity',
-    name: 'Antigravity IDE',
-    category: 'editors',
-    description: 'Agentic AI-first IDE and workspace tools',
-    icon: '🚀'
-  },
   // Infrastructure
   {
     id: 'docker',
@@ -140,7 +133,7 @@ export const PRESETS: ProfilePreset[] = [
     id: 'full',
     name: 'Full Suite',
     description: 'All development runtimes, editors, and infrastructure tools',
-    modules: ['system', 'git', 'zsh', 'node', 'python', 'java', 'docker', 'gcloud', 'vscode', 'chrome', 'antigravity']
+    modules: ['system', 'git', 'zsh', 'node', 'python', 'java', 'docker', 'gcloud', 'vscode', 'chrome']
   }
 ];
 
