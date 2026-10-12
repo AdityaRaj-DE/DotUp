@@ -80,6 +80,70 @@ zsh_configure() {
         log_success "JetBrains Mono Nerd Font installed."
     fi
 
+    # Ensure eza is installed so ls/ll/la aliases function properly
+    if ! command -v eza >/dev/null 2>&1; then
+        log_info "Installing eza (modern ls replacement)..."
+        local installed_eza=false
+        # 1. Try system package manager if available
+        if pkg_is_available "eza" 2>/dev/null; then
+            pkg_install "eza" >/dev/null 2>&1 && installed_eza=true || true
+        fi
+
+        # 2. If package manager didn't install eza, download prebuilt binary directly
+        if [[ "$installed_eza" != "true" ]] && ! command -v eza >/dev/null 2>&1; then
+            local arch
+            arch=$(uname -m)
+            local eza_target=""
+            case "$arch" in
+                x86_64|amd64)
+                    eza_target="eza_x86_64-unknown-linux-gnu.tar.gz"
+                    ;;
+                aarch64|arm64)
+                    eza_target="eza_aarch64-unknown-linux-gnu.tar.gz"
+                    ;;
+                armv7l|armhf)
+                    eza_target="eza_arm-unknown-linux-gnueabihf.tar.gz"
+                    ;;
+            esac
+
+            if [[ -n "$eza_target" ]]; then
+                local tmp_eza_dir
+                tmp_eza_dir=$(mktemp -d)
+                local eza_url="https://github.com/eza-community/eza/releases/latest/download/${eza_target}"
+                if curl -sSLf "$eza_url" -o "${tmp_eza_dir}/${eza_target}" 2>/dev/null; then
+                    tar -xzf "${tmp_eza_dir}/${eza_target}" -C "${tmp_eza_dir}" 2>/dev/null || true
+                    if [[ -f "${tmp_eza_dir}/eza" ]]; then
+                        chmod +x "${tmp_eza_dir}/eza"
+                        mkdir -p "${HOME}/.local/bin"
+                        cp "${tmp_eza_dir}/eza" "${HOME}/.local/bin/eza"
+                        if [[ -n "${SUDO_CMD:-}" ]] && command -v sudo >/dev/null 2>&1; then
+                            ${SUDO_CMD:-} cp "${tmp_eza_dir}/eza" /usr/local/bin/eza 2>/dev/null || true
+                        fi
+                        installed_eza=true
+                        log_success "eza binary installed successfully."
+                    fi
+                fi
+                rm -rf "${tmp_eza_dir}"
+            fi
+        fi
+
+        if [[ "$installed_eza" != "true" ]] && ! command -v eza >/dev/null 2>&1; then
+            log_warn "eza could not be downloaded automatically; falling back to standard ls."
+        fi
+    fi
+
+    # Ensure trash-cli (trash-put) is installed so rm alias functions properly
+    if ! command -v trash-put >/dev/null 2>&1; then
+        log_info "Installing trash-cli for safe file deletion..."
+        if pkg_is_available "trash-cli" 2>/dev/null; then
+            pkg_install "trash-cli" >/dev/null 2>&1 || log_warn "Failed to install trash-cli via package manager."
+        elif command -v pip3 >/dev/null 2>&1; then
+            pip3 install --user trash-cli >/dev/null 2>&1 || log_warn "Failed to install trash-cli via pip."
+        elif command -v pip >/dev/null 2>&1; then
+            pip install --user trash-cli >/dev/null 2>&1 || log_warn "Failed to install trash-cli via pip."
+        fi
+    fi
+
     local zshrc="${HOME}/.zshrc"
     local p10k="${HOME}/.p10k.zsh"
     local repo_root

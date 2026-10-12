@@ -26,11 +26,23 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
-alias ls='exa --icons --color=auto'
-alias ll='exa --icons -alF'
-alias la='exa --icons -A'
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --icons --color=auto'
+  alias ll='eza --icons -alF'
+  alias la='eza --icons -A'
+elif command -v exa >/dev/null 2>&1; then
+  alias ls='exa --icons --color=auto'
+  alias ll='exa --icons -alF'
+  alias la='exa --icons -A'
+else
+  alias ls='ls --color=auto'
+  alias ll='ls -alF'
+  alias la='ls -A'
+fi
 
-alias rm='trash-put'
+if command -v trash-put >/dev/null 2>&1; then
+  alias rm='trash-put'
+fi
 
 alias szrc="source ~/.zshrc"
 alias zrc="nvim ~/.zshrc"
