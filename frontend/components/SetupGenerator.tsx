@@ -3,20 +3,39 @@
 import React, { useState, useMemo } from 'react';
 import { MODULES, PRESETS, CATEGORIES, ModuleDefinition } from '../lib/modules';
 import { generateDotupYaml, generateBootstrapSnippet } from '../lib/generator';
+import {
+  GridIcon,
+  UserIcon,
+  LayersIcon,
+  LightningIcon,
+  GearIcon,
+  TerminalIcon,
+  CodeIcon,
+  CloudIcon,
+  WindowIcon,
+  ModuleSymbol,
+  FileTextIcon,
+  CopyIcon,
+  DownloadIcon,
+  CheckIcon
+} from './Icons';
+import LiquidDropdown from './LiquidDropdown';
 
 export default function SetupGenerator() {
-  const [profileName, setProfileName] = useState('zsh-setup');
-  const [profileDesc, setProfileDesc] = useState('Custom development environment');
-  const [activePreset, setActivePreset] = useState<string>('minimal');
+  const [profileName, setProfileName] = useState('full-setup');
+  const [profileDesc, setProfileDesc] = useState(
+    'All development runtimes, editors, and infrastructure tools'
+  );
+  const [activePreset, setActivePreset] = useState<string>('full');
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'bootstrap' | 'yaml'>('bootstrap');
 
-  // Module state: { [moduleId]: { enabled: boolean, version?: string } }
+  // Initialize with full preset active
   const [moduleState, setModuleState] = useState<Record<string, { enabled: boolean; version?: string }>>(() => {
     const initial: Record<string, { enabled: boolean; version?: string }> = {};
     MODULES.forEach((m) => {
       initial[m.id] = {
-        enabled: m.id === 'system' || m.id === 'git' || m.id === 'zsh',
+        enabled: true,
         version: m.defaultVersion || ''
       };
     });
@@ -93,153 +112,219 @@ export default function SetupGenerator() {
         document.body.removeChild(textarea);
       }
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 2200);
     } catch (err) {
       console.error('Failed to copy', err);
     }
   };
 
+  const handleDownloadYaml = () => {
+    const blob = new Blob([generatedYaml], { type: 'text/yaml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'setup.yaml';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const getCategoryIcon = (type: string) => {
+    switch (type) {
+      case 'system':
+        return <GearIcon size={14} />;
+      case 'terminal':
+        return <TerminalIcon size={14} />;
+      case 'code':
+        return <CodeIcon size={14} />;
+      case 'cloud':
+        return <CloudIcon size={14} />;
+      case 'window':
+        return <WindowIcon size={14} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div style={styles.container}>
-      {/* Header */}
-      <div style={styles.header}>
-        <div style={styles.badge}>DotUp Setup Tool</div>
-        <h1 style={styles.title}>Interactive Setup Generator</h1>
-        <p style={styles.subtitle}>
-          Select modules, customize configuration, and generate an instant one-liner command ready to run in your terminal.
+      {/* Hero Badge & Title */}
+      <div style={styles.heroSection}>
+        <div className="apple-interactive" style={styles.pillBadge}>
+          <span style={styles.blueDot} />
+          DotUp Setup Engine
+        </div>
+        <h1 style={styles.heroTitle}>Interactive Setup Generator</h1>
+        <p style={styles.heroSubtitle}>
+          Select modules, customize configuration, and generate an instant one-liner
+          <br />
+          command ready to run in macOS &amp; Linux terminals.
         </p>
       </div>
 
-      {/* Main Grid */}
-      <div style={styles.layout}>
-        {/* Left Column: Config & Selection */}
-        <div style={styles.leftCol}>
-          {/* Presets Bar */}
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={styles.cardTitle}>Starter Presets</span>
-              <span style={styles.tag}>{PRESETS.length} Available</span>
+      {/* Main App Grid */}
+      <div style={styles.mainGrid}>
+        {/* Left Column */}
+        <div style={styles.leftColumn}>
+          {/* Section 1: Starter Presets */}
+          <div style={styles.panelCard}>
+            <div style={styles.panelCardHeader}>
+              <div style={styles.panelTitleGroup}>
+                <GridIcon size={17} />
+                <span style={styles.panelTitle}>Starter Presets</span>
+              </div>
+              <span style={styles.countBadge}>{PRESETS.length} Available</span>
             </div>
+
             <div style={styles.presetGrid}>
               {PRESETS.map((p) => {
-                const isActive = activePreset === p.id;
+                const isSelected = activePreset === p.id;
                 return (
-                  <button
+                  <div
                     key={p.id}
-                    type="button"
                     onClick={() => applyPreset(p.id)}
+                    className="apple-interactive"
                     style={{
-                      ...styles.presetBtn,
-                      ...(isActive ? styles.presetBtnActive : {})
+                      ...styles.presetBox,
+                      ...(isSelected ? styles.presetBoxActive : {})
                     }}
                   >
-                    <div style={styles.presetBtnName}>{p.name}</div>
-                    <div style={styles.presetBtnDesc}>{p.description}</div>
-                  </button>
+                    <div style={styles.presetTopRow}>
+                      <span style={styles.presetName}>{p.name}</span>
+                      {isSelected && <span style={styles.activeDot} />}
+                    </div>
+                    <p style={styles.presetDescription}>{p.description}</p>
+                  </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Profile Details */}
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={styles.cardTitle}>Profile Information</span>
+          {/* Section 2: Profile Information */}
+          <div style={styles.panelCard}>
+            <div style={styles.panelCardHeader}>
+              <div style={styles.panelTitleGroup}>
+                <UserIcon size={17} />
+                <span style={styles.panelTitle}>Profile Information</span>
+              </div>
             </div>
-            <div style={styles.formRow}>
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Profile Name</label>
+
+            <div style={styles.profileFormGrid}>
+              <div style={styles.formField}>
+                <label style={styles.fieldLabel}>PROFILE NAME</label>
                 <input
                   type="text"
                   value={profileName}
                   onChange={(e) => setProfileName(e.target.value)}
-                  placeholder="e.g. zsh-setup"
-                  style={styles.input}
+                  placeholder="e.g. full-setup"
+                  style={styles.fieldInput}
                 />
               </div>
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Description (optional)</label>
+              <div style={styles.formField}>
+                <label style={styles.fieldLabel}>DESCRIPTION (OPTIONAL)</label>
                 <input
                   type="text"
                   value={profileDesc}
                   onChange={(e) => setProfileDesc(e.target.value)}
-                  placeholder="e.g. My primary dev environment"
-                  style={styles.input}
+                  placeholder="Profile description..."
+                  style={styles.fieldInput}
                 />
               </div>
             </div>
           </div>
 
-          {/* Module Categories */}
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <div>
-                <span style={styles.cardTitle}>Available Modules</span>
-                <span style={{ ...styles.tag, marginLeft: '0.75rem' }}>
-                  {selectedCount} Selected
-                </span>
+          {/* Section 3: Available Modules */}
+          <div style={styles.panelCard}>
+            <div style={styles.panelCardHeader}>
+              <div style={styles.panelTitleGroup}>
+                <LayersIcon size={17} />
+                <span style={styles.panelTitle}>Available Modules</span>
               </div>
+              <span style={styles.selectedPillBadge}>{selectedCount} Selected</span>
             </div>
 
-            <div style={styles.categoriesList}>
+            <div style={styles.categoriesWrapper}>
               {CATEGORIES.map((cat) => {
                 const catModules = MODULES.filter((m) => m.category === cat.id);
                 if (catModules.length === 0) return null;
 
+                const isSingleColumn = cat.id === 'system' || cat.id === 'terminal';
+
                 return (
                   <div key={cat.id} style={styles.categoryBlock}>
-                    <div style={styles.categoryTitle}>
-                      <span style={{ marginRight: '0.5rem' }}>{cat.icon}</span>
-                      {cat.label}
+                    <div style={styles.categoryHeader}>
+                      <span style={styles.categoryIcon}>{getCategoryIcon(cat.iconType)}</span>
+                      <span style={styles.categoryLabel}>{cat.label}</span>
                     </div>
 
-                    <div style={styles.moduleGrid}>
+                    <div
+                      style={
+                        isSingleColumn
+                          ? styles.singleColumnModuleGrid
+                          : styles.multiColumnModuleGrid
+                      }
+                    >
                       {catModules.map((mod: ModuleDefinition) => {
-                        const isEnabled = !!moduleState[mod.id]?.enabled;
-                        const version = moduleState[mod.id]?.version || '';
+                        const isChecked = !!moduleState[mod.id]?.enabled;
+                        const currentVersion = moduleState[mod.id]?.version || '';
 
                         return (
                           <div
                             key={mod.id}
                             onClick={() => toggleModule(mod.id)}
+                            className="apple-interactive"
                             style={{
                               ...styles.moduleCard,
-                              ...(isEnabled ? styles.moduleCardActive : {})
+                              ...(isChecked ? styles.moduleCardChecked : {})
                             }}
                           >
-                            <div style={styles.moduleCardTop}>
-                              <div style={styles.moduleTitleBox}>
-                                <input
-                                  type="checkbox"
-                                  checked={isEnabled}
-                                  onChange={() => {}} // handled by card click
-                                  style={styles.checkbox}
-                                />
-                                <span style={styles.moduleIcon}>{mod.icon}</span>
-                                <span style={styles.moduleName}>{mod.name}</span>
+                            <div style={styles.moduleCardLeft}>
+                              <div
+                                style={{
+                                  ...styles.customCheckbox,
+                                  ...(isChecked ? styles.customCheckboxChecked : {})
+                                }}
+                              >
+                                {isChecked && <CheckIcon size={11} />}
                               </div>
-                              <span style={styles.moduleId}>({mod.id})</span>
+
+                              <div style={styles.symbolContainer}>
+                                <ModuleSymbol type={mod.iconType} size={17} />
+                              </div>
+
+                              <div style={styles.moduleTextContainer}>
+                                <div style={styles.moduleHeaderLine}>
+                                  <span style={styles.moduleItemTitle}>{mod.name}</span>
+                                  <span style={styles.moduleItemId}>({mod.id})</span>
+                                </div>
+                                {mod.description && (
+                                  <p style={styles.moduleItemDesc}>{mod.description}</p>
+                                )}
+                              </div>
                             </div>
 
-                            <p style={styles.moduleDesc}>{mod.description}</p>
-
+                            {/* Optional Version Selector with Apple Liquid Dropdown */}
                             {mod.supportsVersion && (
                               <div
-                                style={styles.versionContainer}
+                                style={styles.versionBadgeContainer}
                                 onClick={(e) => e.stopPropagation()}
                               >
-                                <label style={styles.versionLabel}>Version:</label>
-                                <input
-                                  type="text"
-                                  value={version}
-                                  disabled={!isEnabled}
-                                  onChange={(e) => setModuleVersion(mod.id, e.target.value)}
-                                  placeholder={mod.versionPlaceholder || 'default'}
-                                  style={{
-                                    ...styles.versionInput,
-                                    opacity: isEnabled ? 1 : 0.5
-                                  }}
-                                />
+                                {mod.versionOptions ? (
+                                  <LiquidDropdown
+                                    value={currentVersion}
+                                    options={mod.versionOptions}
+                                    onChange={(val) => setModuleVersion(mod.id, val)}
+                                  />
+                                ) : (
+                                  <input
+                                    type="text"
+                                    value={currentVersion}
+                                    placeholder="Version"
+                                    onChange={(e) => setModuleVersion(mod.id, e.target.value)}
+                                    style={styles.versionTextInput}
+                                  />
+                                )}
                               </div>
                             )}
                           </div>
@@ -253,78 +338,116 @@ export default function SetupGenerator() {
           </div>
         </div>
 
-        {/* Right Column: Live Terminal Output */}
-        <div style={styles.rightCol}>
-          <div style={styles.stickyPanel}>
-            <div style={styles.terminalCard}>
-              <div style={styles.terminalHeader}>
-                <div style={styles.terminalDots}>
-                  <div style={{ ...styles.dot, backgroundColor: '#ff5f56' }} />
-                  <div style={{ ...styles.dot, backgroundColor: '#ffbd2e' }} />
-                  <div style={{ ...styles.dot, backgroundColor: '#27c93f' }} />
+        {/* Right Column: Code Terminal & Quick Execution */}
+        <div style={styles.rightColumn}>
+          <div style={styles.stickyContainer}>
+            {/* Dark Terminal Window */}
+            <div style={styles.terminalWindow}>
+              {/* Terminal Chrome Bar */}
+              <div style={styles.terminalChrome}>
+                <div style={styles.macButtons}>
+                  <span className="apple-btn" style={{ ...styles.macDot, backgroundColor: '#ff5f56' }} />
+                  <span className="apple-btn" style={{ ...styles.macDot, backgroundColor: '#ffbd2e' }} />
+                  <span className="apple-btn" style={{ ...styles.macDot, backgroundColor: '#27c93f' }} />
                 </div>
-                <div style={styles.tabGroup}>
+
+                <div style={styles.switchTabsContainer}>
                   <button
                     type="button"
                     onClick={() => setActiveTab('bootstrap')}
+                    className="apple-btn"
                     style={{
-                      ...styles.tabBtn,
-                      ...(activeTab === 'bootstrap' ? styles.tabBtnActive : {})
+                      ...styles.terminalTab,
+                      ...(activeTab === 'bootstrap' ? styles.terminalTabActive : {})
                     }}
                   >
-                    🚀 One-Liner Command
+                    <LightningIcon size={12} />
+                    One-Liner
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('yaml')}
+                    className="apple-btn"
                     style={{
-                      ...styles.tabBtn,
-                      ...(activeTab === 'yaml' ? styles.tabBtnActive : {})
+                      ...styles.terminalTab,
+                      ...(activeTab === 'yaml' ? styles.terminalTabActive : {})
                     }}
                   >
-                    📄 setup.yaml
+                    <FileTextIcon size={12} />
+                    setup.yaml
                   </button>
                 </div>
               </div>
 
-              <div style={styles.codeContainer}>
-                <pre style={styles.codeContent}>
+              {/* Terminal Code View */}
+              <div style={styles.terminalBody}>
+                <div style={styles.commentHeader}># Execute direct configuration pipeline</div>
+                <pre style={styles.codeText}>
                   <code>{activeTab === 'bootstrap' ? generatedCommand : generatedYaml}</code>
                 </pre>
               </div>
 
-              <div style={styles.terminalFooter}>
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  style={{
-                    ...styles.copyBtn,
-                    backgroundColor: copied ? '#10b981' : '#3b82f6'
-                  }}
-                >
-                  {copied ? '✓ Copied to Clipboard!' : '📋 Copy Command'}
-                </button>
-                <div style={styles.summaryText}>
-                  {selectedCount} module{selectedCount !== 1 ? 's' : ''} configured
+              {/* Bottom Actions inside Terminal Card */}
+              <div style={styles.terminalActionBar}>
+                <div style={styles.actionButtonsLeft}>
+                  <button
+                    type="button"
+                    onClick={handleCopy}
+                    className="apple-btn"
+                    style={{
+                      ...styles.copyCommandBtn,
+                      backgroundColor: copied ? '#10b981' : '#1e293b'
+                    }}
+                  >
+                    {copied ? <CheckIcon size={14} /> : <CopyIcon size={14} />}
+                    {copied ? 'Copied to Clipboard' : 'Copy Command'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDownloadYaml}
+                    className="apple-btn"
+                    style={styles.downloadYamlBtn}
+                  >
+                    <DownloadIcon size={14} />
+                    Download YAML
+                  </button>
+                </div>
+
+                <div style={styles.moduleCountPill}>
+                  <span style={styles.blueDot} />
+                  {selectedCount} modules configured
                 </div>
               </div>
             </div>
 
-            {/* Instruction helper */}
-            <div style={styles.infoCard}>
-              <h3 style={styles.infoTitle}>⚡ Quick Execution</h3>
-              <p style={styles.infoText}>
+            {/* Quick Execution Guide Box */}
+            <div className="apple-interactive" style={styles.guideCard}>
+              <div style={styles.guideHeader}>
+                <LightningIcon size={16} />
+                <span style={styles.guideTitle}>Quick Execution</span>
+              </div>
+              <p style={styles.guideSubtitle}>
                 Paste this command into any Linux / macOS terminal to download and run the declarative configuration automatically.
               </p>
-              <div style={styles.stepList}>
-                <div style={styles.stepItem}>
-                  <strong>1.</strong> Automatically writes <code>setup.yaml</code> in the current folder.
+              <div style={styles.guideSteps}>
+                <div style={styles.guideStepItem}>
+                  <span style={styles.guideNumber}>1.</span>
+                  <span>
+                    Automatically writes <code style={styles.codeSnippet}>setup.yaml</code> in the current directory.
+                  </span>
                 </div>
-                <div style={styles.stepItem}>
-                  <strong>2.</strong> Streams <code>bootstrap.sh</code> directly to execute the engine install plan.
+                <div style={styles.guideStepItem}>
+                  <span style={styles.guideNumber}>2.</span>
+                  <span>
+                    Streams <code style={styles.codeSnippet}>bootstrap.sh</code> directly to execute the engine install plan.
+                  </span>
                 </div>
-                <div style={styles.stepItem}>
-                  <strong>3.</strong> Inspects and installs only missing dependencies idempotently.
+                <div style={styles.guideStepItem}>
+                  <span style={styles.guideNumber}>3.</span>
+                  <span>
+                    Inspects and installs missing dependencies idempotently.
+                  </span>
                 </div>
               </div>
             </div>
@@ -337,335 +460,493 @@ export default function SetupGenerator() {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    maxWidth: '1280px',
+    maxWidth: '1380px',
     margin: '0 auto',
-    padding: '2rem 1.5rem',
-    color: '#1e293b',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    padding: '3rem 2rem',
+    color: '#0f172a'
   },
-  header: {
-    marginBottom: '2rem',
-    textAlign: 'center'
+  heroSection: {
+    textAlign: 'center',
+    marginBottom: '3.25rem'
   },
-  badge: {
-    display: 'inline-block',
-    padding: '0.25rem 0.75rem',
+  pillBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.35rem 0.95rem',
     borderRadius: '9999px',
-    backgroundColor: '#e0f2fe',
-    color: '#0284c7',
+    backgroundColor: '#ffffff',
+    border: '1px solid #e2e8f0',
+    color: '#334155',
     fontSize: '0.8125rem',
     fontWeight: 600,
-    marginBottom: '0.75rem',
-    letterSpacing: '0.025em'
+    marginBottom: '1.1rem',
+    boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
+    cursor: 'default'
   },
-  title: {
-    fontSize: '2.25rem',
+  blueDot: {
+    width: '6px',
+    height: '6px',
+    borderRadius: '50%',
+    backgroundColor: '#2563eb',
+    display: 'inline-block'
+  },
+  heroTitle: {
+    fontSize: '3.15rem',
     fontWeight: 800,
     color: '#0f172a',
-    margin: '0 0 0.5rem 0',
-    letterSpacing: '-0.025em'
+    margin: '0 0 1rem 0',
+    letterSpacing: '-0.04em',
+    lineHeight: 1.15
   },
-  subtitle: {
-    fontSize: '1.05rem',
+  heroSubtitle: {
+    fontSize: '1.08rem',
     color: '#64748b',
-    maxWidth: '650px',
+    maxWidth: '680px',
     margin: '0 auto',
-    lineHeight: 1.5
+    lineHeight: 1.6,
+    letterSpacing: '-0.01em'
   },
-  layout: {
+  mainGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-    gap: '2rem',
+    gridTemplateColumns: 'minmax(0, 1.45fr) minmax(0, 1fr)',
+    gap: '2.5rem',
     alignItems: 'start'
   },
-  leftCol: {
+  leftColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.75rem'
+  },
+  rightColumn: {
+    position: 'relative'
+  },
+  stickyContainer: {
+    position: 'sticky',
+    top: '2rem',
     display: 'flex',
     flexDirection: 'column',
     gap: '1.5rem'
   },
-  rightCol: {
-    position: 'relative'
-  },
-  stickyPanel: {
-    position: 'sticky',
-    top: '1.5rem',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.25rem'
-  },
-  card: {
+  panelCard: {
     backgroundColor: '#ffffff',
-    border: '1px solid #e2e8f0',
-    borderRadius: '12px',
-    padding: '1.5rem',
-    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05)'
+    border: '1px solid #eef2f6',
+    borderRadius: '18px',
+    padding: '1.75rem',
+    boxShadow: '0 1px 4px rgba(15, 23, 42, 0.03)'
   },
-  cardHeader: {
+  panelCardHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '1rem'
+    marginBottom: '1.35rem'
   },
-  cardTitle: {
-    fontSize: '1.125rem',
-    fontWeight: 700,
+  panelTitleGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.65rem',
     color: '#0f172a'
   },
-  tag: {
+  panelTitle: {
+    fontSize: '1rem',
+    fontWeight: 700,
+    color: '#0f172a',
+    letterSpacing: '-0.02em'
+  },
+  countBadge: {
     fontSize: '0.75rem',
-    fontWeight: 600,
-    backgroundColor: '#f1f5f9',
-    color: '#475569',
-    padding: '0.2rem 0.5rem',
+    fontFamily: 'var(--font-mono)',
+    color: '#64748b',
+    backgroundColor: '#f8fafc',
+    border: '1px solid #e2e8f0',
+    padding: '0.2rem 0.6rem',
     borderRadius: '6px'
+  },
+  selectedPillBadge: {
+    fontSize: '0.8125rem',
+    fontWeight: 600,
+    color: '#2563eb',
+    backgroundColor: '#eff6ff',
+    border: '1px solid #dbeafe',
+    padding: '0.25rem 0.8rem',
+    borderRadius: '9999px'
   },
   presetGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+    gridTemplateColumns: 'repeat(5, 1fr)',
     gap: '0.75rem'
   },
-  presetBtn: {
-    padding: '0.75rem',
+  presetBox: {
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
-    backgroundColor: '#f8fafc',
+    borderRadius: '14px',
+    padding: '1rem',
+    backgroundColor: '#ffffff',
     cursor: 'pointer',
-    textAlign: 'left',
-    transition: 'all 0.15s ease'
-  },
-  presetBtnActive: {
-    borderColor: '#3b82f6',
-    backgroundColor: '#eff6ff',
-    boxShadow: '0 0 0 1px #3b82f6'
-  },
-  presetBtnName: {
-    fontWeight: 600,
-    fontSize: '0.875rem',
-    color: '#1e293b',
-    marginBottom: '0.25rem'
-  },
-  presetBtnDesc: {
-    fontSize: '0.75rem',
-    color: '#64748b',
-    lineHeight: 1.3
-  },
-  formRow: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '1rem'
-  },
-  formGroup: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.375rem'
+    justifyContent: 'space-between',
+    minHeight: '92px'
   },
-  label: {
-    fontSize: '0.8125rem',
-    fontWeight: 600,
-    color: '#475569'
+  presetBoxActive: {
+    borderColor: '#2563eb',
+    backgroundColor: '#ffffff',
+    boxShadow: '0 0 0 1.5px #2563eb'
   },
-  input: {
-    padding: '0.5rem 0.75rem',
-    borderRadius: '6px',
+  presetTopRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '0.45rem'
+  },
+  presetName: {
+    fontSize: '0.875rem',
+    fontWeight: 700,
+    color: '#0f172a',
+    letterSpacing: '-0.015em'
+  },
+  activeDot: {
+    width: '6px',
+    height: '6px',
+    borderRadius: '50%',
+    backgroundColor: '#2563eb'
+  },
+  presetDescription: {
+    fontSize: '0.75rem',
+    color: '#64748b',
+    margin: 0,
+    lineHeight: 1.35
+  },
+  profileFormGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1.6fr',
+    gap: '1rem'
+  },
+  formField: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.45rem'
+  },
+  fieldLabel: {
+    fontSize: '0.6875rem',
+    fontWeight: 700,
+    letterSpacing: '0.06em',
+    color: '#64748b'
+  },
+  fieldInput: {
+    padding: '0.65rem 0.85rem',
+    borderRadius: '10px',
     border: '1px solid #cbd5e1',
     fontSize: '0.875rem',
     color: '#0f172a',
-    outline: 'none'
+    backgroundColor: '#ffffff',
+    outline: 'none',
+    boxShadow: '0 1px 2px rgba(15, 23, 42, 0.02)',
+    fontFamily: 'inherit',
+    transition: 'border-color 0.15s ease, box-shadow 0.15s ease'
   },
-  categoriesList: {
+  categoriesWrapper: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1.5rem'
+    gap: '1.85rem'
   },
   categoryBlock: {
     display: 'flex',
     flexDirection: 'column',
     gap: '0.75rem'
   },
-  categoryTitle: {
-    fontSize: '0.9375rem',
-    fontWeight: 700,
-    color: '#334155',
+  categoryHeader: {
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
+    gap: '0.5rem',
+    color: '#64748b'
   },
-  moduleGrid: {
+  categoryIcon: {
+    display: 'flex',
+    alignItems: 'center',
+    color: '#64748b'
+  },
+  categoryLabel: {
+    fontSize: '0.6875rem',
+    fontWeight: 700,
+    letterSpacing: '0.07em',
+    color: '#64748b'
+  },
+  singleColumnModuleGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem'
+  },
+  multiColumnModuleGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+    gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '0.75rem'
   },
   moduleCard: {
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
-    padding: '0.875rem',
+    border: '1px solid #eef2f6',
+    borderRadius: '14px',
+    padding: '0.9rem 1.1rem',
     backgroundColor: '#ffffff',
     cursor: 'pointer',
     userSelect: 'none',
     display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  moduleCardChecked: {
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff'
+  },
+  moduleCardLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.85rem',
+    flex: 1
+  },
+  customCheckbox: {
+    width: '20px',
+    height: '20px',
+    borderRadius: '6px',
+    border: '1.5px solid #cbd5e1',
+    backgroundColor: '#ffffff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    color: '#ffffff',
+    transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)'
+  },
+  customCheckboxChecked: {
+    backgroundColor: '#2563eb',
+    borderColor: '#2563eb'
+  },
+  symbolContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '24px',
+    height: '24px'
+  },
+  moduleTextContainer: {
+    display: 'flex',
     flexDirection: 'column',
-    transition: 'all 0.15s ease'
+    gap: '0.15rem'
   },
-  moduleCardActive: {
-    borderColor: '#3b82f6',
-    backgroundColor: '#f8faff',
-    boxShadow: '0 0 0 1px #3b82f6'
-  },
-  moduleCardTop: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '0.375rem'
-  },
-  moduleTitleBox: {
+  moduleHeaderLine: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem'
+    gap: '0.4rem'
   },
-  checkbox: {
-    cursor: 'pointer'
-  },
-  moduleIcon: {
-    fontSize: '1rem'
-  },
-  moduleName: {
+  moduleItemTitle: {
+    fontSize: '0.9rem',
     fontWeight: 600,
-    fontSize: '0.875rem',
-    color: '#0f172a'
+    color: '#0f172a',
+    letterSpacing: '-0.015em'
   },
-  moduleId: {
+  moduleItemId: {
     fontSize: '0.75rem',
-    color: '#94a3b8'
+    color: '#94a3b8',
+    fontFamily: 'var(--font-mono)'
   },
-  moduleDesc: {
+  moduleItemDesc: {
     fontSize: '0.75rem',
     color: '#64748b',
-    margin: '0.25rem 0 0.5rem 0',
-    lineHeight: 1.3
+    margin: 0,
+    lineHeight: 1.35
   },
-  versionContainer: {
-    marginTop: 'auto',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    paddingTop: '0.5rem',
-    borderTop: '1px dashed #e2e8f0'
+  versionBadgeContainer: {
+    marginLeft: '0.75rem'
   },
-  versionLabel: {
+  versionSelectDropdown: {
+    padding: '0.35rem 0.65rem',
     fontSize: '0.75rem',
-    fontWeight: 500,
-    color: '#64748b'
+    fontWeight: 600,
+    color: '#334155',
+    backgroundColor: '#f8fafc',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    outline: 'none',
+    cursor: 'pointer',
+    fontFamily: 'inherit'
   },
-  versionInput: {
-    width: '100%',
-    padding: '0.25rem 0.5rem',
+  versionTextInput: {
+    width: '65px',
+    padding: '0.35rem 0.5rem',
     fontSize: '0.75rem',
-    border: '1px solid #cbd5e1',
-    borderRadius: '4px'
+    textAlign: 'center',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    backgroundColor: '#f8fafc',
+    color: '#334155',
+    fontFamily: 'inherit'
   },
-  terminalCard: {
-    backgroundColor: '#0f172a',
-    borderRadius: '12px',
-    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
-    overflow: 'hidden'
+  terminalWindow: {
+    backgroundColor: '#0a0f1d',
+    borderRadius: '18px',
+    boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.45)',
+    overflow: 'hidden',
+    border: '1px solid #1e293b'
   },
-  terminalHeader: {
+  terminalChrome: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '0.75rem 1rem',
+    padding: '0.95rem 1.35rem',
+    borderBottom: '1px solid #1e293b',
+    backgroundColor: '#0f172a'
+  },
+  macButtons: {
+    display: 'flex',
+    gap: '0.45rem'
+  },
+  macDot: {
+    width: '11px',
+    height: '11px',
+    borderRadius: '50%',
+    cursor: 'pointer'
+  },
+  switchTabsContainer: {
+    display: 'flex',
+    gap: '0.35rem',
     backgroundColor: '#1e293b',
-    borderBottom: '1px solid #334155'
+    padding: '0.2rem',
+    borderRadius: '10px'
   },
-  terminalDots: {
+  terminalTab: {
     display: 'flex',
-    gap: '0.375rem'
-  },
-  dot: {
-    width: '10px',
-    height: '10px',
-    borderRadius: '50%'
-  },
-  tabGroup: {
-    display: 'flex',
-    gap: '0.5rem'
-  },
-  tabBtn: {
-    padding: '0.25rem 0.625rem',
+    alignItems: 'center',
+    gap: '0.4rem',
+    padding: '0.4rem 0.85rem',
     fontSize: '0.75rem',
     fontWeight: 600,
-    borderRadius: '4px',
+    borderRadius: '8px',
     border: 'none',
     backgroundColor: 'transparent',
     color: '#94a3b8',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    fontFamily: 'inherit'
   },
-  tabBtnActive: {
-    backgroundColor: '#334155',
-    color: '#ffffff'
+  terminalTabActive: {
+    backgroundColor: '#ffffff',
+    color: '#0f172a',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)'
   },
-  codeContainer: {
-    padding: '1.25rem',
-    maxHeight: '420px',
+  terminalBody: {
+    padding: '1.5rem',
+    minHeight: '380px',
+    maxHeight: '480px',
     overflowY: 'auto'
   },
-  codeContent: {
-    margin: 0,
-    fontFamily: '"Fira Code", Monaco, Consolas, "Courier New", monospace',
+  commentHeader: {
     fontSize: '0.8125rem',
-    color: '#e2e8f0',
-    lineHeight: 1.6,
+    fontFamily: 'var(--font-mono)',
+    color: '#64748b',
+    marginBottom: '0.85rem'
+  },
+  codeText: {
+    margin: 0,
+    fontFamily: 'var(--font-mono)',
+    fontSize: '0.8125rem',
+    color: '#34d399',
+    lineHeight: 1.65,
     whiteSpace: 'pre'
   },
-  terminalFooter: {
+  terminalActionBar: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '1rem',
-    backgroundColor: '#1e293b',
-    borderTop: '1px solid #334155'
+    padding: '1rem 1.35rem',
+    backgroundColor: '#0f172a',
+    borderTop: '1px solid #1e293b'
   },
-  copyBtn: {
-    padding: '0.625rem 1.25rem',
+  actionButtonsLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem'
+  },
+  copyCommandBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.65rem 1.15rem',
     color: '#ffffff',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '0.875rem',
+    border: '1px solid #334155',
+    borderRadius: '10px',
+    fontSize: '0.8125rem',
     fontWeight: 600,
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.1)'
+    fontFamily: 'inherit'
   },
-  summaryText: {
+  downloadYamlBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.65rem 1.05rem',
+    backgroundColor: 'transparent',
+    color: '#cbd5e1',
+    border: '1px solid #334155',
+    borderRadius: '10px',
     fontSize: '0.8125rem',
-    color: '#94a3b8'
+    fontWeight: 500,
+    cursor: 'pointer',
+    fontFamily: 'inherit'
   },
-  infoCard: {
-    backgroundColor: '#f8fafc',
-    border: '1px solid #e2e8f0',
-    borderRadius: '12px',
-    padding: '1.25rem'
+  moduleCountPill: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.45rem',
+    fontSize: '0.75rem',
+    color: '#94a3b8',
+    fontFamily: 'var(--font-mono)'
   },
-  infoTitle: {
-    fontSize: '0.9375rem',
+  guideCard: {
+    backgroundColor: '#ffffff',
+    border: '1px solid #eef2f6',
+    borderRadius: '18px',
+    padding: '1.6rem',
+    boxShadow: '0 1px 4px rgba(15, 23, 42, 0.03)'
+  },
+  guideHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    marginBottom: '0.55rem',
+    color: '#2563eb'
+  },
+  guideTitle: {
+    fontSize: '0.9rem',
     fontWeight: 700,
     color: '#0f172a',
-    margin: '0 0 0.5rem 0'
+    letterSpacing: '-0.015em'
   },
-  infoText: {
+  guideSubtitle: {
     fontSize: '0.8125rem',
-    color: '#475569',
-    lineHeight: 1.5,
-    margin: '0 0 0.75rem 0'
+    color: '#64748b',
+    margin: '0 0 1rem 0',
+    lineHeight: 1.55
   },
-  stepList: {
+  guideSteps: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.375rem',
-    fontSize: '0.8125rem',
-    color: '#334155'
+    gap: '0.55rem'
   },
-  stepItem: {
-    lineHeight: 1.4
+  guideStepItem: {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: '0.45rem',
+    fontSize: '0.8125rem',
+    color: '#334155',
+    lineHeight: 1.45
+  },
+  guideNumber: {
+    fontWeight: 700,
+    color: '#2563eb'
+  },
+  codeSnippet: {
+    backgroundColor: '#f1f5f9',
+    padding: '0.15rem 0.4rem',
+    borderRadius: '5px',
+    fontSize: '0.75rem',
+    fontFamily: 'var(--font-mono)',
+    color: '#0f172a'
   }
 };
-

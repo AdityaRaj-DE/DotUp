@@ -1,12 +1,12 @@
 export interface ModuleDefinition {
   id: string;
   name: string;
-  category: 'system' | 'terminal' | 'development' | 'editors' | 'infrastructure' | 'applications';
+  category: 'system' | 'terminal' | 'development' | 'infrastructure' | 'editors';
   description: string;
   supportsVersion?: boolean;
   defaultVersion?: string;
-  versionPlaceholder?: string;
-  icon?: string;
+  versionOptions?: string[];
+  iconType?: string;
 }
 
 export const MODULES: ModuleDefinition[] = [
@@ -16,7 +16,7 @@ export const MODULES: ModuleDefinition[] = [
     name: 'System Base',
     category: 'system',
     description: 'Core system packages, curl, build essentials, and package manager base',
-    icon: '⚙️'
+    iconType: 'system'
   },
   // Terminal
   {
@@ -24,15 +24,15 @@ export const MODULES: ModuleDefinition[] = [
     name: 'Zsh & Oh My Zsh',
     category: 'terminal',
     description: 'Zsh shell with customized prompt, auto-suggestions, and plugins',
-    icon: '🐚'
+    iconType: 'terminal'
   },
-  // Development
+  // Development Runtimes
   {
     id: 'git',
     name: 'Git',
     category: 'development',
     description: 'Modern version control system and configuration',
-    icon: '🐙'
+    iconType: 'git'
   },
   {
     id: 'node',
@@ -41,8 +41,8 @@ export const MODULES: ModuleDefinition[] = [
     description: 'Node.js runtime environment and npm package manager',
     supportsVersion: true,
     defaultVersion: '20',
-    versionPlaceholder: '20, 22, lts',
-    icon: '🟢'
+    versionOptions: ['20 LTS', '22 Current', '18 LTS'],
+    iconType: 'node'
   },
   {
     id: 'python',
@@ -51,49 +51,48 @@ export const MODULES: ModuleDefinition[] = [
     description: 'Python interpreter, pip, and virtual environment support',
     supportsVersion: true,
     defaultVersion: '3.11',
-    versionPlaceholder: '3.11, 3.12',
-    icon: '🐍'
+    versionOptions: ['3.11', '3.12', '3.10'],
+    iconType: 'python'
   },
   {
     id: 'java',
-    name: 'Java (OpenJDK)',
+    name: 'Java',
     category: 'development',
     description: 'OpenJDK development kit and runtime environment',
     supportsVersion: true,
     defaultVersion: '17',
-    versionPlaceholder: '17, 21',
-    icon: '☕'
+    versionOptions: ['OpenJDK 17', 'OpenJDK 21', 'OpenJDK 11'],
+    iconType: 'java'
   },
-  // Editors
-  {
-    id: 'vscode',
-    name: 'VS Code',
-    category: 'editors',
-    description: 'Visual Studio Code editor with essential dev extensions',
-    icon: '💻'
-  },
-  // Infrastructure
+  // Cloud & DevOps
   {
     id: 'docker',
-    name: 'Docker',
+    name: 'Docker Engine',
     category: 'infrastructure',
     description: 'Docker container runtime, Docker CLI, and Docker Compose',
-    icon: '🐳'
+    iconType: 'docker'
   },
   {
     id: 'gcloud',
     name: 'Google Cloud SDK',
     category: 'infrastructure',
     description: 'gcloud CLI and Google Cloud developer tools',
-    icon: '☁️'
+    iconType: 'gcloud'
   },
-  // Applications
+  // Editors & Tools
+  {
+    id: 'vscode',
+    name: 'VS Code',
+    category: 'editors',
+    description: 'Visual Studio Code editor with essential dev extensions',
+    iconType: 'vscode'
+  },
   {
     id: 'chrome',
-    name: 'Google Chrome',
-    category: 'applications',
-    description: 'Google Chrome web browser for testing and development',
-    icon: '🌐'
+    name: 'Chrome',
+    category: 'editors',
+    description: 'Google Chrome browser for web development and testing',
+    iconType: 'chrome'
   }
 ];
 
@@ -126,7 +125,7 @@ export const PRESETS: ProfilePreset[] = [
   {
     id: 'devops',
     name: 'DevOps & Cloud',
-    description: 'Docker, GCloud, Git, and enhanced terminal environment',
+    description: 'Docker, GCloud, Git, and enhanced terminal',
     modules: ['system', 'git', 'zsh', 'docker', 'gcloud']
   },
   {
@@ -137,12 +136,10 @@ export const PRESETS: ProfilePreset[] = [
   }
 ];
 
-export const CATEGORIES: { id: ModuleDefinition['category']; label: string; icon: string }[] = [
-  { id: 'system', label: 'System', icon: '⚙️' },
-  { id: 'terminal', label: 'Terminal', icon: '🐚' },
-  { id: 'development', label: 'Development Runtimes', icon: '📦' },
-  { id: 'editors', label: 'Editors & IDEs', icon: '📝' },
-  { id: 'infrastructure', label: 'Infrastructure & Cloud', icon: '☁️' },
-  { id: 'applications', label: 'Applications', icon: '🌐' }
+export const CATEGORIES: { id: ModuleDefinition['category']; label: string; iconType: string }[] = [
+  { id: 'system', label: 'SYSTEM', iconType: 'system' },
+  { id: 'terminal', label: 'TERMINAL & SHELL', iconType: 'terminal' },
+  { id: 'development', label: 'DEVELOPMENT RUNTIMES', iconType: 'code' },
+  { id: 'infrastructure', label: 'CLOUD & DEVOPS', iconType: 'cloud' },
+  { id: 'editors', label: 'EDITORS & TOOLS', iconType: 'window' }
 ];
-
