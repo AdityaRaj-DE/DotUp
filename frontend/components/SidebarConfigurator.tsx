@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   SearchIcon,
   XIcon,
@@ -8,7 +8,7 @@ import {
   ChevronDownIcon
 } from './Icons';
 import { MODULES, CATEGORIES } from '../lib/modules';
-import LiquidDropdown from './LiquidDropdown';
+import GlassDropdown, { DropdownItem } from './GlassDropdown';
 
 interface SidebarConfiguratorProps {
   setupId: string;
@@ -51,6 +51,31 @@ export default function SidebarConfigurator({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+  // Category dropdown items with active counts
+  const categoryDropdownItems: DropdownItem[] = useMemo(() => {
+    const totalEnabled = Object.values(selectedModules).filter((m) => m.enabled).length;
+    const items: DropdownItem[] = [
+      {
+        value: 'all',
+        label: 'All Categories',
+        badge: totalEnabled > 0 ? totalEnabled : undefined
+      }
+    ];
+
+    CATEGORIES.forEach((cat) => {
+      const activeInCat = MODULES.filter(
+        (m) => m.category === cat.id && selectedModules[m.id]?.enabled
+      ).length;
+      items.push({
+        value: cat.id,
+        label: cat.label,
+        badge: activeInCat > 0 ? activeInCat : undefined
+      });
+    });
+
+    return items;
+  }, [selectedModules]);
+
   // Filter modules by category & search query
   const filteredModules = MODULES.filter((m) => {
     const matchesCategory = selectedCategory === 'all' || m.category === selectedCategory;
@@ -73,14 +98,14 @@ export default function SidebarConfigurator({
 
   return (
     <aside className="sidebar-container" aria-label="Development environment configuration">
-      {/* 1. Header & Presets Tray */}
+      {/* 1. Header & Compact Presets */}
       <div className="sidebar-section sidebar-header-section">
         <div className="sidebar-section-header">
           <span className="sidebar-section-title">Presets</span>
           <span className="sidebar-count-badge">{selectedCount} active</span>
         </div>
 
-        {/* Preset Pills */}
+        {/* Segmented / pill-style preset buttons */}
         <div className="preset-pill-group" role="radiogroup" aria-label="Quick setup presets">
           {[
             { id: 'minimal', label: 'Minimal' },
@@ -106,7 +131,7 @@ export default function SidebarConfigurator({
         </div>
       </div>
 
-      {/* 2. Collapsible Profile & Metadata */}
+      {/* 2. Collapsible Specification Metadata */}
       <div className="sidebar-section sidebar-profile-section">
         <button
           type="button"
@@ -118,7 +143,7 @@ export default function SidebarConfigurator({
             Spec: <strong>{setupId || 'untitled'}</strong> (v{setupVersion})
           </span>
           <span className={`collapse-arrow ${isProfileOpen ? 'open' : ''}`}>
-            <ChevronDownIcon size={14} />
+            <ChevronDownIcon size={13} />
           </span>
         </button>
 
@@ -167,62 +192,42 @@ export default function SidebarConfigurator({
         )}
       </div>
 
-      {/* 3. Search & Filter Bar */}
+      {/* 3. Search & Category Dropdown Controls */}
       <div className="sidebar-section sidebar-search-section">
-        <div className="search-input-wrapper">
-          <SearchIcon size={14} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search tools, runtimes, editors..."
-            className="search-input"
-            aria-label="Filter modules"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              className="search-clear-btn"
-              aria-label="Clear search"
-            >
-              <XIcon size={13} />
-            </button>
-          )}
-        </div>
-
-        {/* Category Horizontal Filter Scroller */}
-        <div className="category-tab-scroll" role="tablist" aria-label="Filter by category">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedCategory === 'all'}
-            onClick={() => setSelectedCategory('all')}
-            className={`cat-tab-btn ${selectedCategory === 'all' ? 'active' : ''}`}
-          >
-            All
-          </button>
-          {CATEGORIES.map((cat) => {
-            const activeInCat = MODULES.filter(
-              (m) => m.category === cat.id && selectedModules[m.id]?.enabled
-            ).length;
-            return (
+        <div className="search-filter-row">
+          {/* Integrated search input */}
+          <div className="search-input-wrapper">
+            <SearchIcon size={13} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search tools..."
+              className="search-input"
+              aria-label="Filter modules by name or description"
+            />
+            {searchQuery && (
               <button
-                key={cat.id}
                 type="button"
-                role="tab"
-                aria-selected={selectedCategory === cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`cat-tab-btn ${selectedCategory === cat.id ? 'active' : ''}`}
+                onClick={() => setSearchQuery('')}
+                className="search-clear-btn"
+                aria-label="Clear search"
               >
-                <span>{cat.label.split(' ')[0]}</span>
-                {activeInCat > 0 && <span className="cat-count-pill">{activeInCat}</span>}
+                <XIcon size={12} />
               </button>
-            );
-          })}
+            )}
+          </div>
+
+          {/* Compact Category Dropdown replacing overflowing pills */}
+          <GlassDropdown
+            value={selectedCategory}
+            items={categoryDropdownItems}
+            onChange={setSelectedCategory}
+            ariaLabel="Filter tools by category"
+          />
         </div>
 
-        {/* Bulk Action Sub-bar */}
+        {/* Results summary & bulk-selection subbar */}
         <div className="bulk-actions-subbar">
           <span className="bulk-count-label">
             {filteredModules.length} tool{filteredModules.length !== 1 ? 's' : ''} shown
@@ -247,7 +252,7 @@ export default function SidebarConfigurator({
         </div>
       </div>
 
-      {/* 4. Module Selection List (Scrollable) */}
+      {/* 4. Compact Module List Rows */}
       <div className="sidebar-module-list" role="list" aria-label="Available modules">
         {moduleError && (
           <div className="module-empty-alert" role="alert">
@@ -274,34 +279,43 @@ export default function SidebarConfigurator({
           filteredModules.map((module) => {
             const isEnabled = Boolean(selectedModules[module.id]?.enabled);
             const currentVersion = selectedModules[module.id]?.version || module.defaultVersion || '';
+            const versionItems: DropdownItem[] = (module.versionOptions || []).map((opt) => ({
+              value: opt.value,
+              label: opt.label || `v${opt.value}`
+            }));
 
             return (
               <div
                 key={module.id}
                 role="listitem"
-                className={`sidebar-module-row ${isEnabled ? 'is-selected' : ''}`}
+                className={`sidebar-compact-row ${isEnabled ? 'is-selected' : ''}`}
               >
-                <label className="sidebar-module-label">
+                <label className="sidebar-row-main-label">
                   <input
                     type="checkbox"
                     checked={isEnabled}
                     onChange={() => onToggleModule(module.id)}
-                    className="sidebar-module-checkbox"
+                    className="sidebar-row-checkbox"
+                    aria-label={`Enable ${module.name}`}
                   />
-                  <div className="sidebar-module-info">
-                    <span className="sidebar-module-name">{module.name}</span>
-                    <span className="sidebar-module-desc">{module.description}</span>
+                  <div className="sidebar-row-text">
+                    <span className="sidebar-row-name">{module.name}</span>
+                    <span className="sidebar-row-desc" title={module.description}>
+                      {module.description}
+                    </span>
                   </div>
                 </label>
 
-                {/* Inline Version Selector if supported */}
-                {module.supportsVersion && module.versionOptions && isEnabled && (
-                  <div className="sidebar-module-version-wrap">
-                    <LiquidDropdown
-                      options={module.versionOptions}
+                {/* Compact version picker aligned on the right */}
+                {module.supportsVersion && versionItems.length > 0 && isEnabled && (
+                  <div className="sidebar-row-version">
+                    <GlassDropdown
                       value={currentVersion}
+                      items={versionItems}
                       onChange={(newVer) => onChangeVersion(module.id, newVer)}
                       ariaLabel={`${module.name} version`}
+                      prefix="v"
+                      compact
                     />
                   </div>
                 )}

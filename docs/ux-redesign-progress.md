@@ -1,7 +1,7 @@
 # DotUp V3 — Interactive Voxel Tree: Progress & Checkpoints
 
 **Last Updated:** 2026-10-13  
-**Current Phase:** Liquid Glass UI Redesign Complete (Final Acceptance)
+**Current Phase:** Sidebar UX/UI Refinement Complete (Final Acceptance)
 
 ---
 
@@ -14,27 +14,29 @@
 | **Visual Refinement** | Refined voxel trunk, hierarchical branches, coordinated natural green canopy, and grassy island base | `f16a848` | Verified 16 tests passing, Next.js build clean, engine regression passing |
 | **Geometry Integrity** | Enlarged grassy island, detailed grass tufts, eliminated subpixel seams and z-fighting artifacts | `f02cbfb` | Verified 19 tests passing, Next.js build clean, engine regression passing |
 | **Canopy & Connectivity** | Branch-anchored foliage envelope (zero detached cubes), organic layered canopy, and calibrated natural green palette | `22be142` | Verified 22 tests passing, Next.js build clean, engine regression passing |
-| **Liquid Glass UI Redesign** | Apple-inspired translucent glass system, floating centered navbar, frosted sidebar, and floating bottom action dock | Pending | Verified 22 tests passing, Next.js build clean, engine regression passing |
+| **Liquid Glass UI Redesign** | Apple-inspired translucent glass system, floating centered navbar, frosted sidebar, and floating bottom action dock | `384ced5` | Verified 22 tests passing, Next.js build clean, engine regression passing |
+| **Sidebar UX Refinement** | Compact module rows, category glass dropdown, elimination of blue card outlines, and dropdown layering fixes | Pending | Verified 25 tests passing, Next.js build clean, engine regression passing |
 
 ---
 
 ## 2. Acceptance Checklist
 
-### Liquid Glass UI & Visual System
-- [x] Cohesive liquid-glass design system implemented (`PASS`).
-- [x] Atmospheric warm pearl background with radial depth (`PASS`).
-- [x] Centered floating glass navigation bar (`PASS`).
-- [x] Frosted-glass sidebar with soft card tiles (`PASS`).
-- [x] Refined module cards with clear selection states (`PASS`).
-- [x] Understated status pill (`Config valid` with muted sage dot) (`PASS`).
-- [x] Floating bottom-centered glass action dock (`PASS`).
-- [x] Code View and utility actions accessible and polished (`PASS`).
-- [x] Subtle, purposeful micro-interactions with reduced-motion support (`PASS`).
-- [x] Layered glass materials with graceful fallbacks (`PASS`).
-- [x] Text contrast and accessible focus preserved (`PASS`).
-- [x] Responsive layout across desktop, tablet, and mobile (`PASS`).
-- [x] Existing 3D tree and previous refinements preserved (`PASS`).
-- [x] Configuration, YAML, and command generation functional (`PASS`).
+### Sidebar UX/UI Refinement
+- [x] Oversized module cards replaced with compact, readable rows (`PASS`).
+- [x] Selected rows no longer have excessive blue outlines (`PASS`).
+- [x] Horizontally overflowing category pills replaced with category dropdown (`PASS`).
+- [x] Category counts and selection counts remain accurate (`PASS`).
+- [x] Search and category filtering work together (`PASS`).
+- [x] Bulk actions preserve intended scope (`PASS`).
+- [x] Presets remain compact and functional (`PASS`).
+- [x] Specification metadata refined and editable (`PASS`).
+- [x] Version selectors remain compact and functional (`PASS`).
+- [x] Dropdown clipping and layering resolved (`PASS`).
+- [x] Sidebar scrolling works without obscuring content (`PASS`).
+- [x] Balanced liquid-glass treatment is consistent (`PASS`).
+- [x] Responsive behavior and accessibility preserved (`PASS`).
+- [x] Existing configuration, YAML, command, and backend behavior intact (`PASS`).
+- [x] 3D tree and interactions remain unchanged (`PASS`).
 - [x] Relevant tests and build checks executed (`PASS`).
 - [x] Stable milestones committed (`PASS`).
 - [x] Recovery documentation current (`PASS`).
@@ -45,6 +47,6 @@
 To resume or inspect:
 1. Check `git status` on branch `v3-frontend`.
 2. Inspect `docs/ux-redesign-implementation.md` and `docs/ux-redesign-decisions.md`.
-3. Run `npm --prefix frontend test` to exercise all 22 unit, geometry, and canopy connectivity tests.
+3. Run `npm --prefix frontend test` to exercise all 25 unit, geometry, and UX tests.
 4. Run `npm --prefix frontend run build` to verify Next.js compilation.
 5. Run `bash tests/run_all.sh` to verify DotUp execution engine compatibility.

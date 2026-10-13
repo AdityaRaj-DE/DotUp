@@ -1,54 +1,42 @@
-# DotUp V3 — Liquid Glass UI Redesign Report
+# DotUp V3 — Sidebar UX/UI Refinement & Compact Liquid-Glass Report
 
 **Date:** 2026-10-13  
 **Status:** Complete, Verified & Tested  
-**Milestone:** Complete Liquid Glass UI System (Apple/visionOS Inspired)
+**Milestone:** Compact Module Rows, Category Dropdown & Sidebar Refinement
 
 ---
 
-## 1. Summary of Redesign
+## 1. Summary of Sidebar UX/UI Changes
 
-The DotUp V3 user interface has been transformed from a standard white-card dashboard into a spatial, frosted liquid-glass experience inspired by Apple's translucent design systems.
+The DotUp V3 sidebar configurator has been redesigned into a compact, information-dense, floating liquid-glass control panel.
 
-### 1.1 Apple Liquid-Glass Design Foundation
-- **Calibrated Palette**:
-  - Warm pearl background: `#F4F2ED`
-  - Mist grey surface: `#E7E8E5`
-  - Graphite primary typography: `#242B38`
-  - Primary Apple blue: `#477BEA`
-  - Muted sage success: `#4B8B68`
-  - Warm sand accent: `#D8C7A6`
-- **Material Layering & Tokens**:
-  - Floating components utilize `backdrop-filter: blur(20px - 28px)` with semi-transparent tinted glass surfaces (`rgba(255, 255, 255, 0.72)`).
-  - Subtle perimeter highlights (`border: 1px solid rgba(255, 255, 255, 0.75)`).
-  - Soft, multi-layer diffuse drop shadows eliminating harsh borders.
+### 1.1 Compact Module Rows (Replaced Oversized Cards)
+- **Eliminated Heavy Cards**: Replaced tall cards with compact, streamlined rows (`.sidebar-compact-row`) featuring a balanced height of ~38px.
+- **Removed Excessive Blue Outlines**: Replaced the prominent blue borders on selected items with a subtle translucent white elevation (`background: rgba(255, 255, 255, 0.92)`) and a delicate accent border (`rgba(71, 123, 234, 0.25)`).
+- **Aligned Layout**: Checkbox, tool name, single-line truncated description with full tooltip, and compact right-aligned version dropdown picker.
+- **Increased Visual Density**: Displays more than 2x the tools in the same viewport height without feeling cramped.
 
-### 1.2 Atmospheric 3D Tree Stage & Background
-- Replaced the plain flat background with a warm radial gradient (`circle at 55% 45%, #ffffff 0%, #f4f2ed 65%, #e9e7e0 100%`) creating atmospheric depth around the 3D voxel tree while keeping the tree as the dominant visual centerpiece.
+### 1.2 Category Dropdown (Replaced Horizontally Overflowing Pills)
+- Replaced the horizontal scrolling pill scroller with a unified glass dropdown (`GlassDropdown.tsx`).
+- Displays category names (`All Categories`, `System Foundation`, `Terminal & Shell`, `Development Runtimes`, `Cloud & Containers`, `Editors & Apps`) alongside active selection count badges.
+- Dismissible via click-outside or Escape key. Fits cleanly beside the search input.
 
-### 1.3 Centered Floating Glass Navigation Bar
-- Replaced the full-width website header with a pill-shaped, floating glass bar (`.navbar-glass-container`) centered at the top of the viewport.
-- **Left**: Clean DotUp V3 brand pill.
-- **Center**: Centered navigation pills (About, How to Use, Policy, Meet Developer) with smooth active pill states.
-- **Right**: Quiet status indicator (`Config valid` with muted sage dot), Reset action, and Code View trigger button.
+### 1.3 Dropdown Stacking Context & Clipping Resolution
+- Version selectors and category menus now have an elevated stacking context (`z-index: 80`) and clean viewport containment.
+- Prevents dropdown menus from clipping inside the scrolling list or triggering unintended module toggles.
 
-### 1.4 Cohesive Frosted-Glass Sidebar
-- Refined the configuration sidebar into a translucent panel (`backdrop-filter: blur(20px)`).
-- Replaced heavy bordered cards with rounded glass tiles (`border-radius: 16px`), soft hover elevations, subtle active borders, and clean typography.
-- Integrated search, category pills, preset selectors, and independent scrolling.
-
-### 1.5 Floating Bottom-Centered Glass Action Dock
-- Moved the Copy Command and Download YAML buttons out of the sidebar into a **floating pill-shaped glass dock** (`FloatingActionDock.tsx`) centered horizontally at the bottom of the viewport.
-- Features real-time selected tool count, primary blue Copy Command with in-place label feedback ("Command Copied"), and secondary glass Download YAML button.
+### 1.4 Presets & Collapsible Metadata
+- Preset selector buttons use compact pill geometry with balanced padding.
+- Specification metadata accordion is lightweight and clean, displaying the spec ID and version clearly in its collapsed state.
 
 ---
 
 ## 2. Invariants & Preserved Architecture
 
-- **Sidebar as Sole Interface**: All configuration toggling, versioning, presets, and metadata inputs reside in the sidebar. The tree remains strictly non-interactive and visual-only.
-- **Voxel Tree Preserved**: The refined 3D tree, branch hierarchy, natural green canopy, and grassy island base remain untouched.
-- **Canonical Schema**: YAML generation and copy command snippets maintain 100% compliance with the canonical DotUp V3 schema.
-- **Camera Controls**: Rotation-only horizontal drag is preserved; zoom, pan, and vertical flipping remain disabled.
+- **Sidebar Exclusivity**: All configuration operations remain in the sidebar; the 3D scene remains non-interactive and visual-only.
+- **Floating Action Dock**: Preserved outside the sidebar at the bottom center of the viewport (`FloatingActionDock.tsx`).
+- **Canonical Schema**: YAML generation and copy command snippets maintain 100% compliance with DotUp V3 canonical specification.
+- **3D Tree Preserved**: Procedural voxel tree, natural green canopy, and grassy island base remain untouched.
 
 ---
 
@@ -71,6 +59,9 @@ The DotUp V3 user interface has been transformed from a standard white-card dash
 ✔ Interaction Contract: Sidebar is sole configuration source; tree is visual derivation
 ✔ Canopy Density: Empty categories have zero foliage; all modules selected populates all regions
 ✔ Multi-Module Shared Category Foliage: Deselecting one module preserves sibling module foliage
+✔ Sidebar UX Refinement: Category items cover all defined categories
+✔ Sidebar UX Refinement: Module rows have name and descriptions
+✔ Sidebar UX Refinement: Presets retain clean module mappings
 ✔ VoxelTree Visual Refinement: Grassy island pedestal replaces grey plinth
 ✔ VoxelTree Visual Refinement: Trunk has organic buttressed taper and warm bark palette
 ✔ VoxelTree Visual Refinement: Natural green canopy palette with spatial color depth
@@ -79,7 +70,7 @@ The DotUp V3 user interface has been transformed from a standard white-card dash
 ✔ VoxelTreeData: Deterministic per-module foliage clusters for all registered modules
 ✔ VoxelTreeData: Spatial canopy regions match category centers
 
-Total: 22 passed, 0 failed (195ms).
+Total: 25 passed, 0 failed (211ms).
 ```
 
 ### 3.2 Production Build (`npm --prefix frontend run build`)
@@ -89,7 +80,7 @@ Total: 22 passed, 0 failed (195ms).
 - All OS, package manager, config parser (V2 & V3), state engine, plan, and CLI integration tests passed.
 
 ### 3.4 Backend Health (`pytest tests/`)
-- Health test passed (1 passed in 0.55s).
+- Health test passed (1 passed in 0.57s).
 
 ### 3.5 Live Container Smoke Run
-- `curl http://localhost:3000` returned HTTP 200 with server-rendered `.navbar-glass-container`, `.action-dock-glass`, and quiet `.status-pill-success` elements.
+- `curl http://localhost:3000` returned HTTP 200 with server-rendered `.sidebar-compact-row`, `GlassDropdown`, and `.action-dock-glass`.
