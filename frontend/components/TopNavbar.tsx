@@ -34,23 +34,25 @@ export default function TopNavbar({
 
   return (
     <>
-      <header className="navbar">
-        <div className="navbar-left">
-          {/* Brand Identity */}
-          <div className="navbar-brand">
-            <div className="brand-logo" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
-            </div>
-            <div className="brand-text-block">
-              <span className="brand-title">DotUp</span>
-              <span className="brand-badge-v3">V3</span>
+      <header className="navbar-floating-wrapper" role="banner">
+        <div className="navbar-glass-container">
+          {/* 1. Left: Brand Identity */}
+          <div className="navbar-left">
+            <div className="navbar-brand">
+              <div className="brand-logo" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </div>
+              <div className="brand-text-block">
+                <span className="brand-title">DotUp</span>
+                <span className="brand-badge-v3">v3</span>
+              </div>
             </div>
           </div>
 
-          {/* Nav links */}
-          <nav className="navbar-links" aria-label="Main navigation">
+          {/* 2. Center: Centered Floating Navigation Pills */}
+          <nav className="navbar-center-nav" aria-label="Main navigation">
             <button
               type="button"
               className={`nav-link-btn ${activeModal === 'about' ? 'active' : ''}`}
@@ -80,62 +82,65 @@ export default function TopNavbar({
               Meet Developer
             </button>
           </nav>
-        </div>
 
-        <div className="navbar-right">
-          {/* Status Badge */}
-          <div className="navbar-status-badge">
-            {isValid ? (
-              <span className="status-pill status-pill-success">
-                <CheckIcon size={12} /> Valid Spec
-              </span>
+          {/* 3. Right: Utility Controls & Status */}
+          <div className="navbar-right">
+            {/* Redesigned Quiet Status Pill */}
+            <div className="navbar-status-badge">
+              {isValid ? (
+                <span className="status-pill status-pill-success" title="Configuration is valid and ready">
+                  <span className="status-dot-subtle" />
+                  <span>Config valid</span>
+                </span>
+              ) : (
+                <span className="status-pill status-pill-warning" title={`${issueCount} issues detected`}>
+                  <AlertCircleIcon size={11} />
+                  <span>{issueCount} issue{issueCount > 1 ? 's' : ''}</span>
+                </span>
+              )}
+            </div>
+
+            {/* Reset Setup Button / Confirm */}
+            {showResetConfirm ? (
+              <div className="reset-confirm-inline" role="alert">
+                <span>Reset?</span>
+                <button type="button" onClick={handleReset} className="btn-danger-xs">
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowResetConfirm(false)}
+                  className="btn-ghost-xs"
+                >
+                  No
+                </button>
+              </div>
             ) : (
-              <span className="status-pill status-pill-warning">
-                <AlertCircleIcon size={12} /> {issueCount} issue{issueCount > 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-
-          {/* Reset Setup Button / Confirm */}
-          {showResetConfirm ? (
-            <div className="reset-confirm-inline" role="alert">
-              <span>Reset?</span>
-              <button type="button" onClick={handleReset} className="btn-danger-xs">
-                Yes
-              </button>
               <button
                 type="button"
-                onClick={() => setShowResetConfirm(false)}
-                className="btn-ghost-xs"
+                onClick={() => setShowResetConfirm(true)}
+                className="btn-ghost-nav"
+                title="Reset configuration to default preset"
               >
-                No
+                <RotateCcwIcon size={12} />
+                <span>Reset</span>
               </button>
-            </div>
-          ) : (
+            )}
+
+            {/* Code View Action Button */}
             <button
               type="button"
-              onClick={() => setShowResetConfirm(true)}
-              className="btn-ghost-nav"
-              title="Reset configuration to default preset"
+              onClick={onOpenCodeView}
+              className="btn-code-view"
+              title="Inspect generated Canonical YAML & CLI Command"
             >
-              <RotateCcwIcon size={13} />
-              <span>Reset</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
+              </svg>
+              <span>Code View</span>
             </button>
-          )}
-
-          {/* Code View Action Button */}
-          <button
-            type="button"
-            onClick={onOpenCodeView}
-            className="btn-code-view"
-            title="Inspect generated Canonical YAML & CLI Command"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="16 18 22 12 16 6" />
-              <polyline points="8 6 2 12 8 18" />
-            </svg>
-            <span>Code View</span>
-          </button>
+          </div>
         </div>
       </header>
 
@@ -213,7 +218,7 @@ export default function TopNavbar({
             <div className="modal-footer">
               <button
                 type="button"
-                className="btn-primary-action"
+                className="btn-modal-done"
                 onClick={() => setActiveModal(null)}
               >
                 Done

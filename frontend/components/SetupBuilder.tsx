@@ -11,6 +11,7 @@ import {
 import TopNavbar from './TopNavbar';
 import SidebarConfigurator from './SidebarConfigurator';
 import VoxelTreeCanvas from './VoxelTreeCanvas';
+import FloatingActionDock from './FloatingActionDock';
 import CodeViewModal from './CodeViewModal';
 
 interface SetupBuilderProps {
@@ -141,6 +142,10 @@ export default function SetupBuilder({
   const canonicalYaml = useMemo(() => generateDotupYaml(configObj), [configObj]);
   const bootstrapSnippet = useMemo(() => generateBootstrapSnippet(configObj), [configObj]);
 
+  const selectedCount = useMemo(() => {
+    return Object.values(selectedModules).filter((m) => m.enabled).length;
+  }, [selectedModules]);
+
   // Copy command handler
   const handleCopyCommand = useCallback(async (): Promise<boolean> => {
     try {
@@ -181,7 +186,7 @@ export default function SetupBuilder({
 
   return (
     <div className="voxel-builder-root">
-      {/* Top Navbar with brand, About, How to Use, Policy, Meet Developer, and Code View action */}
+      {/* 1. Floating Glass Navbar */}
       <TopNavbar
         setupId={setupId}
         setupVersion={setupVersion}
@@ -193,9 +198,9 @@ export default function SetupBuilder({
         databaseStatus={initialDatabaseStatus}
       />
 
-      {/* Main 2-Pane Experience */}
+      {/* 2. Main 2-Pane Experience */}
       <div className="voxel-builder-body">
-        {/* Left: Sole Configuration Sidebar */}
+        {/* Left: Sole Configuration Sidebar in frosted glass */}
         <SidebarConfigurator
           setupId={setupId}
           setupVersion={setupVersion}
@@ -210,16 +215,22 @@ export default function SetupBuilder({
           onChangeVersion={handleChangeVersion}
           onSelectAllVisible={handleSelectAllVisible}
           onClearAll={handleClearAll}
-          onCopyCommand={handleCopyCommand}
-          onDownloadYaml={handleDownloadYaml}
           isValid={validation.isValid}
           errors={validation.errors}
         />
 
-        {/* Center / Right: The Visual-Only 3D Voxel Tree */}
+        {/* Center / Right: The Atmospheric 3D Voxel Stage */}
         <main className="tree-center-stage" aria-label="Visual environment representation">
           <VoxelTreeCanvas selectedModules={selectedModules} />
         </main>
+
+        {/* 3. Floating Bottom-Centered Glass Action Dock */}
+        <FloatingActionDock
+          onCopyCommand={handleCopyCommand}
+          onDownloadYaml={handleDownloadYaml}
+          isValid={validation.isValid}
+          selectedCount={selectedCount}
+        />
       </div>
 
       {/* Code View Modal */}
