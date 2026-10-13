@@ -43,10 +43,10 @@ export default function VoxelTreeCanvas({
 
   // Camera orbit state (rotation-only: distance & pitch locked)
   const orbitStateRef = useRef({
-    radius: 27,
+    radius: 26,
     polarAngle: Math.PI / 3.4, // ~52 degrees elevation
     azimuthAngle: Math.PI / 4.2, // ~43 degrees horizontal isometric angle
-    target: new THREE.Vector3(0, 3.8, 0),
+    target: new THREE.Vector3(0, 3.4, 0),
     isDragging: false,
     prevPointerX: 0
   });
@@ -131,18 +131,24 @@ export default function VoxelTreeCanvas({
       return;
     }
 
-    // 3. Lighting Setup (Crisp developer voxel illumination)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    // 3. Lighting Setup: directional key + warm sunlight + soft ambient
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.95);
-    dirLight1.position.set(15, 25, 20);
-    scene.add(dirLight1);
+    // Primary warm sun key light (highlights top & exposed faces)
+    const keySunLight = new THREE.DirectionalLight(0xfffbeb, 1.15);
+    keySunLight.position.set(16, 26, 18);
+    scene.add(keySunLight);
 
-    const dirLight2 = new THREE.DirectionalLight(0x93c5fd, 0.35); // subtle cool fill
-    dirLight2.position.set(-15, 10, -15);
-    scene.add(dirLight2);
+    // Secondary sky fill light (soft blue cool sky bounce)
+    const skyFillLight = new THREE.DirectionalLight(0xdbeafe, 0.45);
+    skyFillLight.position.set(-16, 12, -14);
+    scene.add(skyFillLight);
 
+    // Soft under-bounce light (earth/turf reflection)
+    const groundBounce = new THREE.DirectionalLight(0xdcfce7, 0.25);
+    groundBounce.position.set(0, -10, 5);
+    scene.add(groundBounce);
     // 4. Build Static Voxel Geometry (Pedestal, Trunk, and Category Branches)
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
     const staticVoxels = getStaticTreeVoxels();
@@ -160,7 +166,9 @@ export default function VoxelTreeCanvas({
 
     const staticMesh = new THREE.InstancedMesh(
       boxGeometry,
-      new THREE.MeshLambertMaterial(),
+      new THREE.MeshLambertMaterial({
+        reflectivity: 0.1
+      }),
       allStatic.length
     );
 
@@ -208,7 +216,9 @@ export default function VoxelTreeCanvas({
 
     const foliageMesh = new THREE.InstancedMesh(
       boxGeometry,
-      new THREE.MeshLambertMaterial(),
+      new THREE.MeshLambertMaterial({
+        reflectivity: 0.1
+      }),
       foliageList.length
     );
 
@@ -220,7 +230,7 @@ export default function VoxelTreeCanvas({
       scale.set(s, s, s);
       matrix.compose(position, quaternion, scale);
       foliageMesh.setMatrixAt(i, matrix);
-      color.set(v.color || VOXEL_PALETTE.system[0]);
+      color.set(v.color || VOXEL_PALETTE.leafPrimary);
       foliageMesh.setColorAt(i, color);
     }
     foliageMesh.instanceMatrix.needsUpdate = true;
