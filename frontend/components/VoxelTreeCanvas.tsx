@@ -43,10 +43,10 @@ export default function VoxelTreeCanvas({
 
   // Camera orbit state (rotation-only: distance & pitch locked)
   const orbitStateRef = useRef({
-    radius: 26,
+    radius: 27.5,
     polarAngle: Math.PI / 3.4, // ~52 degrees elevation
     azimuthAngle: Math.PI / 4.2, // ~43 degrees horizontal isometric angle
-    target: new THREE.Vector3(0, 3.4, 0),
+    target: new THREE.Vector3(0, 3.2, 0),
     isDragging: false,
     prevPointerX: 0
   });
@@ -180,7 +180,8 @@ export default function VoxelTreeCanvas({
 
     for (let i = 0; i < allStatic.length; i++) {
       const v = allStatic[i];
-      const s = v.size || 0.8;
+      // Multiply by 1.002 to seal subpixel boundary rasterization seams between adjacent grid blocks
+      const s = (v.size || 0.8) * 1.002;
       position.set(v.x, v.y, v.z);
       scale.set(s, s, s);
       matrix.compose(position, quaternion, scale);
@@ -225,11 +226,10 @@ export default function VoxelTreeCanvas({
     for (let i = 0; i < foliageList.length; i++) {
       const item = foliageList[i];
       const v = item.baseCoord;
-      const s = (v.size || 0.65) * item.currentScale;
+      const s = (v.size || 0.65) * item.currentScale * 1.002;
       position.set(v.x, v.y, v.z);
       scale.set(s, s, s);
       matrix.compose(position, quaternion, scale);
-      foliageMesh.setMatrixAt(i, matrix);
       color.set(v.color || VOXEL_PALETTE.leafPrimary);
       foliageMesh.setColorAt(i, color);
     }
@@ -372,7 +372,7 @@ export default function VoxelTreeCanvas({
             needsUpdate = true;
           }
 
-          const s = (v.size || 0.65) * item.currentScale;
+          const s = (v.size || 0.65) * item.currentScale * 1.002;
           position.set(v.x, v.y + swayY, v.z);
           scale.set(s, s, s);
           matrix.compose(position, quaternion, scale);

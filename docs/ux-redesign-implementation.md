@@ -1,78 +1,53 @@
-# DotUp V3 — Interactive Voxel Tree: Visual Refinement Report
+# DotUp V3 — Interactive Voxel Tree: Ground, Grass & Geometry Integrity Report
 
 **Date:** 2026-10-13  
 **Status:** Complete, Verified & Tested  
-**Milestone:** Voxel Tree Visual Refinement & Aesthetic Polish
+**Milestone:** Ground Platform Scaling, Grass Detail & Voxel Geometry Integrity
 
 ---
 
-## 1. Summary of Visual Refinements
+## 1. Root Cause Analysis of Visual Defects
 
-The DotUp V3 3D voxel tree has been refined from a basic brown-cube prototype into a cohesive, lush, stylized voxel tree asset inspired by `tree.icqr.com`.
-
-### 1.1 Grassy Island Base (Replaced Flat Grey Plinth)
-- **Problem Solved:** The previous flat grey plinth (`#1e293b`) looked industrial and sterile, disconnecting the tree from nature.
-- **Solution:** Replaced with a floating earthy island pedestal featuring:
-  - Multi-tone green turf upper surface (`#689f38` sunlit turf, `#558b2f` lush turf, `#33691e` edge accents).
-  - Multi-tier earthy bedrock and dark substrate underside (`#5d4037` soil top, `#3e2723` bedrock, `#271915` underplate shadow).
-  - Perimeter micro-grass tufts breaking mechanical disk boundaries.
-
-### 1.2 Tapered, Buttressed Organic Trunk
-- **Problem Solved:** The trunk previously resembled a uniform vertical stack of identical blocks with exposed cubes.
-- **Solution:**
-  - Added organic root flares extending radially into the turf (`size: 1.55` down to `0.65`).
-  - Implemented progressive vertical tapering (width from `1.35` at base down to `0.80` at upper fork).
-  - Adopted a warm timber bark palette (`#8d6e63` sunlit bark highlights, `#6d4c41` primary warm brown, `#4e342e` junction crevices, `#3e2723` underside shadows).
-
-### 1.3 Hierarchical Connected Branching
-- **Problem Solved:** Branches appeared disconnected from the trunk with abrupt single-cube jumps.
-- **Solution:**
-  - Established a strict hierarchy: primary boughs anchored solidly to trunk collars, secondary fork arms, and terminal twigs.
-  - Overlapping voxel steps (`size: 0.72` -> `0.65` -> `0.58` -> `0.52` -> `0.45`) ensure seamless mechanical and visual connectivity.
-  - Natural progression towards each category's canopy center (`system`, `terminal`, `development`, `infrastructure`, `editors`).
-
-### 1.4 Coordinated Natural Green Canopy & Multi-Scale Foliage
-- **Problem Solved:** Foliage was sparse, disconnected, and used unnatural saturated colors (cyan, pink, yellow, emerald).
-- **Solution:**
-  - Replaced rainbow colors with a **coordinated natural green palette**:
-    - `#84cc16` Lime sunlit outer tips (upper sun-exposed canopy)
-    - `#4ade80` Fresh vibrant leaf green
-    - `#22c55e` Primary canopy body
-    - `#16a34a` Intermediate emerald depth
-    - `#15803d` Forest green undercanopy
-    - `#14532d` Deep inner shade
-  - Sizing hierarchy: macro volume blocks (`0.82 - 0.95`), medium filler blocks (`0.64 - 0.78`), and micro edge blocks (`0.45 - 0.58`) soften the silhouette without creating an indistinguishable solid blob.
-  - Increased cluster count per module (22 - 28 cubes) to provide a rich, lush canopy while preserving trunk and branch visibility through natural gaps.
-
-### 1.5 Enhanced Lighting & Shading
-- **Lighting Setup:**
-  - Primary warm key sunlight (`#fffbeb`, intensity `1.15`, positioned `(16, 26, 18)`).
-  - Secondary soft blue sky fill (`#dbeafe`, intensity `0.45`, positioned `(-16, 12, -14)`).
-  - Subtle upward green turf bounce light (`#dcfce7`, intensity `0.25`, positioned `(0, -10, 5)`).
-  - Ambient base illumination (`#ffffff`, intensity `0.75`).
-- **Framing:** Camera orbit target calibrated to `(0, 3.4, 0)` with radius `26` for a well-balanced frame across all rotation angles.
+1. **Undersized Platform:**
+   - *Cause:* The island had a radius of only 3.6 units with bounds spanning ~6.0 units, leaving excessive negative space in the 3D viewport.
+   - *Correction:* Expanded grid bounds from `-6` to `+6` with radius `5.6` units (total span ~10.2 units wide and deep). Calibrated camera distance to `27.5` and target to `(0, 3.2, 0)` for balanced framing.
+2. **Subpixel Boundary Gaps & Seams:**
+   - *Cause:* Discrete grid voxels scaled at exactly 1.0 occasionally revealed rasterization gaps and background bleeding at grazing view angles due to floating-point truncation.
+   - *Correction:* Aligned ground platform to a strict uniform grid step (`0.85`), rounded floating coordinates, and applied a subtle `1.002` scale factor on voxel cube matrices in `VoxelTreeCanvas.tsx` to seal all inter-block boundaries.
+3. **Z-Fighting and Cube Intersection Artifacts:**
+   - *Cause:* Overlapping procedural foliage cubes with continuous random float coordinates occasionally generated coplanar faces sharing identical depth values.
+   - *Correction:* Quantized foliage cluster positioning to a discrete `0.52` lattice step with a duplicate coordinate exclusion set (`occupied.has(key)`). Ensured no coplanar coincident faces exist across static and dynamic meshes.
 
 ---
 
-## 2. Invariants & Preserved Contracts
+## 2. Geometry & Rendering Improvements
 
-- **Sidebar as Sole Interface:** 3D scene remains 100% visual-only; clicking cubes does not mutate state.
-- **Category Spatial Regions:**
-  - `system`: Lower front-left canopy.
-  - `terminal`: Lower back-right branch canopy.
-  - `development`: Towering central top crown.
-  - `infrastructure`: Mid-right branch canopy.
-  - `editors`: Upper-left branch canopy.
-- **Empty State vs. Full Canopy:** Empty categories display bare branches; all modules selected populates a full, lush canopy.
+- **Enlarged Grassy Island Base:**
+  - Subterranean Bedrock (`y = -2.4`, dist `<= 3.8`): Tapered floating island underside.
+  - Intermediate Earthy Subsoil (`y = -1.6`, dist `<= 4.8`): Natural soil perimeter.
+  - Upper Turf Surface (`y = -0.8`, dist `<= 5.6`): Lush green grass with organic angular stepped edges (`Math.sin(angle * 4)` and `Math.cos(angle * 3)`) and interior surface relief (`y = -0.65` on elevated patches).
+- **Grass Tufts & Perimeter Detail:**
+  - 12 strategically positioned grass tufts and field micro-blocks concentrated near outer banks, leaving the trunk base unobstructed.
+- **Voxel Seam Sealing:**
+  - Render loop scales static and dynamic cubes by `1.002` to eliminate subpixel seam lines and camera angle flickering without causing z-fighting.
+- **Lighting & Materials:**
+  - Directional sunlight key light, soft blue sky fill, and upward turf bounce light provide crisp contrast without dark shadow crushing.
+
+---
+
+## 3. Preserved Architecture & Invariants
+
+- **Sidebar as Sole Interface:** Configuration remains strictly sidebar-driven.
+- **Visual-Only 3D Canvas:** Ground and tree interactions cannot mutate state.
+- **Category Foliage Mapping:** Category canopy regions (`system`, `terminal`, `development`, `infrastructure`, `editors`) remain preserved and deterministic.
 - **Rotation-Only Control:** Horizontal dragging orbits view; wheel zoom and pinch gestures remain disabled.
-- **Deterministic Mapping:** Fixed seeds per module ensure identical geometry and color placement across re-renders.
-- **Canonical Schema:** Live YAML preview, downloaded `setup.yaml`, and bootstrap command snippet remain strictly compliant with DotUp V3 canonical specification.
+- **Canonical Schema:** Live YAML preview, download, and copy command remain 100% compliant with DotUp V3 canonical specification.
 
 ---
 
-## 3. Verification & Test Evidence
+## 4. Verification Evidence
 
-### 3.1 Unit & Integration Tests (`npm --prefix frontend test`)
+### 4.1 Unit & Integration Tests (`npm --prefix frontend test`)
 ```bash
 ✔ Generator: Valid Canonical V3 YAML output structure
 ✔ Generator: Fallback when no modules are enabled
@@ -80,6 +55,9 @@ The DotUp V3 3D voxel tree has been refined from a basic brown-cube prototype in
 ✔ Validation: Correctly validates setup ID and versions
 ✔ Download Filename: derives safe filename
 ✔ Modules Registry: all presets contain known modules
+✔ Ground & Geometry Integrity: Island dimensions and coordinate coverage
+✔ Ground & Geometry Integrity: Uniform grid spacing with zero duplicate coordinates
+✔ Ground & Geometry Integrity: Foliage clusters use regular lattice with no coincident cubes
 ✔ Interaction Contract: Sidebar is sole configuration source; tree is visual derivation
 ✔ Canopy Density: Empty categories have zero foliage; all modules selected populates all regions
 ✔ Multi-Module Shared Category Foliage: Deselecting one module preserves sibling module foliage
@@ -91,17 +69,14 @@ The DotUp V3 3D voxel tree has been refined from a basic brown-cube prototype in
 ✔ VoxelTreeData: Deterministic per-module foliage clusters for all registered modules
 ✔ VoxelTreeData: Spatial canopy regions match category centers
 
-Total: 16 passed, 0 failed (233ms).
+Total: 19 passed, 0 failed (239ms).
 ```
 
-### 3.2 Production Build (`npm --prefix frontend run build`)
-- Compiled successfully with zero type or bundling errors. Static pages generated (4/4).
+### 4.2 Production Build (`npm --prefix frontend run build`)
+- Next.js production build succeeded with zero type errors.
 
-### 3.3 Engine Regression Tests (`bash tests/run_all.sh`)
-- All OS tests, package-manager tests, config parser tests (V2 & V3), state engine tests, plan tests, CLI integration tests, and bootstrap tests passed.
+### 4.3 Engine Regression Tests (`bash tests/run_all.sh`)
+- All OS, package manager, config parser (V2 & V3), state engine, plan, and CLI integration tests passed.
 
-### 3.4 Backend Test (`pytest tests/`)
-- Health endpoint passed (1 passed in 0.71s).
-
-### 3.5 Live Container Smoke Run
-- `curl http://localhost:3000` returned HTTP 200 with server-rendered navbar, sidebar configurator, and 3D voxel canvas container.
+### 4.4 Backend Integration (`pytest tests/`)
+- Health test passed (1 passed in 0.70s).
