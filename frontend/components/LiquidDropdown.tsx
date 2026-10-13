@@ -9,13 +9,14 @@ interface LiquidDropdownProps {
   options: VersionOption[];
   onChange: (value: string) => void;
   placeholder?: string;
+  ariaLabel?: string;
 }
-
 export default function LiquidDropdown({
   value,
   options,
   onChange,
-  placeholder = 'Select'
+  placeholder = 'Select',
+  ariaLabel
 }: LiquidDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

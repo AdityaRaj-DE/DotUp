@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { MODULES, PRESETS } from '../lib/modules';
 import {
   generateDotupYaml,
@@ -8,12 +8,10 @@ import {
   validateConfig,
   getDownloadFilename
 } from '../lib/generator';
-import PresetSelector from './PresetSelector';
-import ProfileInformation from './ProfileInformation';
-import ModuleExplorer from './ModuleExplorer';
-import SelectionSummary from './SelectionSummary';
-import CommandPreview from './CommandPreview';
-import { RotateCcwIcon, CheckIcon, AlertCircleIcon } from './Icons';
+import TopNavbar from './TopNavbar';
+import SidebarConfigurator from './SidebarConfigurator';
+import VoxelTreeCanvas from './VoxelTreeCanvas';
+import CodeViewModal from './CodeViewModal';
 
 interface SetupBuilderProps {
   initialBackendStatus?: string;
@@ -32,12 +30,8 @@ export default function SetupBuilder({
   );
   const [activePresetId, setActivePresetId] = useState<string>('full');
 
-  // Search & category view filter state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-
-  // Reset confirmation state
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  // Code View modal visibility
+  const [isCodeViewOpen, setIsCodeViewOpen] = useState(false);
 
   // Initialize modules based on full preset
   const [selectedModules, setSelectedModules] = useState<
@@ -52,15 +46,6 @@ export default function SetupBuilder({
     });
     return initial;
   });
-
-  // Calculate preset counts dynamically
-  const presetModuleCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    PRESETS.forEach((p) => {
-      counts[p.id] = p.modules.length;
-    });
-    return counts;
-  }, []);
 
   // 2. Preset switching logic
   const handleSelectPreset = useCallback((presetId: string) => {
@@ -105,33 +90,12 @@ export default function SetupBuilder({
     }));
   }, []);
 
-  const handleRemoveModule = useCallback((id: string) => {
-    setActivePresetId('custom');
-    setSelectedModules((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        enabled: false
-      }
-    }));
-  }, []);
-
   // Bulk actions
   const handleSelectAllVisible = useCallback(() => {
     setActivePresetId('custom');
     setSelectedModules((prev) => {
       const next = { ...prev };
       MODULES.forEach((m) => {
-        const matchesCategory = selectedCategory === 'all' || m.category === selectedCategory;
-        if (!matchesCategory) return;
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase().trim();
-          const match =
-            m.name.toLowerCase().includes(q) ||
-            m.id.toLowerCase().includes(q) ||
-            m.description.toLowerCase().includes(q);
-          if (!match) return;
-        }
         next[m.id] = {
           ...next[m.id],
           enabled: true
@@ -139,7 +103,7 @@ export default function SetupBuilder({
       });
       return next;
     });
-  }, [selectedCategory, searchQuery]);
+  }, []);
 
   const handleClearAll = useCallback(() => {
     setActivePresetId('custom');
@@ -156,9 +120,8 @@ export default function SetupBuilder({
   }, []);
 
   // Reset to default
-  const handleReset = useCallback(() => {
+  const handleResetSetup = useCallback(() => {
     handleSelectPreset('full');
-    setShowResetConfirm(false);
   }, [handleSelectPreset]);
 
   // 4. Authoritative configuration object
@@ -178,126 +141,99 @@ export default function SetupBuilder({
   const canonicalYaml = useMemo(() => generateDotupYaml(configObj), [configObj]);
   const bootstrapSnippet = useMemo(() => generateBootstrapSnippet(configObj), [configObj]);
 
-  const selectedCount = useMemo(() => {
-    return Object.values(selectedModules).filter((m) => m.enabled).length;
-  }, [selectedModules]);
+  // Copy command handler
+  const handleCopyCommand = useCallback(async (): Promise<boolean> => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(bootstrapSnippet);
+        return true;
+      }
+      const textArea = document.createElement('textarea');
+      textArea.value = bootstrapSnippet;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      const success = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      return success;
+    } catch {
+      return false;
+    }
+  }, [bootstrapSnippet]);
+
+  // Download YAML handler
+  const handleDownloadYaml = useCallback(() => {
+    try {
+      const blob = new Blob([canonicalYaml], { type: 'application/x-yaml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = getDownloadFilename(setupId);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      // ignore
+    }
+  }, [canonicalYaml, setupId]);
 
   return (
-    <div className="builder-root">
-      {/* Top Header & Actions Bar */}
-      <div className="builder-header-bar">
-        <div className="builder-header-left">
-          <div className="builder-profile-badge">
-            <span className="profile-badge-dot" />
-            <span className="profile-badge-id">{setupId || 'untitled-setup'}</span>
-            <span className="profile-badge-ver">v{setupVersion}</span>
-          </div>
+    <div className="voxel-builder-root">
+      {/* Top Navbar with brand, About, How to Use, Policy, Meet Developer, and Code View action */}
+      <TopNavbar
+        setupId={setupId}
+        setupVersion={setupVersion}
+        isValid={validation.isValid}
+        issueCount={validation.errors.length}
+        onOpenCodeView={() => setIsCodeViewOpen(true)}
+        onResetSetup={handleResetSetup}
+        backendStatus={initialBackendStatus}
+        databaseStatus={initialDatabaseStatus}
+      />
 
-          <div className="builder-status-badge">
-            {validation.isValid ? (
-              <span className="status-pill status-pill-success">
-                <CheckIcon size={11} /> Valid Specification
-              </span>
-            ) : (
-              <span className="status-pill status-pill-warning">
-                <AlertCircleIcon size={11} /> {validation.errors.length} issue
-                {validation.errors.length > 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-        </div>
+      {/* Main 2-Pane Experience */}
+      <div className="voxel-builder-body">
+        {/* Left: Sole Configuration Sidebar */}
+        <SidebarConfigurator
+          setupId={setupId}
+          setupVersion={setupVersion}
+          setupDescription={setupDescription}
+          onChangeSetupId={setSetupId}
+          onChangeSetupVersion={setSetupVersion}
+          onChangeSetupDescription={setSetupDescription}
+          activePresetId={activePresetId}
+          onSelectPreset={handleSelectPreset}
+          selectedModules={selectedModules}
+          onToggleModule={handleToggleModule}
+          onChangeVersion={handleChangeVersion}
+          onSelectAllVisible={handleSelectAllVisible}
+          onClearAll={handleClearAll}
+          onCopyCommand={handleCopyCommand}
+          onDownloadYaml={handleDownloadYaml}
+          isValid={validation.isValid}
+          errors={validation.errors}
+        />
 
-        <div className="builder-header-right">
-          {showResetConfirm ? (
-            <div className="reset-confirm-bar" role="alert">
-              <span className="reset-confirm-text">Reset configuration to default?</span>
-              <button
-                type="button"
-                onClick={handleReset}
-                className="btn-danger-sm"
-              >
-                Yes, Reset
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowResetConfirm(false)}
-                className="btn-ghost-sm"
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowResetConfirm(true)}
-              className="btn-ghost"
-              title="Reset configuration to default preset"
-            >
-              <RotateCcwIcon size={13} />
-              <span>Reset Setup</span>
-            </button>
-          )}
-        </div>
+        {/* Center / Right: The Visual-Only 3D Voxel Tree */}
+        <main className="tree-center-stage" aria-label="Visual environment representation">
+          <VoxelTreeCanvas selectedModules={selectedModules} />
+        </main>
       </div>
 
-      {/* Main Responsive Grid Layout */}
-      <div className="builder-grid">
-        {/* Left Column: Workspace Configurator */}
-        <div className="builder-workspace">
-          {/* Starter Presets */}
-          <PresetSelector
-            activePresetId={activePresetId}
-            onSelectPreset={handleSelectPreset}
-            presetModuleCounts={presetModuleCounts}
-          />
-
-          {/* Profile Information Metadata */}
-          <ProfileInformation
-            setupId={setupId}
-            setupVersion={setupVersion}
-            setupDescription={setupDescription}
-            onChangeSetupId={setSetupId}
-            onChangeSetupVersion={setSetupVersion}
-            onChangeSetupDescription={setSetupDescription}
-            errors={validation.errors}
-          />
-
-          {/* Component Explorer with Search & Categories */}
-          <ModuleExplorer
-            selectedModules={selectedModules}
-            onToggleModule={handleToggleModule}
-            onChangeVersion={handleChangeVersion}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-            onSelectAllVisible={handleSelectAllVisible}
-            onClearAll={handleClearAll}
-          />
-
-          {/* Selection Summary Tray */}
-          <SelectionSummary
-            selectedModules={selectedModules}
-            onRemoveModule={handleRemoveModule}
-            isValid={validation.isValid}
-            onApplyPreset={handleSelectPreset}
-          />
-        </div>
-
-        {/* Right Column: Sticky Command and Terminal Preview */}
-        <div className="builder-sidebar">
-          <div className="sticky-sidebar">
-            <CommandPreview
-              command={bootstrapSnippet}
-              yaml={canonicalYaml}
-              setupId={setupId}
-              selectedCount={selectedCount}
-              isValid={validation.isValid}
-              errors={validation.errors}
-            />
-          </div>
-        </div>
-      </div>
+      {/* Code View Modal */}
+      <CodeViewModal
+        isOpen={isCodeViewOpen}
+        onClose={() => setIsCodeViewOpen(false)}
+        yaml={canonicalYaml}
+        command={bootstrapSnippet}
+        setupId={setupId}
+        isValid={validation.isValid}
+        errors={validation.errors}
+        onCopyCommand={handleCopyCommand}
+        onDownloadYaml={handleDownloadYaml}
+      />
     </div>
   );
 }
