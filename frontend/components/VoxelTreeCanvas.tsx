@@ -43,10 +43,10 @@ export default function VoxelTreeCanvas({
 
   // Camera orbit state (rotation-only: distance & pitch locked)
   const orbitStateRef = useRef({
-    radius: 27.5,
-    polarAngle: Math.PI / 3.4, // ~53 degrees elevation
+    radius: 26.5,
+    polarAngle: Math.PI / 2.75, // lowered camera perspective (~25 degrees elevation) matching reference
     azimuthAngle: Math.PI / 4.0, // 45 degrees exact isometric diamond angle
-    target: new THREE.Vector3(0, 3.0, 0),
+    target: new THREE.Vector3(0, 2.7, 0),
     isDragging: false,
     prevPointerX: 0
   });
@@ -60,7 +60,7 @@ export default function VoxelTreeCanvas({
   // Handle View Reset
   const handleResetCamera = useCallback(() => {
     orbitStateRef.current.azimuthAngle = Math.PI / 4.0;
-    orbitStateRef.current.polarAngle = Math.PI / 3.4;
+    orbitStateRef.current.polarAngle = Math.PI / 2.75;
   }, []);
 
   // Update target scales of foliage instances whenever selectedModules changes

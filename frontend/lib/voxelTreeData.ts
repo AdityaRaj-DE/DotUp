@@ -425,24 +425,24 @@ export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
     { category: string; seed: number; hubIndex: number; localOffset: { x: number; y: number; z: number }; count: number }
   > = {
     // Category: System (1 module: system) -> front canopy lobe
-    system: { category: 'system', seed: 101, hubIndex: 1, localOffset: { x: 0.0, y: 0.1, z: 0.0 }, count: 30 },
+    system: { category: 'system', seed: 101, hubIndex: 1, localOffset: { x: 0.0, y: 0.1, z: 0.0 }, count: 42 },
 
     // Category: Terminal (1 module: zsh) -> front-right canopy lobe
-    zsh: { category: 'terminal', seed: 202, hubIndex: 1, localOffset: { x: 0.0, y: 0.1, z: 0.0 }, count: 30 },
+    zsh: { category: 'terminal', seed: 202, hubIndex: 1, localOffset: { x: 0.0, y: 0.1, z: 0.0 }, count: 42 },
 
     // Category: Development (4 modules: git, node, python, java) -> central towering crown dome
-    git: { category: 'development', seed: 303, hubIndex: 0, localOffset: { x: -0.3, y: 0.0, z: 0.2 }, count: 26 },
-    node: { category: 'development', seed: 304, hubIndex: 1, localOffset: { x: 0.3, y: 0.15, z: -0.2 }, count: 26 },
-    python: { category: 'development', seed: 305, hubIndex: 2, localOffset: { x: -0.2, y: 0.2, z: -0.2 }, count: 26 },
-    java: { category: 'development', seed: 306, hubIndex: 3, localOffset: { x: 0.2, y: 0.1, z: 0.3 }, count: 26 },
+    git: { category: 'development', seed: 303, hubIndex: 0, localOffset: { x: -0.3, y: 0.0, z: 0.2 }, count: 36 },
+    node: { category: 'development', seed: 304, hubIndex: 1, localOffset: { x: 0.3, y: 0.15, z: -0.2 }, count: 36 },
+    python: { category: 'development', seed: 305, hubIndex: 2, localOffset: { x: -0.2, y: 0.2, z: -0.2 }, count: 36 },
+    java: { category: 'development', seed: 306, hubIndex: 3, localOffset: { x: 0.2, y: 0.1, z: 0.3 }, count: 36 },
 
     // Category: Infrastructure (2 modules: docker, gcloud) -> back-right canopy lobe
-    docker: { category: 'infrastructure', seed: 401, hubIndex: 0, localOffset: { x: -0.15, y: 0.1, z: -0.1 }, count: 28 },
-    gcloud: { category: 'infrastructure', seed: 402, hubIndex: 1, localOffset: { x: 0.2, y: 0.15, z: 0.15 }, count: 28 },
+    docker: { category: 'infrastructure', seed: 401, hubIndex: 0, localOffset: { x: -0.15, y: 0.1, z: -0.1 }, count: 38 },
+    gcloud: { category: 'infrastructure', seed: 402, hubIndex: 1, localOffset: { x: 0.2, y: 0.15, z: 0.15 }, count: 38 },
 
     // Category: Editors (2 modules: vscode, chrome) -> back-left canopy lobe
-    vscode: { category: 'editors', seed: 501, hubIndex: 0, localOffset: { x: 0.15, y: 0.1, z: -0.1 }, count: 28 },
-    chrome: { category: 'editors', seed: 502, hubIndex: 1, localOffset: { x: -0.2, y: 0.15, z: 0.15 }, count: 28 }
+    vscode: { category: 'editors', seed: 501, hubIndex: 0, localOffset: { x: 0.15, y: 0.1, z: -0.1 }, count: 38 },
+    chrome: { category: 'editors', seed: 502, hubIndex: 1, localOffset: { x: -0.2, y: 0.15, z: 0.15 }, count: 38 }
   };
 
   const latticeStep = 0.52;
@@ -462,10 +462,10 @@ export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
     const occupied = new Set<string>();
 
     let attempts = 0;
-    while (voxels.length < info.count && attempts < 180) {
+    while (voxels.length < info.count && attempts < 260) {
       attempts++;
 
-      const rawRadius = (rand() * 0.60 + rand() * 0.60); // Smooth distribution ~ [0, 1.2]
+      const rawRadius = (rand() * 0.65 + rand() * 0.65); // Smooth distribution ~ [0, 1.3]
       const theta = 2.0 * Math.PI * rand();
       const phi = Math.PI * (rand() * 0.80 + 0.10); // Dome shape
 
@@ -491,7 +491,7 @@ export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
       const posY = Number((originY + dy).toFixed(3));
       const posZ = Number((originZ + dz).toFixed(3));
 
-      // Connectivity verification: candidate MUST be within 2.2 units of a category branch
+      // Connectivity verification: candidate MUST be within 2.25 units of a category branch
       let minDistanceToBranch = Infinity;
       for (let b = 0; b < categoryBranches.length; b++) {
         const br = categoryBranches[b];
@@ -502,7 +502,7 @@ export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
       }
 
       // Reject any candidate exceeding safety distance threshold
-      if (minDistanceToBranch > 2.2) {
+      if (minDistanceToBranch > 2.25) {
         continue;
       }
 
@@ -531,9 +531,9 @@ export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
       // Medium filler blocks (0.64 - 0.78) blend clusters
       // Micro edge blocks (0.44 - 0.56) create natural stylized leaf edges
       let voxelSize: number;
-      if (distFromHub < 0.65) {
+      if (distFromHub < 0.70) {
         voxelSize = 0.88 + rand() * 0.14; // Macro: >= 0.82
-      } else if (distFromHub > 0.98 || rand() > 0.68) {
+      } else if (distFromHub > 1.05 || rand() > 0.65) {
         voxelSize = 0.45 + rand() * 0.11; // Micro: < 0.60
       } else {
         voxelSize = 0.65 + rand() * 0.12; // Medium: 0.60 - 0.80

@@ -122,3 +122,7 @@ Guided by the reference images (`media_1791995233968_3ee1ed21.jpg` and `media_17
 - **Bright Luminous Lighting**: `AmbientLight` at `0.90` combined with warm sunlight at `(-14, 22, 16)` and soft sky bounce for clean, high-saturation game-art visuals.
 - **Atmospheric Stage Backdrop**: `.tree-center-stage` set to `radial-gradient(circle at 50% 45%, #3c6e80 0%, #2e5766 50%, #23434f 100%)`.
 - **High-Contrast Liquid-Glass Controls**: Overlay hint badge and reset button with crisp `#242b38` text over white frosted glass.
+
+### 4.6 Increased Foliage Volume & Lowered Camera Perspective
+- **Dense, Full Canopy**: Expanded per-module voxel counts from 26–30 to 36–42 voxels (total ~390 foliage blocks across the full tree), filling out the crown into a lush, voluminous, rounded dome.
+- **Lowered Isometric Camera**: Adjusted `polarAngle` from `Math.PI / 3.4` (~37° elevation) down to `Math.PI / 2.75` (~25° elevation), and re-anchored look-at target to `(0, 2.7, 0)` with radius `26.5`. This lower viewpoint directly matches the reference image's majestic perspective, emphasizing the height of the tree and the floating island rim.

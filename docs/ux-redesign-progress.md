@@ -43,6 +43,8 @@
 
 ### Voxel Tree & Floating Island Refinement (Matching Reference)
 - [x] Full, compact, unified canopy dome without detached or floating cubes (`PASS`).
+- [x] Dense foliage volume (~390 blocks) filling out a voluminous crown (`PASS`).
+- [x] Lowered isometric camera perspective (~25° elevation) matching reference viewpoint (`PASS`).
 - [x] Multi-scale cube hierarchy: macro volume blocks, medium body blocks, micro leaf accents (`PASS`).
 - [x] Luminous sunlit yellow-lime & spring green leaf palette matching reference (`PASS`).
 - [x] Uniform single-tone spring green lawn (11x11, span >= 8.2 units) with chessboard pattern eliminated (`PASS`).
