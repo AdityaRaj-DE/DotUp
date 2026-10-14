@@ -77,18 +77,20 @@ export default function SidebarConfigurator({
   }, [selectedModules]);
 
   // Filter modules by category & search query
-  const filteredModules = MODULES.filter((m) => {
-    const matchesCategory = selectedCategory === 'all' || m.category === selectedCategory;
-    if (!matchesCategory) return false;
+  const filteredModules = useMemo(() => {
+    return MODULES.filter((m) => {
+      const matchesCategory = selectedCategory === 'all' || m.category === selectedCategory;
+      if (!matchesCategory) return false;
 
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase().trim();
-    return (
-      m.name.toLowerCase().includes(q) ||
-      m.id.toLowerCase().includes(q) ||
-      m.description.toLowerCase().includes(q)
-    );
-  });
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase().trim();
+      return (
+        m.name.toLowerCase().includes(q) ||
+        m.id.toLowerCase().includes(q) ||
+        m.description.toLowerCase().includes(q)
+      );
+    });
+  }, [selectedCategory, searchQuery]);
 
   const selectedCount = Object.values(selectedModules).filter((m) => m.enabled).length;
 
@@ -96,9 +98,18 @@ export default function SidebarConfigurator({
   const verError = errors.find((e) => e.field === 'setupVersion');
   const moduleError = errors.find((e) => e.field === 'modules');
 
+  // Bulk select shown handler
+  const handleSelectShown = () => {
+    filteredModules.forEach((m) => {
+      if (!selectedModules[m.id]?.enabled) {
+        onToggleModule(m.id);
+      }
+    });
+  };
+
   return (
     <aside className="sidebar-container" aria-label="Development environment configuration">
-      {/* 1. Header & Compact Presets */}
+      {/* 1. Header & Compact Starter Presets */}
       <div className="sidebar-section sidebar-header-section">
         <div className="sidebar-section-header">
           <span className="sidebar-section-title">Presets</span>
@@ -140,10 +151,10 @@ export default function SidebarConfigurator({
           aria-expanded={isProfileOpen}
         >
           <span className="sidebar-section-title">
-            Spec: <strong>{setupId || 'untitled'}</strong> (v{setupVersion})
+            Spec: <strong>{setupId || 'untitled'}</strong> <span className="spec-ver-pill">v{setupVersion}</span>
           </span>
           <span className={`collapse-arrow ${isProfileOpen ? 'open' : ''}`}>
-            <ChevronDownIcon size={13} />
+            <ChevronDownIcon size={12} />
           </span>
         </button>
 
@@ -218,7 +229,7 @@ export default function SidebarConfigurator({
             )}
           </div>
 
-          {/* Compact Category Dropdown replacing overflowing pills */}
+          {/* Compact Category Dropdown */}
           <GlassDropdown
             value={selectedCategory}
             items={categoryDropdownItems}
@@ -235,8 +246,9 @@ export default function SidebarConfigurator({
           <div className="bulk-btn-group">
             <button
               type="button"
-              onClick={onSelectAllVisible}
+              onClick={handleSelectShown}
               className="btn-link-action"
+              title="Select only currently filtered tools"
             >
               Select Shown
             </button>
@@ -245,6 +257,7 @@ export default function SidebarConfigurator({
               type="button"
               onClick={onClearAll}
               className="btn-link-action text-muted"
+              title="Deselect all tools"
             >
               Clear All
             </button>
@@ -290,8 +303,9 @@ export default function SidebarConfigurator({
                 role="listitem"
                 className={`sidebar-compact-row ${isEnabled ? 'is-selected' : ''}`}
               >
-                <label className="sidebar-row-main-label">
+                <label className="sidebar-row-main-label" htmlFor={`module-check-${module.id}`}>
                   <input
+                    id={`module-check-${module.id}`}
                     type="checkbox"
                     checked={isEnabled}
                     onChange={() => onToggleModule(module.id)}
