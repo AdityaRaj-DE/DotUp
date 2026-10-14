@@ -16,6 +16,7 @@
 | **Canopy & Connectivity** | Branch-anchored foliage envelope (zero detached cubes), organic layered canopy, and calibrated natural green palette | `22be142` | Verified 22 tests passing, Next.js build clean, engine regression passing |
 | **Liquid Glass UI Redesign** | Apple-inspired translucent glass system, floating centered navbar, frosted sidebar, and floating bottom action dock | `384ced5` | Verified 22 tests passing, Next.js build clean, engine regression passing |
 | **Sidebar UX Refinement** | Compact module rows, category glass dropdown, elimination of blue card outlines, and dropdown layering fixes | `fb8b90a` | Verified 25 tests passing, Next.js build clean, engine regression passing |
+| **Voxel Tree & Island Refinement** | Rounded canopy dome, floating square grass island with tapered bedrock underside, flower & tuft micro-vegetation, soft directional shadows, and atmospheric teal stage | `HEAD` | Verified 25 tests passing, Next.js clean production build, live container HTTP 200 |
 
 ---
 
@@ -36,10 +37,22 @@
 - [x] Balanced liquid-glass treatment is consistent (`PASS`).
 - [x] Responsive behavior and accessibility preserved (`PASS`).
 - [x] Existing configuration, YAML, command, and backend behavior intact (`PASS`).
-- [x] 3D tree and interactions remain unchanged (`PASS`).
 - [x] Relevant tests and build checks executed (`PASS`).
 - [x] Stable milestones committed (`PASS`).
 - [x] Recovery documentation current (`PASS`).
+
+### Voxel Tree & Floating Island Refinement (Matching Reference)
+- [x] Full, rounded, cohesive canopy dome without detached or floating cubes (`PASS`).
+- [x] Multi-scale cube hierarchy: macro volume blocks, medium body blocks, micro leaf accents (`PASS`).
+- [x] Natural green color grading calibrated to upper-left sunlight (`PASS`).
+- [x] Floating square grass island (11x11, span >= 8.2 units) with vibrant green lawn (`PASS`).
+- [x] Tapered stepped bedrock underside down to single keel point (`PASS`).
+- [x] Micro-vegetation: deterministic grass tufts and miniature colorful flower accents (`PASS`).
+- [x] Sturdy warm-timber trunk with flared buttress roots spreading onto turf (`PASS`).
+- [x] Directional sunlight from upper-left with Three.js PCFSoftShadowMap shadows (`PASS`).
+- [x] Muted teal/blue-green atmospheric stage backdrop (`PASS`).
+- [x] All 25 unit/geometry tests passing (`PASS`).
+- [x] Next.js clean production build (`PASS`).
 
 ---
 

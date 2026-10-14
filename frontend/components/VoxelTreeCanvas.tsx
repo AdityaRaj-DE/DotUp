@@ -44,9 +44,9 @@ export default function VoxelTreeCanvas({
   // Camera orbit state (rotation-only: distance & pitch locked)
   const orbitStateRef = useRef({
     radius: 27.5,
-    polarAngle: Math.PI / 3.4, // ~52 degrees elevation
-    azimuthAngle: Math.PI / 4.2, // ~43 degrees horizontal isometric angle
-    target: new THREE.Vector3(0, 3.2, 0),
+    polarAngle: Math.PI / 3.4, // ~53 degrees elevation
+    azimuthAngle: Math.PI / 4.0, // 45 degrees exact isometric diamond angle
+    target: new THREE.Vector3(0, 3.0, 0),
     isDragging: false,
     prevPointerX: 0
   });
@@ -59,7 +59,7 @@ export default function VoxelTreeCanvas({
 
   // Handle View Reset
   const handleResetCamera = useCallback(() => {
-    orbitStateRef.current.azimuthAngle = Math.PI / 4.2;
+    orbitStateRef.current.azimuthAngle = Math.PI / 4.0;
     orbitStateRef.current.polarAngle = Math.PI / 3.4;
   }, []);
 
@@ -123,7 +123,8 @@ export default function VoxelTreeCanvas({
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(width, height);
       renderer.setClearColor(0x000000, 0);
-      renderer.shadowMap.enabled = false; // keep clean flat-shaded voxel aesthetic
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       container.appendChild(renderer.domElement);
       rendererRef.current = renderer;
     } catch {
@@ -132,23 +133,34 @@ export default function VoxelTreeCanvas({
     }
 
     // 3. Lighting Setup: directional key + warm sunlight + soft ambient
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.70);
     scene.add(ambientLight);
 
-    // Primary warm sun key light (highlights top & exposed faces)
-    const keySunLight = new THREE.DirectionalLight(0xfffbeb, 1.15);
-    keySunLight.position.set(16, 26, 18);
+    // Primary warm sun key light (highlights top & upper-left exposed faces, matching reference)
+    const keySunLight = new THREE.DirectionalLight(0xfffbeb, 1.25);
+    keySunLight.position.set(-16, 26, 14);
+    keySunLight.castShadow = true;
+    keySunLight.shadow.mapSize.width = 2048;
+    keySunLight.shadow.mapSize.height = 2048;
+    keySunLight.shadow.camera.near = 0.5;
+    keySunLight.shadow.camera.far = 60;
+    keySunLight.shadow.camera.left = -9;
+    keySunLight.shadow.camera.right = 9;
+    keySunLight.shadow.camera.top = 9;
+    keySunLight.shadow.camera.bottom = -9;
+    keySunLight.shadow.bias = -0.0003;
     scene.add(keySunLight);
 
-    // Secondary sky fill light (soft blue cool sky bounce)
-    const skyFillLight = new THREE.DirectionalLight(0xdbeafe, 0.45);
-    skyFillLight.position.set(-16, 12, -14);
+    // Secondary sky fill light (soft blue cool sky bounce from back-right)
+    const skyFillLight = new THREE.DirectionalLight(0xdbeafe, 0.40);
+    skyFillLight.position.set(16, 10, -14);
     scene.add(skyFillLight);
 
-    // Soft under-bounce light (earth/turf reflection)
-    const groundBounce = new THREE.DirectionalLight(0xdcfce7, 0.25);
-    groundBounce.position.set(0, -10, 5);
+    // Soft under-bounce light (earth/turf reflection upward)
+    const groundBounce = new THREE.DirectionalLight(0xdcfce7, 0.20);
+    groundBounce.position.set(0, -8, 2);
     scene.add(groundBounce);
+
     // 4. Build Static Voxel Geometry (Pedestal, Trunk, and Category Branches)
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
     const staticVoxels = getStaticTreeVoxels();
@@ -171,6 +183,8 @@ export default function VoxelTreeCanvas({
       }),
       allStatic.length
     );
+    staticMesh.castShadow = true;
+    staticMesh.receiveShadow = true;
 
     const matrix = new THREE.Matrix4();
     const color = new THREE.Color();
@@ -222,6 +236,8 @@ export default function VoxelTreeCanvas({
       }),
       foliageList.length
     );
+    foliageMesh.castShadow = true;
+    foliageMesh.receiveShadow = true;
 
     for (let i = 0; i < foliageList.length; i++) {
       const item = foliageList[i];

@@ -99,11 +99,11 @@ body {
   position: relative;
 }
 
-/* Atmospheric tree stage with warm pearl depth */
+/* Atmospheric tree stage with stylized game-art teal backdrop matching reference */
 .tree-center-stage {
   flex: 1;
   position: relative;
-  background: radial-gradient(circle at 55% 45%, #ffffff 0%, #f4f2ed 65%, #e9e7e0 100%);
+  background: radial-gradient(circle at 50% 45%, #3c6e80 0%, #2e5766 50%, #23434f 100%);
   overflow: hidden;
   display: flex;
 }
@@ -143,45 +143,45 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  background: var(--glass-surface);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   padding: 0.35rem 0.8rem;
   border-radius: var(--radius-pill);
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--text-muted);
-  box-shadow: var(--glass-shadow-sm);
+  color: #242b38;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   transition: all 0.2s var(--ease-apple);
 }
 
 .hint-drag-icon {
   font-size: 0.9rem;
-  color: var(--accent-blue);
+  color: #3b82f6;
 }
 
 .btn-tree-reset {
   pointer-events: auto;
-  background: var(--glass-surface);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   font-family: inherit;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: #242b38;
   padding: 0.35rem 0.8rem;
   border-radius: var(--radius-pill);
   cursor: pointer;
-  box-shadow: var(--glass-shadow-sm);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   transition: all 0.2s var(--ease-apple);
 }
 
 .btn-tree-reset:hover {
-  background: var(--glass-surface-hover);
+  background: rgba(255, 255, 255, 0.95);
   transform: translateY(-1px);
-  box-shadow: var(--glass-shadow-md);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
 }
 
 /* -------------------------------------------------------------

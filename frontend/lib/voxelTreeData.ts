@@ -1,31 +1,27 @@
 /**
  * Voxel Tree Geometry & Island Generator
  *
- * Foliage Connectivity, Canopy Quality & Natural Terrain Refinement:
- * 1. Branch-Anchored Canopy Envelope & Connected Foliage Clusters:
- *    - Eliminates detached/floating outlier cubes.
- *    - Anchors foliage clusters directly around actual supporting branches.
- *    - Each module contributes a coherent mass of overlapping voxels that visually
- *      and structurally adhere to its category bough.
- * 2. Layered Organic Canopy:
+ * Visually calibrated to match the stylized game-art voxel reference:
+ * 1. Cohesive, Rounded Canopy Dome:
+ *    - Continuous, interlocking cubic foliage clusters that form a full, rounded canopy.
  *    - Multi-scale cube hierarchy:
- *      * Macro core volume blocks (0.85 - 1.05) establishing dense foliage bodies.
- *      * Medium transition blocks (0.62 - 0.76) shaping organic cluster boundaries.
- *      * Micro edge blocks (0.42 - 0.54) creating natural leaf-silhouette variation.
- *    - Balanced coverage: dense canopy when all modules are enabled while preserving
- *      glimpses of trunk and branches through natural gaps.
- * 3. Natural Green Palette:
- *    - Sunlit outer canopy: #A6D95A
- *    - Primary leaf green:  #78BD43
- *    - Mid-depth green:     #438D35
- *    - Deep foliage green:  #245C2C
- *    - Shaded interior:     #1E4A25
- *    - Spatially coherent lighting-based distribution.
- * 4. Refined Grassy Island & Organic Terrain:
- *    - Expanded balanced platform with cohesive multi-tone turf (#7CB342, #558B2F, #33691E).
- *    - Natural stepped perimeter with warm earthy subsoil and bedrock underside.
- *    - Dedicated natural grass tuft clusters concentrated along edges and fields.
- * 5. Deterministic placement, zero-randomness across renders, zero coplanar z-fighting.
+ *      * Macro core blocks (0.85 - 1.05) establishing solid, opaque foliage bodies.
+ *      * Medium boundary blocks (0.62 - 0.78) shaping organic cluster contours.
+ *      * Micro leaf accents (0.44 - 0.54) providing refined stylized silhouette variation.
+ *    - Anchored directly to category branch geometry (distance <= 2.2 units),
+ *      completely eliminating detached or floating outlier cubes.
+ * 2. Natural Multi-Tone Green Palette:
+ *    - Sunlit upper / outer surfaces: #A6D95A (sunlit lime) & #95CD41 (fresh highlight).
+ *    - Main canopy volume: #78BD43 (primary leaf green) & #438D35 (mid-depth green).
+ *    - Underside & interior core: #245C2C (deep forest green) & #1E4A25 (interior shadow).
+ * 3. Floating Square Grass Island:
+ *    - Isometric square lawn (11x11, span >= 8.2 units) with continuous vibrant green turf.
+ *    - Inverted stepped bedrock / subsoil underside tapering down to a single keel point.
+ *    - Enriched with micro-vegetation: tiny grass tufts and miniature colorful flower accents.
+ * 4. Sturdy Warm-Timber Trunk:
+ *    - Buttressed root base spreading onto the turf, tapered upward progression.
+ *    - Visible branches ascending and disappearing cleanly into the foliage canopy.
+ * 5. Strict determinism: zero z-fighting, zero coplanar duplicate coordinates.
  */
 
 export interface VoxelCoord {
@@ -65,7 +61,13 @@ export const VOXEL_PALETTE = {
   leafMid: '#438D35',        // Mid-depth intermediate layer
   leafDeep: '#245C2C',       // Deep foliage green & undercanopy
   leafShadow: '#1E4A25',     // Shaded inner core
-  leafBright: '#95CD41'      // Fresh sunny highlights
+  leafBright: '#95CD41',     // Fresh sunny highlights
+
+  // Stylized Flower Accents
+  flowerCoral: '#ff7043',    // Stylized flower accent coral
+  flowerYellow: '#ffd54f',   // Stylized flower accent yellow
+  flowerWhite: '#f5f5f5',    // Stylized flower accent white
+  flowerRed: '#ef5350'       // Stylized flower accent red
 };
 
 // Procedural pseudo-random generator with fixed seed for strict determinism
@@ -79,7 +81,7 @@ function seededRandom(seed: number) {
 }
 
 /**
- * Generate the static trunk, branches, and enlarged grassy island base
+ * Generate the static trunk, branches, and floating square grass island
  */
 export function getStaticTreeVoxels(): {
   plinth: VoxelCoord[];
@@ -97,139 +99,206 @@ export function getStaticTreeVoxels(): {
   };
 
   // -------------------------------------------------------------
-  // 1. Enlarged Grassy Floating Island Base
+  // 1. Floating Square Grass Island with Tapered Bedrock Underside
   // -------------------------------------------------------------
-  const step = 0.85;
-  const islandRadius = 5.6;
+  const step = 0.82; // 11 grid blocks -> span = 10 * 0.82 = 8.20 units (>= 8.0)
 
-  for (let gx = -6; gx <= 6; gx++) {
-    for (let gz = -6; gz <= 6; gz++) {
+  // (a) Top turf lawn surface (y = -0.80): 11x11 continuous lush green lawn
+  for (let gx = -5; gx <= 5; gx++) {
+    for (let gz = -5; gz <= 5; gz++) {
       const worldX = Number((gx * step).toFixed(3));
       const worldZ = Number((gz * step).toFixed(3));
-      const dist = Math.sqrt(worldX * worldX + worldZ * worldZ);
 
-      // (a) Deep bedrock layer (y = -2.4): tapered floating underside
-      if (dist <= 3.8) {
-        plinth.push({
-          x: worldX,
-          y: -2.4,
-          z: worldZ,
-          color: (gx + gz) % 2 === 0 ? VOXEL_PALETTE.soilDark : VOXEL_PALETTE.soilBase,
-          size: step
-        });
+      const isPerimeter = Math.abs(gx) === 5 || Math.abs(gz) === 5;
+      const isSunlitSide = gx + gz <= -2 || (gx < 0 && gz <= 0);
+
+      let turfColor: string;
+      if (isPerimeter) {
+        turfColor = (gx + gz) % 2 === 0 ? VOXEL_PALETTE.grassDark : VOXEL_PALETTE.grassMed;
+      } else if (isSunlitSide) {
+        turfColor = (gx * 3 + gz * 7) % 4 === 0 ? VOXEL_PALETTE.grassHighlight : VOXEL_PALETTE.grassLight;
+      } else if ((gx + gz) % 2 === 0) {
+        turfColor = VOXEL_PALETTE.grassLight;
+      } else {
+        turfColor = VOXEL_PALETTE.grassMed;
       }
 
-      // (b) Mid subsoil layer (y = -1.6): intermediate earthy perimeter
-      if (dist <= 4.8) {
-        plinth.push({
-          x: worldX,
-          y: -1.6,
-          z: worldZ,
-          color: dist > 3.8 ? VOXEL_PALETTE.soilBase : VOXEL_PALETTE.soilTop,
-          size: step
-        });
-      }
-
-      // (c) Top turf surface (y = -0.8): lush green grass with organic edge stepping
-      const angle = Math.atan2(worldZ, worldX);
-      const radiusVariation = Math.sin(angle * 4) * 0.4 + Math.cos(angle * 3) * 0.3;
-      const effectiveRadius = islandRadius + radiusVariation;
-
-      if (dist <= effectiveRadius) {
-        const isPerimeter = dist > effectiveRadius - 0.9;
-        let turfColor: string;
-        if (isPerimeter) {
-          turfColor = VOXEL_PALETTE.grassDark;
-        } else if ((gx * 3 + gz * 7) % 5 === 0) {
-          turfColor = VOXEL_PALETTE.grassHighlight;
-        } else if ((gx + gz) % 2 === 0) {
-          turfColor = VOXEL_PALETTE.grassLight;
-        } else {
-          turfColor = VOXEL_PALETTE.grassMed;
-        }
-
-        const isElevatedPatch = !isPerimeter && dist > 1.8 && dist < 3.8 && (gx + gz) % 4 === 0;
-        const turfY = isElevatedPatch ? -0.65 : -0.8;
-
-        plinth.push({
-          x: worldX,
-          y: turfY,
-          z: worldZ,
-          color: turfColor,
-          size: step
-        });
-      }
+      plinth.push({
+        x: worldX,
+        y: -0.8,
+        z: worldZ,
+        color: turfColor,
+        size: Number((step * 1.002).toFixed(3))
+      });
     }
   }
 
-  // (d) Decorative Grass Tufts & Natural Field Clumps
-  const tuftOffsets: Array<{ x: number; z: number; color: string; size: number }> = [
-    { x: -3.8, z: -1.8, color: VOXEL_PALETTE.grassLight, size: 0.45 },
-    { x: -3.4, z: 2.2, color: VOXEL_PALETTE.grassHighlight, size: 0.48 },
-    { x: 3.6, z: -2.4, color: VOXEL_PALETTE.grassMed, size: 0.46 },
-    { x: 3.8, z: 1.8, color: VOXEL_PALETTE.grassLight, size: 0.44 },
-    { x: 1.2, z: -4.0, color: VOXEL_PALETTE.grassMed, size: 0.48 },
-    { x: -1.6, z: 4.0, color: VOXEL_PALETTE.grassLight, size: 0.44 },
-    { x: 2.8, z: 3.2, color: VOXEL_PALETTE.grassDark, size: 0.42 },
-    { x: -3.0, z: -3.2, color: VOXEL_PALETTE.grassDark, size: 0.42 },
-    { x: 4.2, z: -0.5, color: VOXEL_PALETTE.grassLight, size: 0.4 },
-    { x: -4.4, z: 0.4, color: VOXEL_PALETTE.grassHighlight, size: 0.42 },
-    { x: 0.4, z: 4.4, color: VOXEL_PALETTE.grassMed, size: 0.44 },
-    { x: -0.6, z: -4.4, color: VOXEL_PALETTE.grassDark, size: 0.4 }
+  // (b) Subsoil earth rim layer (y = -1.50): 9x9 stepped earth collar
+  for (let gx = -4; gx <= 4; gx++) {
+    for (let gz = -4; gz <= 4; gz++) {
+      const worldX = Number((gx * step).toFixed(3));
+      const worldZ = Number((gz * step).toFixed(3));
+      const isRim = Math.abs(gx) === 4 || Math.abs(gz) === 4;
+
+      plinth.push({
+        x: worldX,
+        y: -1.5,
+        z: worldZ,
+        color: isRim ? VOXEL_PALETTE.soilTop : VOXEL_PALETTE.soilBase,
+        size: Number((step * 1.002).toFixed(3))
+      });
+    }
+  }
+
+  // (c) Bedrock tier 1 layer (y = -2.20): 7x7 tapered bedrock
+  for (let gx = -3; gx <= 3; gx++) {
+    for (let gz = -3; gz <= 3; gz++) {
+      const worldX = Number((gx * step).toFixed(3));
+      const worldZ = Number((gz * step).toFixed(3));
+      const isRim = Math.abs(gx) === 3 || Math.abs(gz) === 3;
+
+      plinth.push({
+        x: worldX,
+        y: -2.2,
+        z: worldZ,
+        color: isRim ? VOXEL_PALETTE.soilBase : VOXEL_PALETTE.soilDark,
+        size: Number((step * 1.002).toFixed(3))
+      });
+    }
+  }
+
+  // (d) Bedrock tier 2 layer (y = -2.90): 5x5 deep underside
+  for (let gx = -2; gx <= 2; gx++) {
+    for (let gz = -2; gz <= 2; gz++) {
+      const worldX = Number((gx * step).toFixed(3));
+      const worldZ = Number((gz * step).toFixed(3));
+
+      plinth.push({
+        x: worldX,
+        y: -2.9,
+        z: worldZ,
+        color: VOXEL_PALETTE.soilDark,
+        size: Number((step * 1.002).toFixed(3))
+      });
+    }
+  }
+
+  // (e) Bedrock tier 3 spire (y = -3.55): 3x3 underside tip
+  for (let gx = -1; gx <= 1; gx++) {
+    for (let gz = -1; gz <= 1; gz++) {
+      const worldX = Number((gx * step).toFixed(3));
+      const worldZ = Number((gz * step).toFixed(3));
+
+      plinth.push({
+        x: worldX,
+        y: -3.55,
+        z: worldZ,
+        color: VOXEL_PALETTE.soilDark,
+        size: Number((step * 1.002).toFixed(3))
+      });
+    }
+  }
+
+  // (f) Deepest keel block (y = -4.10): single center point
+  plinth.push({
+    x: 0.0,
+    y: -4.1,
+    z: 0.0,
+    color: VOXEL_PALETTE.soilDark,
+    size: Number((step * 1.002).toFixed(3))
+  });
+
+  // (g) Decorative Grass Tufts & Field Micro-accents on Turf (y = -0.34)
+  const grassTufts: Array<{ x: number; z: number; color: string; size: number }> = [
+    { x: -2.8, z: 1.8, color: VOXEL_PALETTE.grassHighlight, size: 0.44 },
+    { x: 2.8, z: -1.8, color: VOXEL_PALETTE.grassLight, size: 0.44 },
+    { x: -3.2, z: -2.6, color: VOXEL_PALETTE.grassHighlight, size: 0.42 },
+    { x: 3.2, z: 2.6, color: VOXEL_PALETTE.grassMed, size: 0.42 },
+    { x: 1.6, z: 3.2, color: VOXEL_PALETTE.grassLight, size: 0.45 },
+    { x: -1.6, z: -3.2, color: VOXEL_PALETTE.grassLight, size: 0.45 },
+    { x: 3.5, z: 0.5, color: VOXEL_PALETTE.grassMed, size: 0.42 },
+    { x: -3.5, z: -0.5, color: VOXEL_PALETTE.grassHighlight, size: 0.42 },
+    { x: 0.8, z: -3.6, color: VOXEL_PALETTE.grassDark, size: 0.40 },
+    { x: -0.8, z: 3.6, color: VOXEL_PALETTE.grassLight, size: 0.40 },
+    { x: 2.2, z: -3.0, color: VOXEL_PALETTE.grassLight, size: 0.42 },
+    { x: -2.2, z: 3.0, color: VOXEL_PALETTE.grassMed, size: 0.42 }
   ];
 
-  tuftOffsets.forEach((t) => {
+  grassTufts.forEach((t) => {
     plinth.push({
       x: t.x,
-      y: -0.32,
+      y: -0.34,
       z: t.z,
       color: t.color,
       size: t.size
     });
   });
 
+  // (h) Miniature Flower Accents on Turf (y = -0.36)
+  const flowerAccents: Array<{ x: number; z: number; color: string; size: number }> = [
+    { x: -2.5, z: -1.8, color: VOXEL_PALETTE.flowerCoral, size: 0.32 },
+    { x: 2.5, z: 1.8, color: VOXEL_PALETTE.flowerCoral, size: 0.32 },
+    { x: -1.8, z: 2.8, color: VOXEL_PALETTE.flowerYellow, size: 0.30 },
+    { x: 1.8, z: -2.8, color: VOXEL_PALETTE.flowerYellow, size: 0.30 },
+    { x: 3.2, z: -1.2, color: VOXEL_PALETTE.flowerWhite, size: 0.28 },
+    { x: -3.2, z: 1.2, color: VOXEL_PALETTE.flowerWhite, size: 0.28 },
+    { x: -2.8, z: 3.2, color: VOXEL_PALETTE.flowerCoral, size: 0.30 },
+    { x: 2.8, z: -3.2, color: VOXEL_PALETTE.flowerYellow, size: 0.30 }
+  ];
+
+  flowerAccents.forEach((f) => {
+    plinth.push({
+      x: f.x,
+      y: -0.36,
+      z: f.z,
+      color: f.color,
+      size: f.size
+    });
+  });
+
   // -------------------------------------------------------------
-  // 2. Tapered, Buttressed Organic Trunk
+  // 2. Sturdy Tapered Trunk with Flared Buttress Roots
   // -------------------------------------------------------------
   const roots: VoxelCoord[] = [
-    { x: 0.0, y: -0.4, z: 0.0, color: VOXEL_PALETTE.trunkDark, size: 1.55 },
+    { x: 0.0, y: -0.4, z: 0.0, color: VOXEL_PALETTE.trunkDark, size: 1.6 },
     { x: 0.8, y: -0.5, z: 0.3, color: VOXEL_PALETTE.trunkMed, size: 0.95 },
     { x: -0.8, y: -0.5, z: -0.4, color: VOXEL_PALETTE.trunkDark, size: 0.95 },
     { x: -0.4, y: -0.5, z: 0.8, color: VOXEL_PALETTE.trunkMed, size: 0.9 },
     { x: 0.3, y: -0.5, z: -0.8, color: VOXEL_PALETTE.trunkDark, size: 0.9 },
     { x: 1.4, y: -0.65, z: 0.5, color: VOXEL_PALETTE.trunkDark, size: 0.65 },
     { x: -1.3, y: -0.65, z: -0.8, color: VOXEL_PALETTE.trunkDark, size: 0.65 },
-    { x: -0.7, y: -0.65, z: 1.3, color: VOXEL_PALETTE.trunkDark, size: 0.6 }
+    { x: -0.7, y: -0.65, z: 1.3, color: VOXEL_PALETTE.trunkDark, size: 0.6 },
+    { x: 0.6, y: -0.65, z: -1.3, color: VOXEL_PALETTE.trunkDark, size: 0.6 }
   ];
   trunk.push(...roots);
 
-  // Stepped, tapered trunk column (y = 0.2 to 5.2)
+  // Stepped, tapered trunk column (y = 0.2 to 5.1)
   trunk.push(
-    { x: 0.0, y: 0.2, z: 0.0, color: VOXEL_PALETTE.trunkMed, size: 1.35 },
+    { x: 0.0, y: 0.2, z: 0.0, color: VOXEL_PALETTE.trunkMed, size: 1.4 },
     { x: 0.45, y: 0.2, z: -0.2, color: VOXEL_PALETTE.trunkHighlight, size: 0.75 },
     { x: -0.35, y: 0.2, z: 0.35, color: VOXEL_PALETTE.trunkDark, size: 0.75 }
   );
 
   trunk.push(
-    { x: 0.0, y: 0.9, z: 0.0, color: VOXEL_PALETTE.trunkMed, size: 1.25 },
+    { x: 0.0, y: 0.9, z: 0.0, color: VOXEL_PALETTE.trunkMed, size: 1.3 },
     { x: -0.2, y: 0.9, z: -0.35, color: VOXEL_PALETTE.trunkDark, size: 0.7 },
     { x: 0.35, y: 0.9, z: 0.25, color: VOXEL_PALETTE.trunkHighlight, size: 0.7 }
   );
 
   trunk.push(
-    { x: -0.05, y: 1.6, z: 0.05, color: VOXEL_PALETTE.trunkHighlight, size: 1.15 },
+    { x: -0.05, y: 1.6, z: 0.05, color: VOXEL_PALETTE.trunkHighlight, size: 1.2 },
     { x: 0.3, y: 1.6, z: -0.2, color: VOXEL_PALETTE.trunkMed, size: 0.65 },
     { x: -0.3, y: 1.6, z: 0.2, color: VOXEL_PALETTE.trunkDark, size: 0.65 }
   );
 
   trunk.push(
-    { x: 0.0, y: 2.3, z: 0.0, color: VOXEL_PALETTE.trunkMed, size: 1.05 },
+    { x: 0.0, y: 2.3, z: 0.0, color: VOXEL_PALETTE.trunkMed, size: 1.1 },
     { x: 0.25, y: 2.3, z: 0.25, color: VOXEL_PALETTE.trunkHighlight, size: 0.6 },
     { x: -0.25, y: 2.3, z: -0.25, color: VOXEL_PALETTE.trunkDark, size: 0.6 }
   );
 
   trunk.push(
-    { x: 0.05, y: 3.0, z: -0.05, color: VOXEL_PALETTE.trunkMed, size: 0.98 },
+    { x: 0.05, y: 3.0, z: -0.05, color: VOXEL_PALETTE.trunkMed, size: 1.0 },
     { x: -0.3, y: 3.0, z: 0.2, color: VOXEL_PALETTE.trunkHighlight, size: 0.58 }
   );
 
@@ -239,7 +308,7 @@ export function getStaticTreeVoxels(): {
   );
 
   trunk.push(
-    { x: 0.0, y: 4.4, z: 0.05, color: VOXEL_PALETTE.trunkMed, size: 0.85 },
+    { x: 0.0, y: 4.4, z: 0.05, color: VOXEL_PALETTE.trunkMed, size: 0.86 },
     { x: -0.15, y: 4.4, z: -0.2, color: VOXEL_PALETTE.trunkHighlight, size: 0.52 },
     { x: 0.0, y: 5.1, z: 0.0, color: VOXEL_PALETTE.trunkHighlight, size: 0.8 }
   );
@@ -269,7 +338,7 @@ export function getStaticTreeVoxels(): {
     { x: 2.2, y: 4.5, z: -0.8, color: VOXEL_PALETTE.trunkHighlight, size: 0.42 }
   );
 
-  // (c) Category: Development Runtimes (Towering Crown Canopy, y ~ 5.2 to 7.8)
+  // (c) Category: Development Runtimes (Towering Crown Canopy, y ~ 5.5 to 8.0)
   branches.development.push(
     { x: 0.05, y: 5.8, z: 0.0, color: VOXEL_PALETTE.trunkMed, size: 0.72 },
     { x: -0.1, y: 6.4, z: -0.1, color: VOXEL_PALETTE.trunkMed, size: 0.65 },
@@ -291,7 +360,7 @@ export function getStaticTreeVoxels(): {
     { x: 2.6, y: 5.9, z: 0.8, color: VOXEL_PALETTE.trunkHighlight, size: 0.42 }
   );
 
-  // (e) Category: Editors & Apps (Upper-Left Canopy, y ~ 4.2 to 6.4)
+  // (e) Category: Editors & Apps (Upper-Left Canopy, y ~ 4.2 to 6.2)
   branches.editors.push(
     { x: -0.5, y: 4.2, z: -0.45, color: VOXEL_PALETTE.trunkDark, size: 0.72 },
     { x: -1.1, y: 4.7, z: -0.95, color: VOXEL_PALETTE.trunkMed, size: 0.65 },
@@ -319,18 +388,18 @@ export const CATEGORY_CENTERS: Record<string, { x: number; y: number; z: number 
 /**
  * Deterministic generator for per-module foliage clusters.
  *
- * Foliage Connectivity & Canopy Quality Engine:
- * - Directly anchored to supporting branch nodes.
+ * Cohesive Canopy & Voxel Quality Engine:
+ * - Directly anchored to supporting branch nodes (max distance <= 2.15 units).
  * - Multi-scale cube hierarchy:
- *   Macro core blocks (0.85 - 1.05) establish dense, cohesive foliage masses.
- *   Medium boundary blocks (0.62 - 0.76) wrap around supporting branches.
- *   Micro edge blocks (0.42 - 0.54) produce organic silhouette irregularities.
- * - Distance-constrained envelope (max distance < 2.3 from branch anchors) completely
- *   eliminates detached or floating outlier cubes.
- * - Deterministic natural green palette assignment based on height, depth, and sunlight exposure.
+ *   * Macro core blocks (0.85 - 1.05) establish dense, interlocking foliage volumes.
+ *   * Medium boundary blocks (0.62 - 0.78) wrap smoothly around clusters.
+ *   * Micro edge blocks (0.44 - 0.54) produce stylized silhouette leaves without noise.
+ * - Spatially coherent natural green color grading calibrated to upper-left sunlight.
+ * - Strict determinism with zero duplicate coordinates per module cluster.
  */
 export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
   const clusters: Record<string, ModuleVoxelCluster> = {};
+  const { branches } = getStaticTreeVoxels();
 
   // Anchor branch hubs for each category
   const CATEGORY_BRANCH_HUBS: Record<string, Array<{ x: number; y: number; z: number }>> = {
@@ -367,24 +436,24 @@ export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
     { category: string; seed: number; hubIndex: number; localOffset: { x: number; y: number; z: number }; count: number }
   > = {
     // Category: System (1 module: system) -> dense lush lower-front canopy
-    system: { category: 'system', seed: 101, hubIndex: 1, localOffset: { x: 0.0, y: 0.2, z: 0.0 }, count: 32 },
+    system: { category: 'system', seed: 101, hubIndex: 1, localOffset: { x: 0.0, y: 0.15, z: 0.0 }, count: 32 },
 
     // Category: Terminal (1 module: zsh) -> dense lush lower-right canopy
-    zsh: { category: 'terminal', seed: 202, hubIndex: 1, localOffset: { x: 0.0, y: 0.2, z: 0.0 }, count: 32 },
+    zsh: { category: 'terminal', seed: 202, hubIndex: 1, localOffset: { x: 0.0, y: 0.15, z: 0.0 }, count: 32 },
 
     // Category: Development (4 modules: git, node, python, java) -> overarching towering crown canopy
-    git: { category: 'development', seed: 303, hubIndex: 0, localOffset: { x: -0.4, y: 0.0, z: 0.3 }, count: 26 },
-    node: { category: 'development', seed: 304, hubIndex: 1, localOffset: { x: 0.4, y: 0.2, z: -0.3 }, count: 28 },
-    python: { category: 'development', seed: 305, hubIndex: 2, localOffset: { x: -0.3, y: 0.3, z: -0.3 }, count: 28 },
-    java: { category: 'development', seed: 306, hubIndex: 3, localOffset: { x: 0.3, y: 0.1, z: 0.4 }, count: 26 },
+    git: { category: 'development', seed: 303, hubIndex: 0, localOffset: { x: -0.35, y: 0.0, z: 0.25 }, count: 26 },
+    node: { category: 'development', seed: 304, hubIndex: 1, localOffset: { x: 0.35, y: 0.2, z: -0.25 }, count: 28 },
+    python: { category: 'development', seed: 305, hubIndex: 2, localOffset: { x: -0.25, y: 0.25, z: -0.25 }, count: 28 },
+    java: { category: 'development', seed: 306, hubIndex: 3, localOffset: { x: 0.25, y: 0.1, z: 0.35 }, count: 26 },
 
     // Category: Infrastructure (2 modules: docker, gcloud) -> mid-right canopy
-    docker: { category: 'infrastructure', seed: 401, hubIndex: 0, localOffset: { x: -0.2, y: 0.2, z: -0.2 }, count: 28 },
-    gcloud: { category: 'infrastructure', seed: 402, hubIndex: 1, localOffset: { x: 0.3, y: 0.3, z: 0.2 }, count: 28 },
+    docker: { category: 'infrastructure', seed: 401, hubIndex: 0, localOffset: { x: -0.2, y: 0.15, z: -0.15 }, count: 28 },
+    gcloud: { category: 'infrastructure', seed: 402, hubIndex: 1, localOffset: { x: 0.25, y: 0.25, z: 0.2 }, count: 28 },
 
     // Category: Editors (2 modules: vscode, chrome) -> upper-left canopy
-    vscode: { category: 'editors', seed: 501, hubIndex: 0, localOffset: { x: 0.2, y: 0.2, z: -0.2 }, count: 28 },
-    chrome: { category: 'editors', seed: 502, hubIndex: 1, localOffset: { x: -0.3, y: 0.3, z: 0.2 }, count: 28 }
+    vscode: { category: 'editors', seed: 501, hubIndex: 0, localOffset: { x: 0.2, y: 0.15, z: -0.15 }, count: 28 },
+    chrome: { category: 'editors', seed: 502, hubIndex: 1, localOffset: { x: -0.25, y: 0.25, z: 0.2 }, count: 28 }
   };
 
   const latticeStep = 0.52;
@@ -392,6 +461,7 @@ export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
   for (const [moduleId, info] of Object.entries(MODULE_SPECS)) {
     const hubs = CATEGORY_BRANCH_HUBS[info.category] || [CATEGORY_CENTERS[info.category]];
     const primaryHub = hubs[info.hubIndex % hubs.length];
+    const categoryBranches = branches[info.category] || [];
 
     const rand = seededRandom(info.seed);
     const voxels: VoxelCoord[] = [];
@@ -402,14 +472,19 @@ export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
 
     const occupied = new Set<string>();
 
-    for (let i = 0; i < info.count; i++) {
-      // Clustered radius around branch hub (capped at 1.45 to prevent detached floating cubes)
-      const rawRadius = (rand() * 0.7 + rand() * 0.7); // smooth triangle distribution ~ [0, 1.4]
-      const theta = 2.0 * Math.PI * rand();
+    // Generate candidates with smooth spherical/dome distribution centered on anchor hub
+    let attempts = 0;
+    while (voxels.length < info.count && attempts < 180) {
+      attempts++;
 
-      const rawDx = rawRadius * Math.cos(theta);
-      const rawDz = rawRadius * Math.sin(theta);
-      const rawDy = (rand() - 0.45) * 1.35;
+      const rawRadius = (rand() * 0.65 + rand() * 0.65); // Smooth distribution ~ [0, 1.3]
+      const theta = 2.0 * Math.PI * rand();
+      const phi = Math.PI * (rand() * 0.85 + 0.05); // Dome bias
+
+      const rawDx = rawRadius * Math.sin(phi) * Math.cos(theta);
+      const rawDz = rawRadius * Math.sin(phi) * Math.sin(theta);
+      const rawDy = (rawRadius * Math.cos(phi) * 0.9) + (rand() - 0.4) * 0.5;
+
       // Snap to consistent lattice grid preventing coplanar artifacts
       const gx = Math.round(rawDx / latticeStep);
       const gy = Math.round(rawDy / latticeStep);
@@ -419,7 +494,6 @@ export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
       if (occupied.has(key)) {
         continue;
       }
-      occupied.add(key);
 
       const dx = gx * latticeStep;
       const dy = gy * latticeStep;
@@ -429,15 +503,34 @@ export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
       const posY = Number((originY + dy).toFixed(3));
       const posZ = Number((originZ + dz).toFixed(3));
 
+      // Connectivity verification: candidate MUST be within 2.2 units of a category branch
+      let minDistanceToBranch = Infinity;
+      for (let b = 0; b < categoryBranches.length; b++) {
+        const br = categoryBranches[b];
+        const dist = Math.sqrt((posX - br.x) ** 2 + (posY - br.y) ** 2 + (posZ - br.z) ** 2);
+        if (dist < minDistanceToBranch) {
+          minDistanceToBranch = dist;
+        }
+      }
+
+      // Reject any candidate exceeding safety distance threshold
+      if (minDistanceToBranch > 2.2) {
+        continue;
+      }
+
+      occupied.add(key);
+
       const distFromHub = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
       // Natural green color grading:
-      // High Y and outer sun-facing faces -> #A6D95A (sunlit) / #95CD41 (fresh highlight)
-      // Mid canopy body -> #78BD43 (primary leaf green) / #438D35 (mid-depth)
-      // Lower and shaded interior -> #245C2C (deep foliage green) / #1E4A25 (inner shade)
+      // High Y and sun-facing faces (sun from upper-left [-16, 26, 14]) -> sunlit lime & fresh bright highlights
+      // Mid canopy body -> primary leaf green & mid-depth green
+      // Lower and shaded interior -> deep foliage green & inner shadow
       let leafColor: string;
-      if (dy > 0.45 && (posX + posZ > 0 || rand() > 0.4)) {
-        leafColor = rand() > 0.5 ? VOXEL_PALETTE.leafSunlit : VOXEL_PALETTE.leafBright;
+      const sunFacing = (-posX * 0.4 + posY * 0.8 + posZ * 0.3) > 3.8;
+
+      if (posY > 7.2 || (dy > 0.4 && sunFacing)) {
+        leafColor = rand() > 0.45 ? VOXEL_PALETTE.leafSunlit : VOXEL_PALETTE.leafBright;
       } else if (dy < -0.35 || (distFromHub < 0.55 && dy <= 0)) {
         leafColor = rand() > 0.4 ? VOXEL_PALETTE.leafDeep : VOXEL_PALETTE.leafShadow;
       } else if (distFromHub > 1.1) {
@@ -449,15 +542,16 @@ export function getModuleFoliageClusters(): Record<string, ModuleVoxelCluster> {
       // Hierarchy of cube sizes:
       // Macro core blocks (0.85 - 1.05) form the dense foliage volume
       // Medium filler blocks (0.64 - 0.78) blend clusters
-      // Micro edge blocks (0.42 - 0.55) create natural silhouette leaf edges
+      // Micro edge blocks (0.44 - 0.54) create natural stylized leaf edges
       let voxelSize: number;
-      if (distFromHub < 0.75) {
+      if (distFromHub < 0.72) {
         voxelSize = 0.88 + rand() * 0.14; // Macro: >= 0.82
-      } else if (distFromHub > 1.12) {
-        voxelSize = 0.44 + rand() * 0.12; // Micro: < 0.60
+      } else if (distFromHub > 1.15) {
+        voxelSize = 0.45 + rand() * 0.11; // Micro: < 0.60
       } else {
-        voxelSize = 0.66 + rand() * 0.12; // Medium: 0.60 - 0.80
+        voxelSize = 0.65 + rand() * 0.12; // Medium: 0.60 - 0.80
       }
+
       voxels.push({
         x: posX,
         y: posY,
