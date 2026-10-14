@@ -91,33 +91,34 @@ Total: 25 passed, 0 failed (211ms).
 
 ## 4. Voxel Tree & Floating Grass Island Visual Refinement
 
-Guided by the reference image (`media_1791995233968_3ee1ed21.jpg`), the 3D visual environment has been upgraded to a stylized, high-polish voxel game-art aesthetic.
+Guided by the reference images (`media_1791995233968_3ee1ed21.jpg` and `media_1791996100109_f163ece5.jpg`), the 3D visual environment has been upgraded to match the clean, bright, stylized voxel game-art aesthetic.
 
-### 4.1 Cohesive Rounded Canopy Dome
-- **Continuous Foliage Mass**: Replaced loosely scattered cubes with interlocking, overlapping cubic foliage clusters forming a unified, rounded canopy dome.
+### 4.1 Compact, Unified Canopy Dome
+- **One Unified Crown**: Replaced separated, drooping lobes with a single compact, rounded boxy canopy dome where all 10 module clusters interlock seamlessly around the central trunk boughs.
 - **Multi-Scale Cube Hierarchy**:
-  - *Macro Core Blocks* (`0.88 - 1.05`): Establish dense, opaque foliage bodies directly anchored to branches.
-  - *Medium Transition Blocks* (`0.64 - 0.78`): Blend clusters together and define smooth canopy contours.
-  - *Micro Leaf Accents* (`0.44 - 0.54`): Provide stylized silhouette variation along top and outer edges without visual clutter.
+  - *Macro Core Blocks* (`0.85 – 1.05`): Form solid, opaque interior volume directly anchored to branches.
+  - *Medium Transition Blocks* (`0.64 – 0.78`): Define cluster transitions and smooth canopy contours.
+  - *Micro Leaf Accents* (`0.44 – 0.56`): Add stylized silhouette variation along top and outer edges without visual clutter.
 - **Branch-Anchored Safety**: Every candidate voxel is distance-checked ($\le 2.2$ units) against its category branch skeleton, guaranteeing zero floating or detached cubes.
 
-### 4.2 Natural Green Palette & Lighting-Aware Distribution
-- **Sunlit Highlights**: Upper crown and outer sun-facing faces use `#A6D95A` (sunlit lime) and `#95CD41` (fresh bright highlight).
-- **Canopy Volume**: Mid-depth body voxels use `#78BD43` (primary leaf green) and `#438D35` (mid green).
-- **Interior Shading**: Undersides and inner crevices use `#245C2C` (deep forest green) and `#1E4A25` (interior shadow green).
+### 4.2 Luminous Sunlit Green Palette
+- **Sunny Yellow-Lime Highlights**: Upper crown and top surfaces ($y \ge 5.8$) use vibrant `#A6D95A` (sunlit lime) and `#95CD41` (fresh highlight).
+- **Lush Spring Green Body**: Primary canopy volume ($y \ge 4.8$) uses `#78BD43` and `#95CD41`, matching the cheerful saturation of the reference.
+- **Mid-Depth Transitions**: Lower canopy ($y \ge 4.2$) uses `#78BD43` and `#438D35`.
+- **Restrained Underbelly**: Shaded underbelly ($y < 4.2$) uses `#245C2C` and `#1E4A25`.
 
-### 4.3 Floating Square Grass Island & Micro-Vegetation
-- **Isometric Square Lawn**: 11x11 square platform (span $\ge 8.20$ units) rotated to an exact 45° isometric diamond angle (`Math.PI / 4.0`).
+### 4.3 Uniform Floating Square Grass Island (Chessboard Pattern Eliminated)
+- **Continuous Single-Tone Lawn**: Replaced alternating checkerboard tiles with a single uniform, vibrant spring green turf (`#7cb342`) across all 121 lawn voxels. Zero chessboard pattern.
 - **Stepped Tapered Bedrock**: Inverted pyramid underside stepping down from subsoil collar ($y = -1.50$) through bedrock tiers ($y = -2.20, -2.90, -3.55$) to a single keel point at $y = -4.10$.
-- **Micro-Vegetation**:
-  - 12 deterministic grass tufts (`#8bc34a` / `#7cb342`, size $0.40 - 0.44$) resting atop the lawn ($y = -0.34$).
-  - 8 miniature stylized flower accents (coral `#ff7043`, yellow `#ffd54f`, white `#f5f5f5`, size $0.28 - 0.32$) scattered across the grass ($y = -0.36$).
+- **Delicate Micro-Vegetation**:
+  - 12 deterministic grass tufts resting atop the lawn ($y = -0.34$).
+  - 8 miniature stylized flower accents (coral `#ff7043`, yellow `#ffd54f`, white `#f5f5f5`) scattered naturally across the grass ($y = -0.36$).
 
 ### 4.4 Sturdy Warm-Timber Trunk & Buttress Roots
-- Prominent root buttresses spreading onto the lawn at base ($y = -0.40 \to -0.65$), tapering up through warm brown timber column ($y = 0.20 \to 5.10$) into ascending category branches.
+- Prominent root buttresses spreading onto the lawn at base ($y = -0.40 \to -0.65$), tapering up through warm brown timber column ($y = 0.20 \to 4.20$) into category branches that disappear directly into the unified canopy dome.
 
-### 4.5 Lighting, Soft Shadows & Atmospheric Teal Stage
-- **Directional Sunlight from Upper-Left**: Key light at `(-16, 26, 14)` with intensity `1.25`, casting soft directional shadows across the grass platform.
-- **Three.js PCFSoftShadowMap**: Enabled on renderer, lights, static tree/island mesh, and dynamic foliage mesh.
+### 4.5 Shadow-Free Crisp Lighting & Atmospheric Teal Stage
+- **Shadows Removed**: Shadow maps and shadow casting disabled (`shadowMap.enabled = false`), eliminating dark, murky grey-green shadow patches across the grass and tree geometry.
+- **Bright Luminous Lighting**: `AmbientLight` at `0.90` combined with warm sunlight at `(-14, 22, 16)` and soft sky bounce for clean, high-saturation game-art visuals.
 - **Atmospheric Stage Backdrop**: `.tree-center-stage` set to `radial-gradient(circle at 50% 45%, #3c6e80 0%, #2e5766 50%, #23434f 100%)`.
 - **High-Contrast Liquid-Glass Controls**: Overlay hint badge and reset button with crisp `#242b38` text over white frosted glass.

@@ -42,17 +42,17 @@
 - [x] Recovery documentation current (`PASS`).
 
 ### Voxel Tree & Floating Island Refinement (Matching Reference)
-- [x] Full, rounded, cohesive canopy dome without detached or floating cubes (`PASS`).
+- [x] Full, compact, unified canopy dome without detached or floating cubes (`PASS`).
 - [x] Multi-scale cube hierarchy: macro volume blocks, medium body blocks, micro leaf accents (`PASS`).
-- [x] Natural green color grading calibrated to upper-left sunlight (`PASS`).
-- [x] Floating square grass island (11x11, span >= 8.2 units) with vibrant green lawn (`PASS`).
+- [x] Luminous sunlit yellow-lime & spring green leaf palette matching reference (`PASS`).
+- [x] Uniform single-tone spring green lawn (11x11, span >= 8.2 units) with chessboard pattern eliminated (`PASS`).
 - [x] Tapered stepped bedrock underside down to single keel point (`PASS`).
 - [x] Micro-vegetation: deterministic grass tufts and miniature colorful flower accents (`PASS`).
 - [x] Sturdy warm-timber trunk with flared buttress roots spreading onto turf (`PASS`).
-- [x] Directional sunlight from upper-left with Three.js PCFSoftShadowMap shadows (`PASS`).
+- [x] Crisp shadow-free lighting: dark murky shadows removed as requested (`PASS`).
 - [x] Muted teal/blue-green atmospheric stage backdrop (`PASS`).
 - [x] All 25 unit/geometry tests passing (`PASS`).
-- [x] Next.js clean production build (`PASS`).
+- [x] Next.js clean production build & tsc typecheck passing (`PASS`).
 
 ---
 
