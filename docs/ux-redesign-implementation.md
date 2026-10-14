@@ -22,8 +22,10 @@ The DotUp V3 sidebar configurator has been redesigned into a compact, informatio
 - Dismissible via click-outside or Escape key. Fits cleanly beside the search input.
 
 ### 1.3 Dropdown Stacking Context & Clipping Resolution
-- Version selectors and category menus now have an elevated stacking context (`z-index: 80`) and clean viewport containment.
-- Prevents dropdown menus from clipping inside the scrolling list or triggering unintended module toggles.
+- **Portal-Based Rendering**: Upgraded `GlassDropdown.tsx` to render menus via `createPortal(..., document.body)` with `position: fixed`.
+- **Zero Clipping**: Renders completely outside the `.sidebar-module-list` scroll container, guaranteeing menus are never clipped by `overflow-y: auto`.
+- **Viewport-Aware Flipping**: Dynamically calculates space below and above the trigger, automatically flipping upwards (`is-upwards`) when near the bottom of the screen.
+- **Scroll & Resize Tracking**: Real-time position updates during window and container scrolling, with outside-click dismissal and full keyboard support (`ArrowUp`, `ArrowDown`, `Enter`, `Escape`).
 
 ### 1.4 Presets & Collapsible Metadata
 - Preset selector buttons use compact pill geometry with balanced padding.

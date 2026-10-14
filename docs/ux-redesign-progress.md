@@ -15,7 +15,7 @@
 | **Geometry Integrity** | Enlarged grassy island, detailed grass tufts, eliminated subpixel seams and z-fighting artifacts | `f02cbfb` | Verified 19 tests passing, Next.js build clean, engine regression passing |
 | **Canopy & Connectivity** | Branch-anchored foliage envelope (zero detached cubes), organic layered canopy, and calibrated natural green palette | `22be142` | Verified 22 tests passing, Next.js build clean, engine regression passing |
 | **Liquid Glass UI Redesign** | Apple-inspired translucent glass system, floating centered navbar, frosted sidebar, and floating bottom action dock | `384ced5` | Verified 22 tests passing, Next.js build clean, engine regression passing |
-| **Sidebar UX Refinement** | Compact module rows, category glass dropdown, elimination of blue card outlines, and dropdown layering fixes | Pending | Verified 25 tests passing, Next.js build clean, engine regression passing |
+| **Sidebar UX Refinement** | Compact module rows, category glass dropdown, elimination of blue card outlines, and dropdown layering fixes | `fb8b90a` | Verified 25 tests passing, Next.js build clean, engine regression passing |
 
 ---
 
