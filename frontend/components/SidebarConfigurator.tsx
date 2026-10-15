@@ -28,6 +28,7 @@ interface SidebarConfiguratorProps {
   onDownloadYaml?: () => void;
   isValid: boolean;
   errors: Array<{ field: string; message: string; moduleId?: string }>;
+  resetSignal?: number;
 }
 
 export default function SidebarConfigurator({
@@ -45,11 +46,21 @@ export default function SidebarConfigurator({
   onSelectAllVisible,
   onClearAll,
   isValid,
-  errors
+  errors,
+  resetSignal
 }: SidebarConfiguratorProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  // Clear search and category filters on reset
+  React.useEffect(() => {
+    if (resetSignal && resetSignal > 0) {
+      setSearchQuery('');
+      setSelectedCategory('all');
+      setIsProfileOpen(false);
+    }
+  }, [resetSignal]);
 
   // Category dropdown items with active counts
   const categoryDropdownItems: DropdownItem[] = useMemo(() => {

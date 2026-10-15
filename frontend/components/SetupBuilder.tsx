@@ -120,9 +120,13 @@ export default function SetupBuilder({
     });
   }, []);
 
+  // Reset signal to trigger camera and sidebar filter reset
+  const [resetSignal, setResetSignal] = useState(0);
+
   // Reset to default
   const handleResetSetup = useCallback(() => {
     handleSelectPreset('full');
+    setResetSignal((prev) => prev + 1);
   }, [handleSelectPreset]);
 
   // 4. Authoritative configuration object
@@ -202,7 +206,7 @@ export default function SetupBuilder({
       <div className="voxel-builder-body">
         {/* Full-Page Background: The Atmospheric 3D Voxel Stage */}
         <main className="tree-center-stage" aria-label="Visual environment representation">
-          <VoxelTreeCanvas selectedModules={selectedModules} />
+          <VoxelTreeCanvas selectedModules={selectedModules} resetSignal={resetSignal} />
         </main>
 
         {/* Floating Left: Configuration Sidebar in frosted liquid glass */}
@@ -222,6 +226,7 @@ export default function SetupBuilder({
           onClearAll={handleClearAll}
           isValid={validation.isValid}
           errors={validation.errors}
+          resetSignal={resetSignal}
         />
 
         {/* Floating Bottom-Centered Glass Action Dock */}

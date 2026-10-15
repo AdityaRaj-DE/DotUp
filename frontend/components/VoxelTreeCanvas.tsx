@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useImperativeHandle } from 'react';
 import * as THREE from 'three';
 import {
   getStaticTreeVoxels,
@@ -9,9 +9,14 @@ import {
   VoxelCoord
 } from '../lib/voxelTreeData';
 
+export interface VoxelTreeCanvasHandle {
+  resetCamera: () => void;
+}
+
 interface VoxelTreeCanvasProps {
   selectedModules: Record<string, { enabled: boolean; version?: string }>;
   reducedMotion?: boolean;
+  resetSignal?: number;
 }
 
 interface AnimatedVoxelInstance {
@@ -20,15 +25,18 @@ interface AnimatedVoxelInstance {
   categoryId: string;
   currentScale: number;
   targetScale: number;
-  // Dynamic offset for subtle leaf sway
   swayPhase: number;
   swaySpeed: number;
 }
 
-export default function VoxelTreeCanvas({
-  selectedModules,
-  reducedMotion = false
-}: VoxelTreeCanvasProps) {
+export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(function VoxelTreeCanvas(
+  {
+    selectedModules,
+    reducedMotion = false,
+    resetSignal
+  },
+  ref
+) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const [webglSupported, setWebglSupported] = useState<boolean>(true);
   const [isRotating, setIsRotating] = useState<boolean>(false);
@@ -67,6 +75,18 @@ export default function VoxelTreeCanvas({
       updateCameraFnRef.current();
     }
   }, []);
+
+  // Expose resetCamera via ref
+  useImperativeHandle(ref, () => ({
+    resetCamera: handleResetCamera
+  }), [handleResetCamera]);
+
+  // Trigger camera reset whenever resetSignal changes
+  useEffect(() => {
+    if (resetSignal && resetSignal > 0) {
+      handleResetCamera();
+    }
+  }, [resetSignal, handleResetCamera]);
 
   // Update target scales of foliage instances whenever selectedModules changes
   useEffect(() => {
@@ -477,4 +497,4 @@ export default function VoxelTreeCanvas({
       </div>
     </div>
   );
-}
+});
