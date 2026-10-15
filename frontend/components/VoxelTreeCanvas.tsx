@@ -57,10 +57,15 @@ export default function VoxelTreeCanvas({
     reducedMotionRef.current = reducedMotion;
   }, [reducedMotion]);
 
+  const updateCameraFnRef = useRef<(() => void) | null>(null);
+
   // Handle View Reset
   const handleResetCamera = useCallback(() => {
     orbitStateRef.current.azimuthAngle = Math.PI / 4.0;
     orbitStateRef.current.polarAngle = Math.PI / 2.75;
+    if (updateCameraFnRef.current) {
+      updateCameraFnRef.current();
+    }
   }, []);
 
   // Update target scales of foliage instances whenever selectedModules changes
@@ -239,7 +244,7 @@ export default function VoxelTreeCanvas({
     scene.add(foliageMesh);
     foliageMeshRef.current = foliageMesh;
 
-    // 6. Camera Position Update Function (Horizontal rotation only)
+    // 6. Camera Position & Framing Update Function (Centers diorama in visible viewport)
     const updateCameraPosition = () => {
       const orbit = orbitStateRef.current;
       const x = orbit.target.x + orbit.radius * Math.sin(orbit.polarAngle) * Math.sin(orbit.azimuthAngle);
@@ -248,8 +253,22 @@ export default function VoxelTreeCanvas({
 
       camera.position.set(x, y, z);
       camera.lookAt(orbit.target);
+
+      // On desktop where the floating sidebar (width ~420px + margins) sits on the left,
+      // offset camera framing so the tree island centers in the open stage area on the right.
+      const w = container.clientWidth || 600;
+      const h = container.clientHeight || 500;
+      if (w > 1024) {
+        // Shift view center to clear the 420px floating sidebar
+        const sidebarOffset = 210;
+        camera.setViewOffset(w, h, -sidebarOffset, 0, w, h);
+      } else {
+        camera.clearViewOffset();
+      }
+      camera.updateProjectionMatrix();
     };
     updateCameraPosition();
+    updateCameraFnRef.current = updateCameraPosition;
 
     // 7. Event Listeners for Rotation-Only Camera Control
     const canvasEl = renderer.domElement;
@@ -334,7 +353,7 @@ export default function VoxelTreeCanvas({
       const w = container.clientWidth || 600;
       const h = container.clientHeight || 500;
       camera.aspect = w / h;
-      camera.updateProjectionMatrix();
+      updateCameraPosition();
       renderer.setSize(w, h);
     };
     window.addEventListener('resize', handleResize);

@@ -105,7 +105,7 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 50% 45%, #3c6e80 0%, #2e5766 50%, #23434f 100%);
+  background: radial-gradient(circle at 64% 48%, #285366 0%, #1c3d4d 48%, #132a36 100%);
   overflow: hidden;
   display: flex;
   z-index: 1;
