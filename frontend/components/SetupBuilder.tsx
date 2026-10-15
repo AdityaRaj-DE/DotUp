@@ -198,9 +198,14 @@ export default function SetupBuilder({
         databaseStatus={initialDatabaseStatus}
       />
 
-      {/* 2. Main 2-Pane Experience */}
+      {/* 2. Main Experience: Full-Page 3D Voxel Tree Backdrop with Floating Controls */}
       <div className="voxel-builder-body">
-        {/* Left: Sole Configuration Sidebar in frosted glass */}
+        {/* Full-Page Background: The Atmospheric 3D Voxel Stage */}
+        <main className="tree-center-stage" aria-label="Visual environment representation">
+          <VoxelTreeCanvas selectedModules={selectedModules} />
+        </main>
+
+        {/* Floating Left: Configuration Sidebar in frosted liquid glass */}
         <SidebarConfigurator
           setupId={setupId}
           setupVersion={setupVersion}
@@ -219,12 +224,7 @@ export default function SetupBuilder({
           errors={validation.errors}
         />
 
-        {/* Center / Right: The Atmospheric 3D Voxel Stage */}
-        <main className="tree-center-stage" aria-label="Visual environment representation">
-          <VoxelTreeCanvas selectedModules={selectedModules} />
-        </main>
-
-        {/* 3. Floating Bottom-Centered Glass Action Dock */}
+        {/* Floating Bottom-Centered Glass Action Dock */}
         <FloatingActionDock
           onCopyCommand={handleCopyCommand}
           onDownloadYaml={handleDownloadYaml}
