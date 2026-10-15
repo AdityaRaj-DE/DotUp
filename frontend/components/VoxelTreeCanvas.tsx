@@ -49,11 +49,13 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
   const foliageMeshRef = useRef<THREE.InstancedMesh | null>(null);
   const frameIdRef = useRef<number | null>(null);
 
-  // Camera orbit state (rotation-only: distance & pitch locked)
+  // Camera orbit state with animated spring interpolation for smooth rotation and reset view
   const orbitStateRef = useRef({
     radius: 26.5,
-    polarAngle: Math.PI / 2.75, // lowered camera perspective (~25 degrees elevation) matching reference
+    polarAngle: Math.PI / 2.75, // lowered camera perspective (~25 degrees elevation)
+    targetPolarAngle: Math.PI / 2.75,
     azimuthAngle: Math.PI / 4.0, // 45 degrees exact isometric diamond angle
+    targetAzimuthAngle: Math.PI / 4.0,
     target: new THREE.Vector3(0, 2.7, 0),
     isDragging: false,
     prevPointerX: 0
@@ -67,12 +69,17 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
 
   const updateCameraFnRef = useRef<(() => void) | null>(null);
 
-  // Handle View Reset
+  // Handle View Reset with smooth spring animation
   const handleResetCamera = useCallback(() => {
-    orbitStateRef.current.azimuthAngle = Math.PI / 4.0;
-    orbitStateRef.current.polarAngle = Math.PI / 2.75;
-    if (updateCameraFnRef.current) {
-      updateCameraFnRef.current();
+    const orbit = orbitStateRef.current;
+    orbit.targetAzimuthAngle = Math.PI / 4.0;
+    orbit.targetPolarAngle = Math.PI / 2.75;
+    if (reducedMotionRef.current) {
+      orbit.azimuthAngle = Math.PI / 4.0;
+      orbit.polarAngle = Math.PI / 2.75;
+      if (updateCameraFnRef.current) {
+        updateCameraFnRef.current();
+      }
     }
   }, []);
 
@@ -156,23 +163,23 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
       return;
     }
 
-    // 3. Lighting Setup: bright luminous ambient + soft warm sunlight from upper-left (no harsh shadows)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.90);
+    // 3. Lighting Setup: luminous ambient + brilliant sunlight from bottom-right casting natural shadow towards top-left
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.05);
     scene.add(ambientLight);
 
-    // Primary warm sunlight from upper-left (highlights top & upper-left exposed faces, matching reference)
-    const keySunLight = new THREE.DirectionalLight(0xfffbeb, 0.75);
-    keySunLight.position.set(-14, 22, 16);
+    // Primary bright sun light from bottom-right / front-right (highlights bottom-right, leaves top-left in deep stylized shadow)
+    const keySunLight = new THREE.DirectionalLight(0xfffbeb, 1.15);
+    keySunLight.position.set(22, 12, 18);
     scene.add(keySunLight);
 
-    // Secondary sky fill light (soft blue cool sky bounce from back-right)
-    const skyFillLight = new THREE.DirectionalLight(0xdbeafe, 0.35);
-    skyFillLight.position.set(14, 12, -14);
+    // Subtle cool sky bounce from upper-left / back-left
+    const skyFillLight = new THREE.DirectionalLight(0xbfdbfe, 0.45);
+    skyFillLight.position.set(-16, 20, -14);
     scene.add(skyFillLight);
 
-    // Soft under-bounce light (earth/turf reflection upward)
-    const groundBounce = new THREE.DirectionalLight(0xdcfce7, 0.15);
-    groundBounce.position.set(0, -6, 2);
+    // Warm ground bounce upward for vivid turf illumination
+    const groundBounce = new THREE.DirectionalLight(0xdcfce7, 0.25);
+    groundBounce.position.set(4, -8, 6);
     scene.add(groundBounce);
 
     // 4. Build Static Voxel Geometry (Pedestal, Trunk, and Category Branches)
@@ -308,6 +315,7 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
 
       // Rotate azimuth (horizontal only)
       orbitStateRef.current.azimuthAngle -= deltaX * 0.009;
+      orbitStateRef.current.targetAzimuthAngle = orbitStateRef.current.azimuthAngle;
       updateCameraPosition();
     };
 
@@ -350,6 +358,7 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
       orbitStateRef.current.prevPointerX = touch.clientX;
 
       orbitStateRef.current.azimuthAngle -= deltaX * 0.009;
+      orbitStateRef.current.targetAzimuthAngle = orbitStateRef.current.azimuthAngle;
       updateCameraPosition();
     };
 
@@ -421,6 +430,18 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
 
         if (needsUpdate) {
           mesh.instanceMatrix.needsUpdate = true;
+        }
+      }
+
+      // Smooth camera interpolation for reset view and dragging
+      const orbit = orbitStateRef.current;
+      if (!orbit.isDragging) {
+        const deltaAzimuth = orbit.targetAzimuthAngle - orbit.azimuthAngle;
+        const deltaPolar = orbit.targetPolarAngle - orbit.polarAngle;
+        if (Math.abs(deltaAzimuth) > 0.0005 || Math.abs(deltaPolar) > 0.0005) {
+          orbit.azimuthAngle += deltaAzimuth * 0.09;
+          orbit.polarAngle += deltaPolar * 0.09;
+          updateCameraPosition();
         }
       }
 

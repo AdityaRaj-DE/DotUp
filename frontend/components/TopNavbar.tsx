@@ -103,16 +103,22 @@ export default function TopNavbar({
             {/* Reset Setup Button / Confirm */}
             {showResetConfirm ? (
               <div className="reset-confirm-inline" role="alert">
-                <span>Reset?</span>
-                <button type="button" onClick={handleReset} className="btn-danger-xs">
-                  Yes
+                <span className="reset-confirm-label">Reset setup?</span>
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="reset-btn-confirm"
+                  title="Confirm reset"
+                >
+                  Yes, Reset
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowResetConfirm(false)}
-                  className="btn-ghost-xs"
+                  className="reset-btn-cancel"
+                  title="Cancel reset"
                 >
-                  No
+                  Cancel
                 </button>
               </div>
             ) : (

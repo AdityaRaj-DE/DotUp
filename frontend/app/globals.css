@@ -132,8 +132,8 @@ body {
 .voxel-tree-overlay {
   position: absolute;
   bottom: 5.5rem; /* Lifted to clear bottom floating action dock */
-  left: 450px;
-  right: 2rem;
+  left: 480px;
+  right: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -358,6 +358,75 @@ body {
   background: #ffffff;
   color: var(--text-main);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Inline Reset Confirmation in Top Navbar */
+.reset-confirm-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  padding: 0.2rem 0.35rem 0.2rem 0.65rem;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  animation: fadeInPop 0.18s var(--ease-apple);
+}
+
+@keyframes fadeInPop {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.reset-confirm-label {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.reset-btn-confirm {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+  transition: all 0.15s var(--ease-apple);
+}
+
+.reset-btn-confirm:hover {
+  background: #dc2626;
+  transform: translateY(-0.5px);
+  box-shadow: 0 3px 8px rgba(239, 68, 68, 0.4);
+}
+
+.reset-btn-cancel {
+  background: rgba(0, 0, 0, 0.06);
+  color: #475569;
+  border: none;
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.15s var(--ease-apple);
+}
+
+.reset-btn-cancel:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #0f172a;
 }
 
 .btn-code-view {

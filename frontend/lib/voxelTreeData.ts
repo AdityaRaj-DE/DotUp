@@ -42,34 +42,34 @@ export interface ModuleVoxelCluster {
 
 // Coordinated Natural Palettes inspired by stylized game asset voxel art
 export const VOXEL_PALETTE = {
-  // Wood / Bark Palette (warm natural timber)
-  trunkHighlight: '#8d6e63', // Sunlit bark edges
-  trunkMed: '#6d4c41',       // Primary warm brown trunk
-  trunkDark: '#4e342e',      // Crevices, roots, branch forks
-  trunkShadow: '#3e2723',    // Underside shading
+  // Wood / Bark Palette (warm, rich natural timber)
+  trunkHighlight: '#a27b68', // Bright sunlit bark edges
+  trunkMed: '#7d5649',       // Primary warm brown trunk
+  trunkDark: '#563a32',      // Roots & branch forks
+  trunkShadow: '#3e251e',    // Underside shading
 
-  // Island / Grassy Base Palette
-  grassLight: '#7cb342',     // Primary uniform lush spring lawn
-  grassMed: '#558b2f',       // Lush turf tone
-  grassDark: '#33691e',      // Shaded turf / edge accents
-  grassHighlight: '#8bc34a', // Vibrant grass patch accent
-  soilTop: '#5d4037',        // Earthy upper soil rim
-  soilBase: '#3e2723',       // Dark substrate bedrock / floating base
-  soilDark: '#271915',       // Deep underplate shadow
+  // Island / Grassy Base Palette (vivid spring lawn)
+  grassLight: '#8ac449',     // Primary bright, vibrant spring lawn
+  grassMed: '#66a235',       // Lush turf tone
+  grassDark: '#447d25',      // Shaded turf / edge accents
+  grassHighlight: '#9ad652', // Vibrant sunlit grass accent
+  soilTop: '#6d4c41',        // Earthy upper soil rim
+  soilBase: '#4a2e24',       // Substrate bedrock
+  soilDark: '#321c15',       // Deep underplate shadow
 
-  // Coordinated Natural Green Canopy Palette
-  leafSunlit: '#A6D95A',     // Sunlit outer & upper foliage
-  leafPrimary: '#78BD43',    // Primary leaf green body
-  leafMid: '#438D35',        // Mid-depth intermediate layer
-  leafDeep: '#245C2C',       // Deep foliage green & undercanopy
-  leafShadow: '#1E4A25',     // Shaded inner core
-  leafBright: '#95CD41',     // Fresh sunny highlights
+  // Coordinated Natural Green Canopy Palette (bright, saturated, sunlit)
+  leafSunlit: '#bbf060',     // Luminous sunlit outer & upper foliage
+  leafPrimary: '#88d844',    // Bright vibrant spring leaf green body
+  leafMid: '#52a83b',        // Mid-depth intermediate layer
+  leafDeep: '#2e7436',       // Deep foliage green & undercanopy
+  leafShadow: '#225529',     // Shaded inner core
+  leafBright: '#a6e84d',     // Fresh sunny highlights
 
-  // Stylized Flower Accents
-  flowerCoral: '#ff7043',    // Stylized flower accent coral
-  flowerYellow: '#ffd54f',   // Stylized flower accent yellow
-  flowerWhite: '#f5f5f5',    // Stylized flower accent white
-  flowerRed: '#ef5350'       // Stylized flower accent red
+  // Stylized Flower Accents (popping vivid colors)
+  flowerCoral: '#ff8a65',    // Vivid flower accent coral
+  flowerYellow: '#ffe066',   // Bright flower accent yellow
+  flowerWhite: '#ffffff',    // Pure white flower accent
+  flowerRed: '#ff5252'       // Vivid flower accent red
 };
 
 // Procedural pseudo-random generator with fixed seed for strict determinism
