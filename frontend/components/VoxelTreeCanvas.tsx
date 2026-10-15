@@ -47,16 +47,17 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const foliageInstancesRef = useRef<AnimatedVoxelInstance[]>([]);
   const foliageMeshRef = useRef<THREE.InstancedMesh | null>(null);
+  const dioramaGroupRef = useRef<THREE.Group | null>(null);
   const frameIdRef = useRef<number | null>(null);
 
-  // Camera orbit state with animated spring interpolation for smooth rotation and reset view
+  // Voxel tree diorama rotation state with smooth spring interpolation
   const orbitStateRef = useRef({
     radius: 26.5,
     polarAngle: Math.PI / 2.75, // lowered camera perspective (~25 degrees elevation)
-    targetPolarAngle: Math.PI / 2.75,
     azimuthAngle: Math.PI / 4.0, // 45 degrees exact isometric diamond angle
-    targetAzimuthAngle: Math.PI / 4.0,
     target: new THREE.Vector3(0, 2.7, 0),
+    rotationY: 0,
+    targetRotationY: 0,
     isDragging: false,
     prevPointerX: 0
   });
@@ -72,13 +73,11 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
   // Handle View Reset with smooth spring animation
   const handleResetCamera = useCallback(() => {
     const orbit = orbitStateRef.current;
-    orbit.targetAzimuthAngle = Math.PI / 4.0;
-    orbit.targetPolarAngle = Math.PI / 2.75;
+    orbit.targetRotationY = 0;
     if (reducedMotionRef.current) {
-      orbit.azimuthAngle = Math.PI / 4.0;
-      orbit.polarAngle = Math.PI / 2.75;
-      if (updateCameraFnRef.current) {
-        updateCameraFnRef.current();
+      orbit.rotationY = 0;
+      if (dioramaGroupRef.current) {
+        dioramaGroupRef.current.rotation.y = 0;
       }
     }
   }, []);
@@ -155,7 +154,8 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(width, height);
       renderer.setClearColor(0x000000, 0);
-      renderer.shadowMap.enabled = false; // clean, crisp game-art aesthetic without dark shadows
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       container.appendChild(renderer.domElement);
       rendererRef.current = renderer;
     } catch {
@@ -163,22 +163,39 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
       return;
     }
 
-    // 3. Lighting Setup: luminous ambient + brilliant sunlight from bottom-right casting natural shadow towards top-left
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.05);
+    // 3. Lighting Setup matching reference with PCF Soft Shadows:
+    // Luminous ambient keeping colors vivid and crisp
+    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.82);
     scene.add(ambientLight);
 
-    // Primary bright sun light from bottom-right / front-right (highlights bottom-right, leaves top-left in deep stylized shadow)
-    const keySunLight = new THREE.DirectionalLight(0xfffbeb, 1.15);
-    keySunLight.position.set(22, 12, 18);
-    scene.add(keySunLight);
+    // Primary bright sun light from bottom-right / front-right casting soft shadows towards top-left
+    const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.08);
+    sunLight.position.set(24, 25, 8);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    const d = 14;
+    sunLight.shadow.camera.left = -d;
+    sunLight.shadow.camera.right = d;
+    sunLight.shadow.camera.top = d;
+    sunLight.shadow.camera.bottom = -d;
+    sunLight.shadow.camera.near = 1.0;
+    sunLight.shadow.camera.far = 70;
+    sunLight.shadow.bias = -0.0005;
 
-    // Subtle cool sky bounce from upper-left / back-left
-    const skyFillLight = new THREE.DirectionalLight(0xbfdbfe, 0.45);
-    skyFillLight.position.set(-16, 20, -14);
+    const sunTarget = new THREE.Object3D();
+    sunTarget.position.set(0, 2.5, 0);
+    scene.add(sunTarget);
+    sunLight.target = sunTarget;
+    scene.add(sunLight);
+
+    // Subtle sky fill light from upper back-left
+    const skyFillLight = new THREE.DirectionalLight(0x7dd3fc, 0.35);
+    skyFillLight.position.set(-18, 14, -10);
     scene.add(skyFillLight);
 
     // Warm ground bounce upward for vivid turf illumination
-    const groundBounce = new THREE.DirectionalLight(0xdcfce7, 0.25);
+    const groundBounce = new THREE.DirectionalLight(0xdcfce7, 0.22);
     groundBounce.position.set(4, -8, 6);
     scene.add(groundBounce);
 
@@ -222,9 +239,16 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
       color.set(v.color || VOXEL_PALETTE.trunkMed);
       staticMesh.setColorAt(i, color);
     }
+    // Master Diorama Group: contains both staticMesh and foliageMesh so the tree and island rotate under stationary sunlight
+    const dioramaGroup = new THREE.Group();
+    scene.add(dioramaGroup);
+    dioramaGroupRef.current = dioramaGroup;
+
     staticMesh.instanceMatrix.needsUpdate = true;
     if (staticMesh.instanceColor) staticMesh.instanceColor.needsUpdate = true;
-    scene.add(staticMesh);
+    staticMesh.castShadow = true;
+    staticMesh.receiveShadow = true;
+    dioramaGroup.add(staticMesh);
 
     // 5. Build Dynamic Instanced Foliage Meshes
     const moduleClusters = getModuleFoliageClusters();
@@ -268,7 +292,9 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
     }
     foliageMesh.instanceMatrix.needsUpdate = true;
     if (foliageMesh.instanceColor) foliageMesh.instanceColor.needsUpdate = true;
-    scene.add(foliageMesh);
+    foliageMesh.castShadow = true;
+    foliageMesh.receiveShadow = true;
+    dioramaGroup.add(foliageMesh);
     foliageMeshRef.current = foliageMesh;
 
     // 6. Camera Position & Framing Update Function (Centers diorama in visible viewport)
@@ -313,10 +339,8 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
       const deltaX = e.clientX - orbitStateRef.current.prevPointerX;
       orbitStateRef.current.prevPointerX = e.clientX;
 
-      // Rotate azimuth (horizontal only)
-      orbitStateRef.current.azimuthAngle -= deltaX * 0.009;
-      orbitStateRef.current.targetAzimuthAngle = orbitStateRef.current.azimuthAngle;
-      updateCameraPosition();
+      // Rotate tree diorama horizontally (positive drag rotates clockwise)
+      orbitStateRef.current.targetRotationY += deltaX * 0.0085;
     };
 
     const onPointerUp = (e: PointerEvent) => {
@@ -357,9 +381,8 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
       const deltaX = touch.clientX - orbitStateRef.current.prevPointerX;
       orbitStateRef.current.prevPointerX = touch.clientX;
 
-      orbitStateRef.current.azimuthAngle -= deltaX * 0.009;
-      orbitStateRef.current.targetAzimuthAngle = orbitStateRef.current.azimuthAngle;
-      updateCameraPosition();
+      // Rotate tree diorama horizontally on touch drag
+      orbitStateRef.current.targetRotationY += deltaX * 0.0085;
     };
 
     const onTouchEnd = () => {
@@ -433,16 +456,16 @@ export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(fun
         }
       }
 
-      // Smooth camera interpolation for reset view and dragging
+      // Smooth interpolation for tree rotation (animates during drag and spring-returns on reset)
       const orbit = orbitStateRef.current;
-      if (!orbit.isDragging) {
-        const deltaAzimuth = orbit.targetAzimuthAngle - orbit.azimuthAngle;
-        const deltaPolar = orbit.targetPolarAngle - orbit.polarAngle;
-        if (Math.abs(deltaAzimuth) > 0.0005 || Math.abs(deltaPolar) > 0.0005) {
-          orbit.azimuthAngle += deltaAzimuth * 0.09;
-          orbit.polarAngle += deltaPolar * 0.09;
-          updateCameraPosition();
-        }
+      const deltaRot = orbit.targetRotationY - orbit.rotationY;
+      if (Math.abs(deltaRot) > 0.0002) {
+        orbit.rotationY += deltaRot * 0.1;
+      } else {
+        orbit.rotationY = orbit.targetRotationY;
+      }
+      if (dioramaGroupRef.current) {
+        dioramaGroupRef.current.rotation.y = orbit.rotationY;
       }
 
       renderer.render(scene, camera);
