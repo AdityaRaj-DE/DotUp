@@ -1,544 +1,566 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback, useImperativeHandle } from 'react';
+import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import * as THREE from 'three';
-import {
-  getStaticTreeVoxels,
-  getModuleFoliageClusters,
-  VOXEL_PALETTE,
-  VoxelCoord
-} from '../lib/voxelTreeData';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export interface VoxelTreeCanvasHandle {
   resetCamera: () => void;
 }
 
+export interface TreeModuleItem {
+  id: string;
+  name: string;
+  category: 'system' | 'terminal' | 'development' | 'infrastructure' | 'editors' | string;
+  color: string;
+  anchor: [number, number, number];
+  foliageCenter: [number, number, number];
+  foliageRadius: number;
+}
+
+export const SANCTUARY_MODULES: TreeModuleItem[] = [
+  // Left Column (Canopy & Trunk: system, terminal, editors, development)
+  {
+    id: 'system',
+    name: 'System Base',
+    category: 'system',
+    anchor: [-0.9, 2.5, 0.7],
+    foliageCenter: [-2.0, 5.6, 1.3],
+    foliageRadius: 1.65,
+    color: '#059669'
+  },
+  {
+    id: 'zsh',
+    name: 'Zsh & Oh My Zsh',
+    category: 'terminal',
+    anchor: [-2.4, 6.5, 1.1],
+    foliageCenter: [-2.9, 7.0, 1.2],
+    foliageRadius: 1.8,
+    color: '#10b981'
+  },
+  {
+    id: 'git',
+    name: 'Git',
+    category: 'development',
+    anchor: [-1.5, 8.1, -0.6],
+    foliageCenter: [-1.8, 8.5, -0.8],
+    foliageRadius: 1.75,
+    color: '#34d399'
+  },
+  {
+    id: 'vscode',
+    name: 'VS Code',
+    category: 'editors',
+    anchor: [0.1, 9.1, 0.8],
+    foliageCenter: [0.2, 9.5, 0.9],
+    foliageRadius: 2.0,
+    color: '#22c55e'
+  },
+  {
+    id: 'chrome',
+    name: 'Google Chrome',
+    category: 'editors',
+    anchor: [-0.6, 7.2, 2.3],
+    foliageCenter: [-0.7, 7.5, 2.6],
+    foliageRadius: 1.65,
+    color: '#4ade80'
+  },
+
+  // Right Column (Land & Roots: runtimes, cloud, containers)
+  {
+    id: 'node',
+    name: 'Node.js',
+    category: 'development',
+    anchor: [2.2, 0.45, 1.8],
+    foliageCenter: [2.7, 7.6, 1.3],
+    foliageRadius: 1.85,
+    color: '#eab308'
+  },
+  {
+    id: 'python',
+    name: 'Python',
+    category: 'development',
+    anchor: [2.9, 0.4, -0.6],
+    foliageCenter: [3.1, 6.2, -1.0],
+    foliageRadius: 1.75,
+    color: '#84cc16'
+  },
+  {
+    id: 'java',
+    name: 'Java JDK',
+    category: 'development',
+    anchor: [1.4, 0.45, 3.0],
+    foliageCenter: [1.8, 8.6, -1.4],
+    foliageRadius: 1.65,
+    color: '#f59e0b'
+  },
+  {
+    id: 'docker',
+    name: 'Docker Engine',
+    category: 'infrastructure',
+    anchor: [3.3, 0.4, 2.1],
+    foliageCenter: [2.1, 5.2, 2.3],
+    foliageRadius: 1.65,
+    color: '#14b8a6'
+  },
+  {
+    id: 'gcloud',
+    name: 'Google Cloud SDK',
+    category: 'infrastructure',
+    anchor: [0.9, 0.4, -2.8],
+    foliageCenter: [0.9, 6.6, -2.5],
+    foliageRadius: 1.6,
+    color: '#0d9488'
+  }
+];
+
 interface VoxelTreeCanvasProps {
   selectedModules: Record<string, { enabled: boolean; version?: string }>;
+  hoveredModuleId?: string | null;
+  onHoverModule?: (id: string | null) => void;
+  onToggleModule?: (id: string) => void;
   reducedMotion?: boolean;
   resetSignal?: number;
+  cameraRefOut?: (cam: THREE.PerspectiveCamera, group: THREE.Group) => void;
 }
 
-interface AnimatedVoxelInstance {
-  baseCoord: VoxelCoord;
+interface FoliageVoxelData {
   moduleId: string;
-  categoryId: string;
-  currentScale: number;
-  targetScale: number;
-  swayPhase: number;
-  swaySpeed: number;
+  basePos: THREE.Vector3;
+  color: THREE.Color;
+  hoverColor: THREE.Color;
+  scale: number;
+  velocity: number;
+  phase: number;
 }
 
-export default React.forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(function VoxelTreeCanvas(
+export default forwardRef<VoxelTreeCanvasHandle, VoxelTreeCanvasProps>(function VoxelTreeCanvas(
   {
     selectedModules,
+    hoveredModuleId = null,
+    onHoverModule,
+    onToggleModule,
     reducedMotion = false,
-    resetSignal
+    resetSignal,
+    cameraRefOut
   },
   ref
 ) {
   const mountRef = useRef<HTMLDivElement | null>(null);
-  const [webglSupported, setWebglSupported] = useState<boolean>(true);
-  const [isRotating, setIsRotating] = useState<boolean>(false);
+  const hoverPillRef = useRef<HTMLDivElement | null>(null);
+  const hoverTextRef = useRef<HTMLSpanElement | null>(null);
+  const hoverPipRef = useRef<HTMLSpanElement | null>(null);
 
-  // References across render loop
-  const sceneRef = useRef<THREE.Scene | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const foliageInstancesRef = useRef<AnimatedVoxelInstance[]>([]);
+  const treeGroupRef = useRef<THREE.Group | null>(null);
+  const foliageVoxelsRef = useRef<FoliageVoxelData[]>([]);
   const foliageMeshRef = useRef<THREE.InstancedMesh | null>(null);
-  const dioramaGroupRef = useRef<THREE.Group | null>(null);
-  const frameIdRef = useRef<number | null>(null);
 
-  // Voxel tree diorama rotation state with smooth spring interpolation
-  const orbitStateRef = useRef({
-    radius: 26.5,
-    polarAngle: Math.PI / 2.75, // lowered camera perspective (~25 degrees elevation)
-    azimuthAngle: Math.PI / 4.0, // 45 degrees exact isometric diamond angle
-    target: new THREE.Vector3(0, 2.7, 0),
-    rotationY: 0,
-    targetRotationY: 0,
-    isDragging: false,
-    prevPointerX: 0
-  });
+  const DEFAULT_CAM_POS = new THREE.Vector3(14.5, 9.2, 18.0);
+  const DEFAULT_CAM_TARGET = new THREE.Vector3(0, 4.9, 0);
 
-  // Track latest reducedMotion and selectedModules in refs for animation loop
-  const reducedMotionRef = useRef(reducedMotion);
-  useEffect(() => {
-    reducedMotionRef.current = reducedMotion;
-  }, [reducedMotion]);
-
-  const updateCameraFnRef = useRef<(() => void) | null>(null);
-
-  // Handle View Reset with smooth spring animation
-  const handleResetCamera = useCallback(() => {
-    const orbit = orbitStateRef.current;
-    orbit.targetRotationY = 0;
-    if (reducedMotionRef.current) {
-      orbit.rotationY = 0;
-      if (dioramaGroupRef.current) {
-        dioramaGroupRef.current.rotation.y = 0;
-      }
+  const handleResetCamera = () => {
+    if (cameraRef.current && controlsRef.current) {
+      cameraRef.current.position.copy(DEFAULT_CAM_POS);
+      controlsRef.current.target.copy(DEFAULT_CAM_TARGET);
+      controlsRef.current.update();
     }
-  }, []);
+  };
 
-  // Expose resetCamera via ref
   useImperativeHandle(ref, () => ({
     resetCamera: handleResetCamera
-  }), [handleResetCamera]);
+  }));
 
-  // Trigger camera reset whenever resetSignal changes
   useEffect(() => {
     if (resetSignal && resetSignal > 0) {
       handleResetCamera();
     }
-  }, [resetSignal, handleResetCamera]);
+  }, [resetSignal]);
 
-  // Update target scales of foliage instances whenever selectedModules changes
-  useEffect(() => {
-    const instances = foliageInstancesRef.current;
-    if (!instances || instances.length === 0) return;
-
-    for (let i = 0; i < instances.length; i++) {
-      const item = instances[i];
-      const isEnabled = Boolean(selectedModules[item.moduleId]?.enabled);
-      item.targetScale = isEnabled ? 1.0 : 0.0;
-
-      // If reduced motion is active, jump directly to target scale
-      if (reducedMotionRef.current) {
-        item.currentScale = item.targetScale;
-      }
-    }
-  }, [selectedModules]);
-
-  // Main Three.js Scene Setup & Render Loop
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
 
-    // 1. WebGL Support Detection
-    let isWebGLAvailable = false;
-    try {
-      const canvas = document.createElement('canvas');
-      isWebGLAvailable = Boolean(
-        window.WebGLRenderingContext &&
-          (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
-      );
-    } catch {
-      isWebGLAvailable = false;
+    // Deterministic pseudo-random
+    let seed = 108;
+    function rand() {
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
     }
 
-    if (!isWebGLAvailable) {
-      setWebglSupported(false);
-      return;
-    }
-
-    // 2. Initialize Three.js Scene
     const scene = new THREE.Scene();
-    sceneRef.current = scene;
+    scene.fog = new THREE.FogExp2(0xe2f1ea, 0.02);
 
-    // Camera with fixed field of view
-    const width = container.clientWidth || 600;
-    const height = container.clientHeight || 500;
-    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 140);
+    camera.position.copy(DEFAULT_CAM_POS);
     cameraRef.current = camera;
 
-    // Renderer
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true,
-        powerPreference: 'high-performance'
-      });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      renderer.setSize(width, height);
-      renderer.setClearColor(0x000000, 0);
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.08;
       container.appendChild(renderer.domElement);
-      rendererRef.current = renderer;
     } catch {
-      setWebglSupported(false);
       return;
     }
 
-    // 3. Lighting Setup matching reference with PCF Soft Shadows:
-    // Luminous ambient keeping colors vivid and crisp
-    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.82);
-    scene.add(ambientLight);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.copy(DEFAULT_CAM_TARGET);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.maxPolarAngle = Math.PI / 2 - 0.03;
+    controls.minDistance = 10;
+    controls.maxDistance = 30;
+    controlsRef.current = controls;
 
-    // Primary bright sun light from bottom-right / front-right casting soft shadows towards top-left
-    const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.08);
-    sunLight.position.set(24, 25, 8);
+    // Atrium Lighting
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xbbe5ce, 1.15);
+    hemiLight.position.set(0, 25, 0);
+    scene.add(hemiLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfffdf5, 1.65);
+    sunLight.position.set(16, 28, 18);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 2048;
     sunLight.shadow.mapSize.height = 2048;
-    const d = 14;
-    sunLight.shadow.camera.left = -d;
-    sunLight.shadow.camera.right = d;
-    sunLight.shadow.camera.top = d;
-    sunLight.shadow.camera.bottom = -d;
-    sunLight.shadow.camera.near = 1.0;
-    sunLight.shadow.camera.far = 70;
-    sunLight.shadow.bias = -0.0005;
-
-    const sunTarget = new THREE.Object3D();
-    sunTarget.position.set(0, 2.5, 0);
-    scene.add(sunTarget);
-    sunLight.target = sunTarget;
+    sunLight.shadow.camera.near = 2;
+    sunLight.shadow.camera.far = 65;
+    const shadowBound = 18;
+    sunLight.shadow.camera.left = -shadowBound;
+    sunLight.shadow.camera.right = shadowBound;
+    sunLight.shadow.camera.top = shadowBound;
+    sunLight.shadow.camera.bottom = -shadowBound;
+    sunLight.shadow.bias = -0.0004;
     scene.add(sunLight);
 
-    // Subtle sky fill light from upper back-left
-    const skyFillLight = new THREE.DirectionalLight(0x7dd3fc, 0.35);
-    skyFillLight.position.set(-18, 14, -10);
-    scene.add(skyFillLight);
+    const bounceLight = new THREE.DirectionalLight(0x6ee7b7, 0.55);
+    bounceLight.position.set(-16, 10, -14);
+    scene.add(bounceLight);
 
-    // Warm ground bounce upward for vivid turf illumination
-    const groundBounce = new THREE.DirectionalLight(0xdcfce7, 0.22);
-    groundBounce.position.set(4, -8, 6);
-    scene.add(groundBounce);
+    // Subtle Horizon Ground Plane
+    const horizonPlaneGeo = new THREE.CircleGeometry(75, 64);
+    const horizonPlaneMat = new THREE.MeshStandardMaterial({
+      color: 0xd8ede2,
+      roughness: 0.95,
+      metalness: 0.0
+    });
+    const horizonPlane = new THREE.Mesh(horizonPlaneGeo, horizonPlaneMat);
+    horizonPlane.rotation.x = -Math.PI / 2;
+    horizonPlane.position.y = -0.48;
+    horizonPlane.receiveShadow = true;
+    scene.add(horizonPlane);
 
-    // 4. Build Static Voxel Geometry (Pedestal, Trunk, and Category Branches)
-    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const staticVoxels = getStaticTreeVoxels();
+    const treeGroup = new THREE.Group();
+    scene.add(treeGroup);
+    treeGroupRef.current = treeGroup;
 
-    // Collect all static voxels
-    const allStatic: VoxelCoord[] = [
-      ...staticVoxels.plinth,
-      ...staticVoxels.trunk,
-      ...staticVoxels.branches.system,
-      ...staticVoxels.branches.terminal,
-      ...staticVoxels.branches.development,
-      ...staticVoxels.branches.infrastructure,
-      ...staticVoxels.branches.editors
-    ];
-
-    const staticMesh = new THREE.InstancedMesh(
-      boxGeometry,
-      new THREE.MeshLambertMaterial({
-        reflectivity: 0.1
-      }),
-      allStatic.length
-    );
-
-    const matrix = new THREE.Matrix4();
-    const color = new THREE.Color();
-    const position = new THREE.Vector3();
-    const quaternion = new THREE.Quaternion();
-    const scale = new THREE.Vector3();
-
-    for (let i = 0; i < allStatic.length; i++) {
-      const v = allStatic[i];
-      // Multiply by 1.002 to seal subpixel boundary rasterization seams between adjacent grid blocks
-      const s = (v.size || 0.8) * 1.002;
-      position.set(v.x, v.y, v.z);
-      scale.set(s, s, s);
-      matrix.compose(position, quaternion, scale);
-      staticMesh.setMatrixAt(i, matrix);
-      color.set(v.color || VOXEL_PALETTE.trunkMed);
-      staticMesh.setColorAt(i, color);
+    if (cameraRefOut) {
+      cameraRefOut(camera, treeGroup);
     }
-    // Master Diorama Group: contains both staticMesh and foliageMesh so the tree and island rotate under stationary sunlight
-    const dioramaGroup = new THREE.Group();
-    scene.add(dioramaGroup);
-    dioramaGroupRef.current = dioramaGroup;
 
-    staticMesh.instanceMatrix.needsUpdate = true;
-    if (staticMesh.instanceColor) staticMesh.instanceColor.needsUpdate = true;
-    staticMesh.castShadow = true;
-    staticMesh.receiveShadow = true;
-    dioramaGroup.add(staticMesh);
+    const voxelGeo = new THREE.BoxGeometry(0.46, 0.46, 0.46);
+    const dummy = new THREE.Object3D();
 
-    // 5. Build Dynamic Instanced Foliage Meshes
-    const moduleClusters = getModuleFoliageClusters();
-    const foliageList: AnimatedVoxelInstance[] = [];
+    // 1. Expansive Lush Meadow with Crystal Stream and Wildflowers
+    const staticVoxels: Array<{ pos: [number, number, number]; color: string }> = [];
+    const meadowRadius = 26;
 
-    // Pre-calculate all candidate voxels across all 10 modules
-    Object.values(moduleClusters).forEach((cluster) => {
-      cluster.voxels.forEach((v, idx) => {
-        const isCurrentlyEnabled = Boolean(selectedModules[cluster.moduleId]?.enabled);
-        foliageList.push({
-          baseCoord: v,
-          moduleId: cluster.moduleId,
-          categoryId: cluster.categoryId,
-          currentScale: isCurrentlyEnabled ? 1.0 : 0.0,
-          targetScale: isCurrentlyEnabled ? 1.0 : 0.0,
-          swayPhase: idx * 0.45 + (v.x + v.z) * 0.8,
-          swaySpeed: 1.2 + ((idx % 5) * 0.2)
+    for (let x = -meadowRadius; x <= meadowRadius; x++) {
+      for (let z = -meadowRadius; z <= meadowRadius; z++) {
+        const dist = Math.sqrt(x * x + z * z);
+        if (dist > meadowRadius) continue;
+
+        const wave = Math.sin(x * 0.22) * Math.cos(z * 0.22);
+        const centerMound = dist < 5.5 ? 1 : 0;
+        const hillHeight = (wave > 0.32 && dist > 6 && dist < 22) ? 1 : 0;
+        const isStream = Math.abs(x - z * 0.65 - 5.5) < 1.35 && dist > 3.5 && dist < 23;
+
+        if (isStream) {
+          staticVoxels.push({
+            pos: [x * 0.46, -0.18, z * 0.46],
+            color: (x + z) % 2 === 0 ? '#7dd3fc' : '#38bdf8'
+          });
+          continue;
+        }
+
+        const grassPalette = ['#16a34a', '#15803d', '#22c55e', '#4ade80', '#10b981'];
+        const colorIdx = Math.abs(x * 3 + z * 5) % grassPalette.length;
+        const baseColor = grassPalette[colorIdx];
+
+        const yLevel = (centerMound + hillHeight) * 0.34;
+        staticVoxels.push({
+          pos: [x * 0.46, yLevel, z * 0.46],
+          color: baseColor
         });
-      });
+
+        if (yLevel > 0) {
+          staticVoxels.push({
+            pos: [x * 0.46, 0, z * 0.46],
+            color: '#15803d'
+          });
+        }
+
+        const rVal = rand();
+        if (dist > 3.2 && dist < 16) {
+          if (rVal < 0.024) {
+            staticVoxels.push({
+              pos: [x * 0.46, yLevel + 0.38, z * 0.46],
+              color: rVal < 0.012 ? '#fef08a' : '#ffffff'
+            });
+          } else if (rVal > 0.982) {
+            staticVoxels.push({
+              pos: [x * 0.46, yLevel + 0.25, z * 0.46],
+              color: '#e2e8f0'
+            });
+          }
+        }
+      }
+    }
+
+    // 2. Bonsai Trunk & Buttressed Roots
+    const rootAngles = [0, 1.1, 2.3, 3.5, 4.7, 5.5];
+    rootAngles.forEach(ang => {
+      for (let r = 1; r <= 4; r++) {
+        const rx = Math.cos(ang) * r * 0.65;
+        const rz = Math.sin(ang) * r * 0.65;
+        staticVoxels.push({
+          pos: [rx * 0.46, (5 - r) * 0.16, rz * 0.46],
+          color: '#78350f'
+        });
+      }
     });
 
-    foliageInstancesRef.current = foliageList;
+    for (let y = 1; y <= 14; y++) {
+      const curveX = Math.sin(y * 0.22) * 0.6;
+      const curveZ = Math.cos(y * 0.18) * 0.4;
+      const radius = y < 4 ? 2.2 : y < 9 ? 1.55 : 1.0;
 
-    const foliageMesh = new THREE.InstancedMesh(
-      boxGeometry,
-      new THREE.MeshLambertMaterial({
-        reflectivity: 0.1
-      }),
-      foliageList.length
-    );
-
-    for (let i = 0; i < foliageList.length; i++) {
-      const item = foliageList[i];
-      const v = item.baseCoord;
-      const s = (v.size || 0.65) * item.currentScale * 1.002;
-      position.set(v.x, v.y, v.z);
-      scale.set(s, s, s);
-      matrix.compose(position, quaternion, scale);
-      color.set(v.color || VOXEL_PALETTE.leafPrimary);
-      foliageMesh.setColorAt(i, color);
+      for (let dx = -2; dx <= 2; dx++) {
+        for (let dz = -2; dz <= 2; dz++) {
+          if (dx * dx + dz * dz <= radius) {
+            staticVoxels.push({
+              pos: [(dx + curveX) * 0.46, y * 0.44, (dz + curveZ) * 0.46],
+              color: (y + dx) % 2 === 0 ? '#78350f' : '#92400e'
+            });
+          }
+        }
+      }
     }
-    foliageMesh.instanceMatrix.needsUpdate = true;
-    if (foliageMesh.instanceColor) foliageMesh.instanceColor.needsUpdate = true;
+
+    const staticMat = new THREE.MeshStandardMaterial({ roughness: 0.76, metalness: 0.04 });
+    const staticMesh = new THREE.InstancedMesh(voxelGeo, staticMat, staticVoxels.length);
+    staticMesh.castShadow = true;
+    staticMesh.receiveShadow = true;
+
+    const tempColor = new THREE.Color();
+    staticVoxels.forEach((v, i) => {
+      dummy.position.set(v.pos[0], v.pos[1], v.pos[2]);
+      dummy.scale.set(1, 1, 1);
+      dummy.updateMatrix();
+      staticMesh.setMatrixAt(i, dummy.matrix);
+      staticMesh.setColorAt(i, tempColor.set(v.color));
+    });
+    staticMesh.instanceMatrix.needsUpdate = true;
+    if (staticMesh.instanceColor) {
+      staticMesh.instanceColor.needsUpdate = true;
+    }
+    treeGroup.add(staticMesh);
+
+    // 3. Foliage Clusters
+    const foliageList: FoliageVoxelData[] = [];
+    SANCTUARY_MODULES.forEach((mod) => {
+      const [cx, cy, cz] = mod.foliageCenter;
+      const r = mod.foliageRadius;
+      const baseColor = new THREE.Color(mod.color);
+
+      for (let x = -3; x <= 3; x++) {
+        for (let y = -2; y <= 2; y++) {
+          for (let z = -3; z <= 3; z++) {
+            const dist = Math.sqrt((x * 0.52) ** 2 + (y * 0.7) ** 2 + (z * 0.52) ** 2);
+            if (dist <= r && rand() > 0.2) {
+              const shadeShift = (rand() - 0.45) * 0.14;
+              const col = baseColor.clone().offsetHSL(0, 0.05, shadeShift);
+              foliageList.push({
+                moduleId: mod.id,
+                basePos: new THREE.Vector3(cx + x * 0.46, cy + y * 0.46, cz + z * 0.46),
+                color: col,
+                hoverColor: col.clone().lerp(new THREE.Color('#fef08a'), 0.6),
+                scale: selectedModules[mod.id]?.enabled ? 1 : 0,
+                velocity: 0,
+                phase: rand() * Math.PI * 2
+              });
+            }
+          }
+        }
+      }
+    });
+    foliageVoxelsRef.current = foliageList;
+
+    const foliageMat = new THREE.MeshStandardMaterial({ roughness: 0.58, metalness: 0.04 });
+    const foliageMesh = new THREE.InstancedMesh(voxelGeo, foliageMat, foliageList.length);
     foliageMesh.castShadow = true;
     foliageMesh.receiveShadow = true;
-    dioramaGroup.add(foliageMesh);
+    treeGroup.add(foliageMesh);
     foliageMeshRef.current = foliageMesh;
 
-    // 6. Camera Position & Framing Update Function (Centers diorama in visible viewport)
-    const updateCameraPosition = () => {
-      const orbit = orbitStateRef.current;
-      const x = orbit.target.x + orbit.radius * Math.sin(orbit.polarAngle) * Math.sin(orbit.azimuthAngle);
-      const y = orbit.target.y + orbit.radius * Math.cos(orbit.polarAngle);
-      const z = orbit.target.z + orbit.radius * Math.sin(orbit.polarAngle) * Math.cos(orbit.azimuthAngle);
+    // 4. Pollen Particles
+    const particleCount = 65;
+    const particleGeo = new THREE.BufferGeometry();
+    const particlePositions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      particlePositions[i * 3] = (Math.random() - 0.5) * 20;
+      particlePositions[i * 3 + 1] = Math.random() * 11 + 0.6;
+      particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    const particleMat = new THREE.PointsMaterial({
+      color: 0x10b981,
+      size: 0.15,
+      transparent: true,
+      opacity: 0.55
+    });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
 
-      camera.position.set(x, y, z);
-      camera.lookAt(orbit.target);
-
-      // On desktop where the floating sidebar (width ~420px + margins) sits on the left,
-      // offset camera framing so the tree island centers in the open stage area on the right.
-      const w = container.clientWidth || 600;
-      const h = container.clientHeight || 500;
-      if (w > 1024) {
-        // Shift view center to clear the 420px floating sidebar
-        const sidebarOffset = 210;
-        camera.setViewOffset(w, h, -sidebarOffset, 0, w, h);
-      } else {
-        camera.clearViewOffset();
-      }
-      camera.updateProjectionMatrix();
-    };
-    updateCameraPosition();
-    updateCameraFnRef.current = updateCameraPosition;
-
-    // 7. Event Listeners for Rotation-Only Camera Control
-    const canvasEl = renderer.domElement;
-
-    const onPointerDown = (e: PointerEvent) => {
-      if (e.button !== 0) return; // Only primary mouse button or touch
-      orbitStateRef.current.isDragging = true;
-      orbitStateRef.current.prevPointerX = e.clientX;
-      setIsRotating(true);
-      canvasEl.setPointerCapture(e.pointerId);
-    };
+    // 5. Raycasting
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2(-99, -99);
+    let pointerDownPos = { x: 0, y: 0 };
 
     const onPointerMove = (e: PointerEvent) => {
-      if (!orbitStateRef.current.isDragging) return;
-      const deltaX = e.clientX - orbitStateRef.current.prevPointerX;
-      orbitStateRef.current.prevPointerX = e.clientX;
+      pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+      pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
-      // Rotate tree diorama horizontally (positive drag rotates clockwise)
-      orbitStateRef.current.targetRotationY += deltaX * 0.0085;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObject(foliageMesh);
+
+      const pill = hoverPillRef.current;
+      const textEl = hoverTextRef.current;
+      const pipEl = hoverPipRef.current;
+
+      if (hits.length > 0) {
+        const instanceId = hits[0].instanceId;
+        if (instanceId !== undefined) {
+          const voxel = foliageList[instanceId];
+          if (voxel && selectedModules[voxel.moduleId]?.enabled) {
+            const mod = SANCTUARY_MODULES.find(m => m.id === voxel.moduleId);
+            if (mod) {
+              if (onHoverModule) onHoverModule(mod.id);
+              if (pill && textEl && pipEl) {
+                pill.classList.add('visible');
+                pill.style.left = `${e.clientX}px`;
+                pill.style.top = `${e.clientY}px`;
+                textEl.textContent = `${mod.name} · ${selectedModules[mod.id]?.version || 'Active'}`;
+                pipEl.style.background = mod.color;
+              }
+              return;
+            }
+          }
+        }
+      }
+
+      if (pill && pill.classList.contains('visible')) {
+        pill.classList.remove('visible');
+        if (onHoverModule) onHoverModule(null);
+      }
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      pointerDownPos = { x: e.clientX, y: e.clientY };
     };
 
     const onPointerUp = (e: PointerEvent) => {
-      orbitStateRef.current.isDragging = false;
-      setIsRotating(false);
-      try {
-        if (canvasEl.hasPointerCapture(e.pointerId)) {
-          canvasEl.releasePointerCapture(e.pointerId);
-        }
-      } catch {
-        // ignore
+      const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+      if (dist < 5 && hoveredModuleId && onToggleModule) {
+        onToggleModule(hoveredModuleId);
       }
     };
 
-    // STRICT CAMERA REQUIREMENTS: Disable zoom and pan
-    // Mouse wheel must NOT zoom the camera
-    const onWheel = (e: WheelEvent) => {
-      // Do nothing to camera: allow natural browser scroll if needed
-      // Never change camera distance or zoom
-    };
+    renderer.domElement.addEventListener('pointermove', onPointerMove);
+    renderer.domElement.addEventListener('pointerdown', onPointerDown);
+    renderer.domElement.addEventListener('pointerup', onPointerUp);
 
-    // Touch gesture handling: single touch rotates, multi-touch pinch is ignored
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        orbitStateRef.current.isDragging = true;
-        orbitStateRef.current.prevPointerX = e.touches[0].clientX;
-        setIsRotating(true);
-      } else {
-        // Prevent pinch zoom
-        orbitStateRef.current.isDragging = false;
-        setIsRotating(false);
-      }
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!orbitStateRef.current.isDragging || e.touches.length !== 1) return;
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - orbitStateRef.current.prevPointerX;
-      orbitStateRef.current.prevPointerX = touch.clientX;
-
-      // Rotate tree diorama horizontally on touch drag
-      orbitStateRef.current.targetRotationY += deltaX * 0.0085;
-    };
-
-    const onTouchEnd = () => {
-      orbitStateRef.current.isDragging = false;
-      setIsRotating(false);
-    };
-
-    canvasEl.addEventListener('pointerdown', onPointerDown);
-    canvasEl.addEventListener('pointermove', onPointerMove);
-    canvasEl.addEventListener('pointerup', onPointerUp);
-    canvasEl.addEventListener('pointercancel', onPointerUp);
-    canvasEl.addEventListener('wheel', onWheel, { passive: true });
-    canvasEl.addEventListener('touchstart', onTouchStart, { passive: true });
-    canvasEl.addEventListener('touchmove', onTouchMove, { passive: true });
-    canvasEl.addEventListener('touchend', onTouchEnd, { passive: true });
-
-    // Handle Resize
-    const handleResize = () => {
-      if (!container || !renderer || !camera) return;
-      const w = container.clientWidth || 600;
-      const h = container.clientHeight || 500;
-      camera.aspect = w / h;
-      updateCameraPosition();
-      renderer.setSize(w, h);
-    };
-    window.addEventListener('resize', handleResize);
-
-    // 8. Animation & Render Loop
-    let clock = new THREE.Clock();
+    // Animation Loop
+    let animId: number;
+    const clock = new THREE.Clock();
 
     const animate = () => {
-      frameIdRef.current = requestAnimationFrame(animate);
+      animId = requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
 
-      const elapsedTime = clock.getElapsedTime();
-      const instances = foliageInstancesRef.current;
-      const mesh = foliageMeshRef.current;
+      if (!reducedMotion) {
+        treeGroup.rotation.y = Math.sin(elapsed * 0.22) * 0.07;
+        particles.rotation.y = elapsed * 0.03;
+      }
 
-      if (instances && mesh) {
-        let needsUpdate = false;
-        const speed = reducedMotionRef.current ? 1.0 : 0.18; // smooth spring lerp
+      for (let i = 0; i < foliageList.length; i++) {
+        const v = foliageList[i];
+        const isEnabled = Boolean(selectedModules[v.moduleId]?.enabled);
+        const isHovered = hoveredModuleId === v.moduleId;
 
-        for (let i = 0; i < instances.length; i++) {
-          const item = instances[i];
-          const diff = item.targetScale - item.currentScale;
+        const targetScale = isEnabled ? (isHovered ? 1.15 : 1.0) : (isHovered ? 0.38 : 0.0);
 
-          if (Math.abs(diff) > 0.001) {
-            item.currentScale += diff * speed;
-            needsUpdate = true;
-          } else if (item.currentScale !== item.targetScale) {
-            item.currentScale = item.targetScale;
-            needsUpdate = true;
-          }
-
-          // Subtle idle sway when visible
-          const v = item.baseCoord;
-          let swayY = 0;
-          if (item.currentScale > 0.05 && !reducedMotionRef.current) {
-            swayY = Math.sin(elapsedTime * item.swaySpeed + item.swayPhase) * 0.03 * item.currentScale;
-            needsUpdate = true;
-          }
-
-          const s = (v.size || 0.65) * item.currentScale * 1.002;
-          position.set(v.x, v.y + swayY, v.z);
-          scale.set(s, s, s);
-          matrix.compose(position, quaternion, scale);
-          mesh.setMatrixAt(i, matrix);
+        if (reducedMotion) {
+          v.scale = targetScale;
+        } else {
+          const force = (targetScale - v.scale) * 0.18;
+          v.velocity = (v.velocity + force) * 0.76;
+          v.scale += v.velocity;
         }
 
-        if (needsUpdate) {
-          mesh.instanceMatrix.needsUpdate = true;
-        }
-      }
+        const swayY = (!reducedMotion && v.scale > 0.05)
+          ? Math.sin(elapsed * 1.8 + v.phase) * 0.045
+          : 0;
 
-      // Smooth interpolation for tree rotation (animates during drag and spring-returns on reset)
-      const orbit = orbitStateRef.current;
-      const deltaRot = orbit.targetRotationY - orbit.rotationY;
-      if (Math.abs(deltaRot) > 0.0002) {
-        orbit.rotationY += deltaRot * 0.1;
-      } else {
-        orbit.rotationY = orbit.targetRotationY;
+        dummy.position.set(v.basePos.x, v.basePos.y + swayY, v.basePos.z);
+        const s = Math.max(0.0001, v.scale);
+        dummy.scale.set(s, s, s);
+        dummy.updateMatrix();
+        foliageMesh.setMatrixAt(i, dummy.matrix);
+        foliageMesh.setColorAt(i, isHovered ? v.hoverColor : v.color);
       }
-      if (dioramaGroupRef.current) {
-        dioramaGroupRef.current.rotation.y = orbit.rotationY;
-      }
+      foliageMesh.instanceMatrix.needsUpdate = true;
+      if (foliageMesh.instanceColor) foliageMesh.instanceColor.needsUpdate = true;
 
+      controls.update();
       renderer.render(scene, camera);
     };
 
     animate();
 
-    // Cleanup
-    return () => {
-      if (frameIdRef.current) {
-        cancelAnimationFrame(frameIdRef.current);
-      }
-      window.removeEventListener('resize', handleResize);
-      canvasEl.removeEventListener('pointerdown', onPointerDown);
-      canvasEl.removeEventListener('pointermove', onPointerMove);
-      canvasEl.removeEventListener('pointerup', onPointerUp);
-      canvasEl.removeEventListener('pointercancel', onPointerUp);
-      canvasEl.removeEventListener('wheel', onWheel);
-      canvasEl.removeEventListener('touchstart', onTouchStart);
-      canvasEl.removeEventListener('touchmove', onTouchMove);
-      canvasEl.removeEventListener('touchend', onTouchEnd);
+    const handleResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+    window.addEventListener('resize', handleResize);
 
-      if (container.contains(canvasEl)) {
-        container.removeChild(canvasEl);
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
+      renderer.domElement.removeEventListener('pointermove', onPointerMove);
+      renderer.domElement.removeEventListener('pointerdown', onPointerDown);
+      renderer.domElement.removeEventListener('pointerup', onPointerUp);
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
       }
       renderer.dispose();
-      boxGeometry.dispose();
     };
   }, []); // Run once on mount
 
-  // Render Fallback if WebGL unavailable
-  if (!webglSupported) {
-    return (
-      <div className="voxel-tree-fallback" role="img" aria-label="Isometric voxel tree preview">
-        <div className="fallback-card">
-          <div className="fallback-badge">WebGL Fallback Mode</div>
-          <div className="fallback-icon">🌲</div>
-          <h3 className="fallback-title">Deterministic Voxel Environment</h3>
-          <p className="fallback-desc">
-            3D WebGL acceleration is currently unavailable on this device. Your configuration
-            state remains 100% active and synchronized with live YAML and command generation.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="voxel-tree-viewport-container">
-      <div
-        ref={mountRef}
-        className={`voxel-tree-canvas-mount ${isRotating ? 'is-interacting' : ''}`}
-        aria-label="3D Voxel Tree: Drag horizontally to inspect environment"
-        role="region"
-      />
-
-      {/* Viewport UI Controls & Legend */}
-      <div className="voxel-tree-overlay">
-        <div className="voxel-tree-hint-badge">
-          <span className="hint-drag-icon">↔</span>
-          <span>Drag horizontally to rotate</span>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleResetCamera}
-          className="btn-tree-reset"
-          title="Reset 3D camera angle"
-          aria-label="Reset camera orientation"
-        >
-          Reset View
-        </button>
+    <>
+      <div id="canvas-container" ref={mountRef} aria-label="Interactive 3D Voxel Sanctuary Tree" />
+      <div id="tree-hover-pill" ref={hoverPillRef} className="lush-glass">
+        <span className="cat-pip" ref={hoverPipRef} />
+        <span id="hover-pill-text" ref={hoverTextRef}>Module</span>
       </div>
-    </div>
+    </>
   );
 });

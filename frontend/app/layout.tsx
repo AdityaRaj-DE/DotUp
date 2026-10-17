@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'DotUp V3',
-  description: 'DotUp V3 Platform Foundation',
+  title: 'DotUp — White & Lush Sanctuary Edition',
+  description: 'Interactive 3D Voxel Developer Workstation Configurator & Sanctuary Engine',
 }
 
 export default function RootLayout({

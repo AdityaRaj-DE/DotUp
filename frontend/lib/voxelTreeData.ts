@@ -58,12 +58,12 @@ export const VOXEL_PALETTE = {
   soilDark: '#321c15',       // Deep underplate shadow
 
   // Coordinated Natural Green Canopy Palette (bright, saturated, sunlit)
-  leafSunlit: '#bbf060',     // Luminous sunlit outer & upper foliage
-  leafPrimary: '#88d844',    // Bright vibrant spring leaf green body
-  leafMid: '#52a83b',        // Mid-depth intermediate layer
-  leafDeep: '#2e7436',       // Deep foliage green & undercanopy
-  leafShadow: '#225529',     // Shaded inner core
-  leafBright: '#a6e84d',     // Fresh sunny highlights
+  leafSunlit: '#A6D95A',     // Luminous sunlit outer & upper foliage
+  leafPrimary: '#78BD43',    // Bright vibrant spring leaf green body
+  leafMid: '#438D35',        // Mid-depth intermediate layer
+  leafDeep: '#245C2C',       // Deep foliage green & undercanopy
+  leafShadow: '#1E4A25',     // Shaded inner core
+  leafBright: '#95CD41',     // Fresh sunny highlights
 
   // Stylized Flower Accents (popping vivid colors)
   flowerCoral: '#ff8a65',    // Vivid flower accent coral
