@@ -36,7 +36,7 @@ export default function LiquidDropdown({
   return (
     <div
       ref={dropdownRef}
-      style={{ position: 'relative', display: 'inline-block' }}
+      className="liquid-dropdown-wrapper"
       onClick={(e) => e.stopPropagation()}
     >
       <button
@@ -45,62 +45,18 @@ export default function LiquidDropdown({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={`Select version, currently ${displayLabel}`}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.4rem',
-          padding: '0.28rem 0.65rem',
-          fontSize: '0.75rem',
-          fontWeight: 600,
-          fontFamily: 'var(--font-mono, monospace)',
-          color: '#1e293b',
-          backgroundColor: '#f1f5f9',
-          border: '1px solid #cbd5e1',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          transition: 'all 0.15s ease',
-          outline: 'none'
-        }}
-        onFocus={(e) => {
-          e.currentTarget.style.borderColor = '#2563eb';
-          e.currentTarget.style.boxShadow = '0 0 0 2px rgba(37, 99, 235, 0.2)';
-        }}
-        onBlur={(e) => {
-          e.currentTarget.style.borderColor = '#cbd5e1';
-          e.currentTarget.style.boxShadow = 'none';
-        }}
+        className={`liquid-dropdown-trigger ${isOpen ? 'liquid-dropdown-trigger-open' : ''}`}
       >
         <span>v{value}</span>
-        <ChevronDownIcon size={11} className={isOpen ? 'rotate-180' : ''} />
+        <ChevronDownIcon size={10} className={`dropdown-chevron ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
         <div
           role="listbox"
-          style={{
-            position: 'absolute',
-            right: 0,
-            marginTop: '0.35rem',
-            minWidth: '190px',
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05)',
-            padding: '0.35rem',
-            zIndex: 60,
-            animation: 'applePop 0.15s var(--ease-apple)'
-          }}
+          className="liquid-dropdown-menu"
         >
-          <div
-            style={{
-              padding: '0.25rem 0.5rem',
-              fontSize: '0.65rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              color: '#94a3b8'
-            }}
-          >
+          <div className="liquid-dropdown-heading">
             Select Version
           </div>
           {options.map((opt) => {
@@ -114,28 +70,10 @@ export default function LiquidDropdown({
                   onChange(opt.value);
                   setIsOpen(false);
                 }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.45rem 0.6rem',
-                  fontSize: '0.75rem',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  backgroundColor: isSelected ? '#eff6ff' : 'transparent',
-                  color: isSelected ? '#1d4ed8' : '#334155',
-                  fontWeight: isSelected ? 600 : 500,
-                  transition: 'background-color 0.1s ease'
-                }}
-                onMouseEnter={(e) => {
-                  if (!isSelected) e.currentTarget.style.backgroundColor = '#f8fafc';
-                }}
-                onMouseLeave={(e) => {
-                  if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent';
-                }}
+                className={`liquid-dropdown-item ${isSelected ? 'liquid-dropdown-item-active' : ''}`}
               >
-                <span>{opt.label || `Version ${opt.value}`}</span>
-                {isSelected && <CheckIcon size={12} />}
+                <span className="dropdown-item-label">{opt.label || `Version ${opt.value}`}</span>
+                {isSelected && <CheckIcon size={12} className="dropdown-item-check" />}
               </div>
             );
           })}
@@ -144,3 +82,4 @@ export default function LiquidDropdown({
     </div>
   );
 }
+
