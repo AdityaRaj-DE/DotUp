@@ -240,20 +240,30 @@ export default function SetupBuilder({
           Select a pre-tuned baseline pill below or switch to Custom to hand-pick languages, cloud CLI tools, and development editors into an idempotent setup specification.
         </p>
 
-        {/* Advanced Profile Information Drawer (collapsible) */}
-        {showAdvancedProfile && (
-          <div className="profile-edit-drawer">
-            <ProfileInformation
-              setupId={setupId}
-              setupVersion={setupVersion}
-              setupDescription={setupDescription}
-              onChangeSetupId={setSetupId}
-              onChangeSetupVersion={setSetupVersion}
-              onChangeSetupDescription={setSetupDescription}
-              errors={validation.errors}
-            />
-          </div>
-        )}
+        {/* Advanced Profile Information Drawer (collapsible with smooth height/opacity animation) */}
+        <AnimatePresence initial={false}>
+          {showAdvancedProfile && (
+            <motion.div
+              key="profile-edit-drawer"
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: 'auto', marginTop: 24 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+              style={{ overflow: 'hidden' }}
+              className="profile-edit-drawer"
+            >
+              <ProfileInformation
+                setupId={setupId}
+                setupVersion={setupVersion}
+                setupDescription={setupDescription}
+                onChangeSetupId={setSetupId}
+                onChangeSetupVersion={setSetupVersion}
+                onChangeSetupDescription={setSetupDescription}
+                errors={validation.errors}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Dynamic Main Body Content with UnifiedWorkbench */}

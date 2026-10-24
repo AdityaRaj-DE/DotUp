@@ -414,8 +414,6 @@ body {
 
 .profile-edit-drawer {
   width: 100%;
-  margin-top: 1.5rem;
-  animation: fadeIn 0.2s var(--ease-apple);
 }
 
 /* Horizontal Preset Pills Selector (Segmented Apple Control Track) */
