@@ -152,7 +152,7 @@ export default function UnifiedWorkbench({
         </div>
       </div>
 
-      {/* Middle Section: Header with description + toggle button */}
+      {/* Middle Section: Header with count + toggle button */}
       <div className="preset-unified-body">
         <div className="preset-modules-header">
           <div className="preset-desc-left">
@@ -168,18 +168,6 @@ export default function UnifiedWorkbench({
                 {isCustom ? `${selectedCount} of ${MODULES.length} Selected` : `${visibleModules.length} tools included`}
               </span>
             </div>
-            <p className="preset-desc-text">
-              <AsciiRevealText
-                key={isCustom ? 'custom-desc' : activePreset?.id || 'preset-desc'}
-                text={
-                  isCustom
-                    ? 'Build your own setup from scratch. Select and configure specific runtimes, cloud SDKs, shells, and tools below.'
-                    : activePreset?.description || 'Pre-tuned development baselines ready to provision.'
-                }
-                preset="decode"
-                duration={1500}
-              />
-            </p>
           </div>
 
           <div className="preset-header-actions-row">

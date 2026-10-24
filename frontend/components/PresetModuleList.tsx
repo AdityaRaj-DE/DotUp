@@ -111,14 +111,6 @@ export default function PresetModuleList({
                   {count} tools included
                 </span>
               </div>
-              <p className="preset-desc-text">
-                <AsciiRevealText
-                  text={presetDescription || 'Pre-tuned development baselines ready to provision.'}
-                  preset="decode"
-                  triggerKey={presetId}
-                  duration={1500}
-                />
-              </p>
             </div>
 
             <div className="preset-header-actions-row">

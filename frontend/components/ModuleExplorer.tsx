@@ -159,14 +159,6 @@ export default function ModuleExplorer({
               {selectedCount} of {MODULES.length} Selected
             </span>
           </div>
-          <p className="preset-desc-text">
-            <AsciiRevealText
-              text="Build your own setup from scratch. Select and configure specific runtimes, cloud SDKs, shells, and tools below."
-              preset="decode"
-              triggerKey="custom"
-              duration={1500}
-            />
-          </p>
         </div>
 
         <div className="preset-header-actions-row">
