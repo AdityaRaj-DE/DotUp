@@ -12,7 +12,7 @@ import PresetModuleList from './PresetModuleList';
 import ModuleExplorer from './ModuleExplorer';
 import BottomActionBar from './BottomActionBar';
 import ProfileInformation from './ProfileInformation';
-import { RotateCcwIcon, CheckIcon, AlertCircleIcon, SlidersIcon } from './Icons';
+import { RotateCcwIcon, SlidersIcon, CheckIcon } from './Icons';
 
 interface SetupBuilderProps {
   initialBackendStatus?: string;
@@ -23,19 +23,20 @@ export default function SetupBuilder({
   initialBackendStatus = 'ok',
   initialDatabaseStatus = 'ok'
 }: SetupBuilderProps) {
-  // Authoritative configuration state
+  // Authoritative environment configuration state
   const [setupId, setSetupId] = useState('full-setup');
   const [setupVersion, setSetupVersion] = useState('1.0.0');
   const [setupDescription, setSetupDescription] = useState(
     'Comprehensive development environment with runtimes, editors, and infrastructure tools'
   );
   const [activePresetId, setActivePresetId] = useState<string>('full');
+  const [replayCount, setReplayCount] = useState(0);
 
   // Search & category view filter state for custom module explorer
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Reset confirmation state
+  // Confirmation & metadata drawer state
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showAdvancedProfile, setShowAdvancedProfile] = useState(false);
 
@@ -65,6 +66,7 @@ export default function SetupBuilder({
   // Preset switching logic
   const handleSelectPreset = useCallback((presetId: string) => {
     setActivePresetId(presetId);
+    setReplayCount((c) => c + 1);
 
     if (presetId === 'custom') {
       setSetupId('custom-setup');
@@ -167,10 +169,7 @@ export default function SetupBuilder({
     };
   }, [setupId, setupVersion, setupDescription, selectedModules]);
 
-  // Validation
   const validation = useMemo(() => validateConfig(configObj), [configObj]);
-
-  // Derived outputs
   const canonicalYaml = useMemo(() => generateDotupYaml(configObj), [configObj]);
   const bootstrapSnippet = useMemo(() => generateBootstrapSnippet(configObj), [configObj]);
 
@@ -182,12 +181,17 @@ export default function SetupBuilder({
 
   return (
     <div className="builder-root-premium">
-      {/* Top Banner and Summary */}
-      <div className="builder-hero-section">
+      {/* Top Banner and Headline with Architectural Crosshairs matching image 1 */}
+      <div className="hero-ascii-frame">
+        <span className="crosshair crosshair-tl" />
+        <span className="crosshair crosshair-tr" />
+        <span className="crosshair crosshair-bl" />
+        <span className="crosshair crosshair-br" />
+
         <div className="hero-top-row">
-          <div className="hero-badge">
-            <span className="status-dot-green" />
-            <span>Declarative Workstation Engine</span>
+          <div className="hero-pill-badge">
+            <span className="badge-new">v3.0</span>
+            <span>Declarative workstation engine for macOS & Linux</span>
           </div>
 
           <div className="hero-actions-right">
@@ -229,9 +233,11 @@ export default function SetupBuilder({
           </div>
         </div>
 
-        <h1 className="hero-title">Configure Your Developer Environment</h1>
-        <p className="hero-subtitle">
-          Select a pre-configured baseline below or choose custom to hand-pick languages, cloud CLI tools, and development editors.
+        <h1 className="hero-headline">
+          Declarative Environment Configurator
+        </h1>
+        <p className="hero-lead">
+          Select a pre-tuned baseline pill below or switch to Custom to hand-pick languages, cloud CLI tools, and development editors into an idempotent setup specification.
         </p>
 
         {/* Advanced Profile Information Drawer (collapsible) */}
@@ -250,7 +256,7 @@ export default function SetupBuilder({
         )}
       </div>
 
-      {/* Preset Pills Header (Horizontal selection with dynamic description) */}
+      {/* Preset Pills Header (Horizontal selection with dynamic ASCII description) */}
       <PresetPillSelector
         activePresetId={activePresetId}
         onSelectPreset={handleSelectPreset}
@@ -279,7 +285,7 @@ export default function SetupBuilder({
           /* Preset Pill Active: Down below, what is in that pill is cleanly listed */
           <div className="flow-preset-zone">
             <PresetModuleList
-              presetId={activePresetId}
+              presetId={`${activePresetId}-${replayCount}`}
               presetName={activePreset?.name || 'Selected Preset'}
               presetTagline={activePreset?.tagline}
               selectedModules={selectedModules}

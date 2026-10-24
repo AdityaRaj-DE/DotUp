@@ -1,19 +1,18 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export interface AsciiRevealTextProps {
   text: string;
   className?: string;
   speed?: number; // ms per tick
   preset?: 'decode' | 'terminal' | 'blueprint' | 'dither';
-  triggerKey?: string | number; // Re-trigger on change
+  triggerKey?: string | number;
   as?: React.ElementType;
 }
 
-// Preset character palettes
 const CHAR_SETS = {
-  decode: '.-+*=%@#01XYZ',
+  decode: '.-+*=%@#01XYZ░▒▓',
   terminal: '01_[]{}<>/\\$#@!~',
   blueprint: '+-|/\\[]{}:;.',
   dither: ' .:-=+*#%@'
@@ -22,17 +21,15 @@ const CHAR_SETS = {
 export default function AsciiRevealText({
   text,
   className = '',
-  speed = 28,
+  speed = 22,
   preset = 'decode',
   triggerKey,
   as: Component = 'span'
 }: AsciiRevealTextProps) {
   const [displayText, setDisplayText] = useState(text);
   const chars = CHAR_SETS[preset] || CHAR_SETS.decode;
-  const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Check prefers-reduced-motion
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setDisplayText(text);
       return;
@@ -40,7 +37,7 @@ export default function AsciiRevealText({
 
     const targetLength = text.length;
     let iteration = 0;
-    const totalFrames = targetLength * 2.5;
+    const totalFrames = targetLength * 2.2;
 
     const interval = setInterval(() => {
       iteration++;
@@ -54,7 +51,6 @@ export default function AsciiRevealText({
           if (index < resolvedCount) {
             return text[index];
           }
-          // Pick random ASCII glyph from chosen preset palette
           const randIndex = Math.floor(Math.random() * chars.length);
           return chars[randIndex];
         })
@@ -68,10 +64,7 @@ export default function AsciiRevealText({
       }
     }, speed);
 
-    return () => {
-      clearInterval(interval);
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
-    };
+    return () => clearInterval(interval);
   }, [text, triggerKey, preset, speed, chars]);
 
   return (
@@ -80,4 +73,3 @@ export default function AsciiRevealText({
     </Component>
   );
 }
-

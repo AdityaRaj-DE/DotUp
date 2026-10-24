@@ -4,37 +4,35 @@ import React, { useEffect, useRef, useState } from 'react';
 
 export interface AsciiRevealProps {
   children: React.ReactNode;
-  preset?: 'decode' | 'terminal' | 'blueprint' | 'dither';
+  preset?: 'decode' | 'dither' | 'terminal' | 'blueprint';
   triggerKey?: string | number;
-  duration?: number; // total duration in ms
-  cellSize?: number; // size of character cells in px
+  duration?: number;
+  cellSize?: number;
+  waveFrom?: 'center' | 'corner' | 'cursor';
+  speedMultiplier?: number;
   className?: string;
 }
 
 const PRESET_CONFIGS = {
   decode: {
-    chars: '.:-=+*#%@',
-    color: 'rgba(37, 99, 235, 0.7)', // electric blue
-    leadColor: 'rgba(15, 23, 42, 0.9)',
-    bgAlpha: 0.85
-  },
-  terminal: {
-    chars: '0101_[]<>$#*!/',
-    color: 'rgba(16, 185, 129, 0.75)', // emerald terminal
-    leadColor: 'rgba(5, 150, 105, 1)',
-    bgAlpha: 0.9
-  },
-  blueprint: {
-    chars: '+-|/\\[]{}:;.',
-    color: 'rgba(59, 130, 246, 0.65)',
-    leadColor: 'rgba(29, 78, 216, 0.9)',
-    bgAlpha: 0.85
+    chars: '.-=+*#%@#01XYZ░▒▓',
+    color: 'rgba(255, 255, 255, 0.45)',
+    leadColor: '#ffffff'
   },
   dither: {
     chars: ' ░▒▓█',
-    color: 'rgba(100, 116, 139, 0.7)',
-    leadColor: 'rgba(15, 23, 42, 0.9)',
-    bgAlpha: 0.85
+    color: 'rgba(255, 255, 255, 0.55)',
+    leadColor: '#ffffff'
+  },
+  terminal: {
+    chars: '0101_[]<>$#*!/',
+    color: '#34d399',
+    leadColor: '#a7f3d0'
+  },
+  blueprint: {
+    chars: '+-|/\\[]{}:;.',
+    color: '#60a5fa',
+    leadColor: '#bfdbfe'
   }
 };
 
@@ -42,8 +40,10 @@ export default function AsciiReveal({
   children,
   preset = 'decode',
   triggerKey,
-  duration = 550,
+  duration = 600,
   cellSize = 14,
+  waveFrom = 'center',
+  speedMultiplier = 1,
   className = ''
 }: AsciiRevealProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -51,7 +51,6 @@ export default function AsciiReveal({
   const [animating, setAnimating] = useState(false);
 
   useEffect(() => {
-    // Check if user prefers reduced motion
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setAnimating(false);
       return;
@@ -64,7 +63,6 @@ export default function AsciiReveal({
     const rect = container.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
-    // Set canvas dimensions
     const dpr = window.devicePixelRatio || 1;
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
@@ -82,12 +80,13 @@ export default function AsciiReveal({
 
     setAnimating(true);
 
+    const adjustedDuration = duration / (speedMultiplier || 1);
     const startTime = performance.now();
     let animId: number;
 
     const render = (now: number) => {
       const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+      const progress = Math.min(elapsed / adjustedDuration, 1);
 
       ctx.clearRect(0, 0, rect.width, rect.height);
 
@@ -96,27 +95,36 @@ export default function AsciiReveal({
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // Scanline sweep wave from left to right (with slight angle)
+        const centerC = cols / 2;
+        const centerR = rows / 2;
+        const maxDist = Math.hypot(centerC, centerR);
+
         for (let r = 0; r < rows; r++) {
           for (let c = 0; c < cols; c++) {
-            // Coordinate normalized
-            const cellProgressThreshold = (c / cols) * 0.75 + (r / rows) * 0.25;
+            let threshold = 0;
 
-            // Before wave: covered with ASCII scramble
-            // After wave: resolved (transparent so DOM element underneath is revealed)
-            if (cellProgressThreshold > progress) {
+            if (waveFrom === 'center') {
+              const dist = Math.hypot(c - centerC, r - centerR);
+              threshold = dist / maxDist;
+            } else if (waveFrom === 'corner') {
+              threshold = (c / cols) * 0.7 + (r / rows) * 0.3;
+            } else {
+              threshold = (c / cols) * 0.5 + (r / rows) * 0.5;
+            }
+
+            // Before wave reaches cell: scrambled ASCII glyph
+            // After wave: resolved DOM element underneath
+            if (threshold > progress) {
               const x = c * cellSize + cellSize / 2;
               const y = r * cellSize + cellSize / 2;
+              const distFromWave = threshold - progress;
 
-              // Near wave front
-              const distFromWave = cellProgressThreshold - progress;
               if (distFromWave < 0.15) {
                 ctx.fillStyle = config.leadColor;
               } else {
                 ctx.fillStyle = config.color;
               }
 
-              // Pick random glyph
               const char = chars[Math.floor(Math.random() * chars.length)];
               ctx.fillText(char, x, y);
             }
@@ -137,16 +145,13 @@ export default function AsciiReveal({
       if (ctx) ctx.clearRect(0, 0, rect.width, rect.height);
       setAnimating(false);
     };
-  }, [triggerKey, preset, duration, cellSize]);
+  }, [triggerKey, preset, duration, cellSize, waveFrom, speedMultiplier]);
 
   return (
     <div ref={containerRef} className={`ascii-reveal-wrapper ${className}`}>
-      {/* Underlying DOM content (Never shifts layout) */}
       <div className={`ascii-reveal-content ${animating ? 'ascii-reveal-animating' : ''}`}>
         {children}
       </div>
-
-      {/* Synchronized ASCII wave overlay canvas */}
       <canvas
         ref={canvasRef}
         aria-hidden="true"
@@ -155,4 +160,3 @@ export default function AsciiReveal({
     </div>
   );
 }
-
