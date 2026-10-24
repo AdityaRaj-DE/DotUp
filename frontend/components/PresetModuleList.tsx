@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { MODULES, ModuleDefinition } from '../lib/modules';
-import { ModuleSymbol, CheckIcon } from './Icons';
+import { ModuleSymbol, EyeIcon } from './Icons';
 import LiquidDropdown from './LiquidDropdown';
 import AsciiReveal from './AsciiReveal';
 import AsciiRevealText from './AsciiRevealText';
@@ -24,6 +24,7 @@ export default function PresetModuleList({
   onChangeVersion,
   onCustomizeStack
 }: PresetModuleListProps) {
+  const [showDescriptions, setShowDescriptions] = useState(false);
   const enabledModules = MODULES.filter((m) => selectedModules[m.id]?.enabled);
 
   return (
@@ -31,9 +32,6 @@ export default function PresetModuleList({
       <div className="preset-modules-card" data-ascii="surface">
         <div className="preset-modules-header">
           <div className="preset-modules-header-info">
-            <p className="eyebrow">
-              Included in {presetName} · {enabledModules.length} components
-            </p>
             <h3 className="headline">
               <AsciiRevealText
                 text="Components Included in this Preset"
@@ -42,20 +40,35 @@ export default function PresetModuleList({
                 speed={18}
               />
             </h3>
-            <p className="body">
+            <p className="body-preset-lead">
               {presetTagline || 'Pre-tuned development baselines ready to provision.'} Idempotent, zero drift, and ready to deploy.
             </p>
           </div>
-          {onCustomizeStack && (
+
+          <div className="preset-header-actions-row">
+            {/* Show / Hide Descriptions Toggle Button */}
             <button
               type="button"
-              onClick={onCustomizeStack}
-              className="btn-outline-custom"
-              title="Switch to Custom to add or remove individual modules"
+              onClick={() => setShowDescriptions(!showDescriptions)}
+              className={`btn-desc-toggle ${showDescriptions ? 'btn-desc-toggle-active' : ''}`}
+              title={showDescriptions ? 'Hide descriptions on cards' : 'Show descriptions on all cards'}
             >
-              <span>Customize Tools</span>
+              <EyeIcon size={13} />
+              <span>{showDescriptions ? 'Hide Descriptions' : 'Show Descriptions'}</span>
             </button>
-          )}
+
+            {/* Customize Stack Button */}
+            {onCustomizeStack && (
+              <button
+                type="button"
+                onClick={onCustomizeStack}
+                className="btn-outline-custom"
+                title="Switch to Custom to add or remove individual modules"
+              >
+                <span>Customize Tools</span>
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="preset-modules-grid">
@@ -66,56 +79,50 @@ export default function PresetModuleList({
             return (
               <article
                 key={module.id}
-                className="card"
+                className="card compact-card"
                 data-ascii="surface"
                 tabIndex={0}
                 aria-label={`${module.name} card`}
-                style={{ animationDelay: `${idx * 40}ms` }}
+                style={{ animationDelay: `${idx * 30}ms` }}
               >
                 <div className="card-top-header">
-                  <div className="card-symbol-badge" aria-hidden="true">
-                    <ModuleSymbol type={module.iconType} size={18} />
+                  <div className="card-header-left">
+                    <div className="card-symbol-badge" aria-hidden="true">
+                      <ModuleSymbol type={module.iconType} size={15} />
+                    </div>
+                    <div className="card-titles">
+                      <h2 className="headline">{module.name}</h2>
+                    </div>
                   </div>
-                  <div className="card-titles">
-                    <p className="eyebrow">{module.category.toUpperCase()} RUNTIME</p>
-                    <h2 className="headline">{module.name}</h2>
-                  </div>
+
+                  {module.supportsVersion && (
+                    <div
+                      className="card-header-version-zone"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {module.versionOptions && module.versionOptions.length > 0 ? (
+                        <LiquidDropdown
+                          value={currentVersion}
+                          options={module.versionOptions}
+                          onChange={(val) => onChangeVersion(module.id, val)}
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          aria-label={`${module.name} version`}
+                          value={currentVersion}
+                          placeholder="v"
+                          onChange={(e) => onChangeVersion(module.id, e.target.value)}
+                          className="module-version-input"
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                <p className="body">{module.description}</p>
-
-                <div className="row between hair">
-                  <div className="tag-zone">
-                    <code className="tiny mono muted">id: {module.id}</code>
-                  </div>
-
-                  <div className="version-zone" onClick={(e) => e.stopPropagation()}>
-                    {module.supportsVersion ? (
-                      <div className="card-version-picker">
-                        {module.versionOptions && module.versionOptions.length > 0 ? (
-                          <LiquidDropdown
-                            value={currentVersion}
-                            options={module.versionOptions}
-                            onChange={(val) => onChangeVersion(module.id, val)}
-                          />
-                        ) : (
-                          <input
-                            type="text"
-                            aria-label={`${module.name} version`}
-                            value={currentVersion}
-                            placeholder="Version"
-                            onChange={(e) => onChangeVersion(module.id, e.target.value)}
-                            className="module-version-input"
-                          />
-                        )}
-                      </div>
-                    ) : (
-                      <span className="tiny mono ready-status">
-                        <CheckIcon size={11} /> Ready
-                      </span>
-                    )}
-                  </div>
-                </div>
+                {showDescriptions && (
+                  <p className="body">{module.description}</p>
+                )}
               </article>
             );
           })}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { MODULES, CATEGORIES, ModuleDefinition } from '../lib/modules';
 import ModuleCard from './ModuleCard';
 import {
@@ -12,8 +12,7 @@ import {
   CodeIcon,
   CloudIcon,
   WindowIcon,
-  RotateCcwIcon,
-  CheckIcon
+  EyeIcon
 } from './Icons';
 
 interface ModuleExplorerProps {
@@ -39,7 +38,8 @@ export default function ModuleExplorer({
   onSelectAllVisible,
   onClearAll
 }: ModuleExplorerProps) {
-  // Filter modules based on search query and category
+  const [showDescriptions, setShowDescriptions] = useState(false);
+
   const filteredModules = useMemo(() => {
     return MODULES.filter((m) => {
       const matchesCategory = selectedCategory === 'all' || m.category === selectedCategory;
@@ -88,7 +88,18 @@ export default function ModuleExplorer({
             <p className="panel-subtitle">Select environment tools, runtimes, and editors</p>
           </div>
         </div>
-        <div className="module-header-actions">
+
+        <div className="module-header-actions-group">
+          <button
+            type="button"
+            onClick={() => setShowDescriptions(!showDescriptions)}
+            className={`btn-desc-toggle ${showDescriptions ? 'btn-desc-toggle-active' : ''}`}
+            title={showDescriptions ? 'Hide descriptions on cards' : 'Show descriptions on all cards'}
+          >
+            <EyeIcon size={13} />
+            <span>{showDescriptions ? 'Hide Descriptions' : 'Show Descriptions'}</span>
+          </button>
+
           <span className="badge-pill badge-primary">
             {selectedCount} of {MODULES.length} Selected
           </span>
@@ -97,7 +108,6 @@ export default function ModuleExplorer({
 
       {/* Explorer Controls: Search + Categories */}
       <div className="explorer-controls">
-        {/* Search Input */}
         <div className="search-bar">
           <SearchIcon size={15} className="search-icon" />
           <input
@@ -148,36 +158,35 @@ export default function ModuleExplorer({
                 >
                   <span className="filter-pill-icon">{getCategoryIcon(cat.iconType)}</span>
                   <span>{cat.label}</span>
-                  <span className="filter-pill-count">({count})</span>
+                  <span className="filter-pill-count">{count}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* Quick Bulk Actions */}
           <div className="bulk-actions">
             <button
               type="button"
               onClick={onSelectAllVisible}
-              className="bulk-btn"
+              className="btn-filter-action"
               title="Select all currently visible modules"
             >
-              <CheckIcon size={12} /> Select Visible ({filteredModules.length})
+              Select All
             </button>
             <button
               type="button"
               onClick={onClearAll}
-              className="bulk-btn bulk-btn-danger"
-              title="Clear all selected modules"
+              className="btn-filter-action"
+              title="Deselect all modules"
             >
-              <RotateCcwIcon size={12} /> Clear All
+              Clear
             </button>
           </div>
         </div>
       </div>
 
-      {/* Module List by Group */}
-      <div className="modules-list-wrapper">
+      {/* Module Grid */}
+      <div className="modules-container">
         {filteredModules.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state-icon">
@@ -185,7 +194,7 @@ export default function ModuleExplorer({
             </div>
             <h3 className="empty-state-title">No modules matched your criteria</h3>
             <p className="empty-state-desc">
-              We couldn't find any tools matching &ldquo;{searchQuery}&rdquo; in this category.
+              We couldn&apos;t find any tools matching &ldquo;{searchQuery}&rdquo; in this category.
             </p>
             <button
               type="button"
@@ -210,6 +219,7 @@ export default function ModuleExplorer({
                   module={mod}
                   isSelected={isChecked}
                   selectedVersion={ver}
+                  showDescription={showDescriptions}
                   onToggle={onToggleModule}
                   onChangeVersion={onChangeVersion}
                 />
