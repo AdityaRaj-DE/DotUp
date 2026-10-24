@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { CopyIcon, CheckIcon } from './Icons';
+import AsciiGlitchText from './AsciiGlitchText';
 
 interface CodeCopyBlockProps {
   code: string;
@@ -40,7 +41,7 @@ export default function CodeCopyBlock({
           aria-label="Copy code to clipboard"
         >
           {copied ? <CheckIcon size={12} /> : <CopyIcon size={12} />}
-          <span>{copied ? 'Copied' : 'Copy'}</span>
+          <AsciiGlitchText text={copied ? 'Copied' : 'Copy'} />
         </button>
       </div>
       <pre className="code-copy-pre">

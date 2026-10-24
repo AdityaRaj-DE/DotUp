@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import AsciiReveal from '../../components/AsciiReveal';
 import AsciiRevealText from '../../components/AsciiRevealText';
+import AsciiGlitchText from '../../components/AsciiGlitchText';
 import CodeCopyBlock from '../../components/CodeCopyBlock';
 import {
   BookOpenIcon,
@@ -58,7 +59,7 @@ modules:
 
               <div className="hero-actions-right">
                 <Link href="/" className="btn-hero-primary" style={{ padding: '0.4rem 0.9rem', fontSize: '0.75rem' }}>
-                  <span>Open Configurator</span>
+                  <AsciiGlitchText text="Open Configurator" />
                   <span>→</span>
                 </Link>
               </div>
@@ -321,7 +322,7 @@ modules:
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               <Link href="/" className="btn-hero-primary">
-                <span>Launch Configurator</span>
+                <AsciiGlitchText text="Launch Configurator" />
                 <span>→</span>
               </Link>
               <a
@@ -330,7 +331,7 @@ modules:
                 rel="noopener noreferrer"
                 className="btn-hero-secondary"
               >
-                <span>Star on GitHub</span>
+                <AsciiGlitchText text="Star on GitHub" />
                 <ExternalLinkIcon size={12} />
               </a>
             </div>

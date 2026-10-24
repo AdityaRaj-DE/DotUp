@@ -1732,7 +1732,7 @@ body {
 .liquid-dropdown-trigger-open {
   background: rgba(255, 255, 255, 0.14);
   border-color: rgba(255, 255, 255, 0.32);
-  transform: translateY(-1px);
+  transform: scale(1.04);
 }
 
 .liquid-dropdown-trigger:active {
@@ -2508,7 +2508,7 @@ article.card:hover,
 .card:hover {
   background: rgba(22, 26, 34, 0.88);
   border-color: rgba(255, 255, 255, 0.28);
-  transform: translateY(-2px);
+  transform: scale(1.02);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
@@ -2849,7 +2849,7 @@ article.card:focus-visible,
 .guide-step-box:hover {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.26);
-  transform: translateY(-2px);
+  transform: scale(1.02);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
@@ -2931,7 +2931,7 @@ article.card:focus-visible,
 .os-matrix-card:hover {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.24);
-  transform: translateY(-2px);
+  transform: scale(1.02);
 }
 
 .os-matrix-header {
@@ -3009,6 +3009,13 @@ article.card:focus-visible,
   color: #ffffff;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   margin: 0 auto;
+  transition: transform 0.25s var(--ease-apple), box-shadow 0.25s var(--ease-apple), border-color 0.25s var(--ease-apple);
+}
+
+.dev-avatar-giant:hover {
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .dev-hero-meta {
@@ -3125,7 +3132,7 @@ article.card:focus-visible,
 .dev-stat-card:hover {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.22);
-  transform: translateY(-2px);
+  transform: scale(1.03);
 }
 
 .dev-stat-number {

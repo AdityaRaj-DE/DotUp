@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import AsciiReveal from '../../components/AsciiReveal';
 import AsciiRevealText from '../../components/AsciiRevealText';
+import AsciiGlitchText from '../../components/AsciiGlitchText';
 import {
   SparklesIcon,
   LayersIcon,
@@ -76,7 +77,7 @@ export default function AboutPage() {
 
               <div className="hero-actions-right">
                 <Link href="/" className="btn-hero-primary" style={{ padding: '0.4rem 0.9rem', fontSize: '0.75rem' }}>
-                  <span>Configure Stack</span>
+                  <AsciiGlitchText text="Configure Stack" />
                   <span>→</span>
                 </Link>
               </div>
@@ -230,11 +231,11 @@ export default function AboutPage() {
                 rel="noopener noreferrer"
                 className="btn-hero-primary"
               >
-                <span>View Source on GitHub</span>
+                <AsciiGlitchText text="View Source on GitHub" />
                 <ExternalLinkIcon size={12} />
               </a>
               <Link href="/how-to-use" className="btn-hero-secondary">
-                <span>Read the Workflow Guide</span>
+                <AsciiGlitchText text="Read the Workflow Guide" />
                 <span>→</span>
               </Link>
             </div>
