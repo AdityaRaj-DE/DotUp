@@ -3000,6 +3000,25 @@ article.card:focus-visible,
   background: rgba(0, 0, 0, 0.7);
 }
 
+.contact-field-input-error,
+.contact-field-input-error:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+}
+
+.contact-field-error-msg {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #f87171;
+  margin-top: 0.15rem;
+}
+
+.contact-field-char-count {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
 .contact-field-input::placeholder,
 .contact-field-textarea::placeholder {
   color: #71717a;

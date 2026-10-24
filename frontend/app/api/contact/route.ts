@@ -6,6 +6,10 @@ const EMAIL_SERVICE_URL =
 
 const PROJECT_ID = process.env.EMAIL_SERVICE_PROJECT_ID || 'dotup_v3';
 
+// RFC 5322 regex
+const EMAIL_REGEX =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -19,30 +23,63 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!name || typeof name !== 'string' || name.trim() === '') {
+    const trimmedName = typeof name === 'string' ? name.trim() : '';
+    const trimmedEmail = typeof email === 'string' ? email.trim() : '';
+    const trimmedSubject = typeof subject === 'string' ? subject.trim() : '';
+    const trimmedMessage = typeof message === 'string' ? message.trim() : '';
+
+    if (!trimmedName || trimmedName.length < 2) {
       return NextResponse.json(
-        { success: false, code: 'MISSING_NAME', message: 'Please provide your name.' },
+        { success: false, code: 'INVALID_NAME', message: 'Name must be at least 2 characters.' },
         { status: 400 }
       );
     }
 
-    if (!email || typeof email !== 'string' || email.trim() === '') {
+    if (trimmedName.length > 100) {
       return NextResponse.json(
-        { success: false, code: 'MISSING_EMAIL', message: 'Please provide a valid email address.' },
+        { success: false, code: 'NAME_TOO_LONG', message: 'Name cannot exceed 100 characters.' },
         { status: 400 }
       );
     }
 
-    if (!subject || typeof subject !== 'string' || subject.trim() === '') {
+    if (!trimmedEmail || !EMAIL_REGEX.test(trimmedEmail)) {
       return NextResponse.json(
-        { success: false, code: 'MISSING_SUBJECT', message: 'Please provide a subject.' },
+        { success: false, code: 'INVALID_EMAIL', message: 'Please provide a valid email address (e.g., name@domain.com).' },
         { status: 400 }
       );
     }
 
-    if (!message || typeof message !== 'string' || message.trim() === '') {
+    if (trimmedEmail.length > 254) {
       return NextResponse.json(
-        { success: false, code: 'MISSING_MESSAGE', message: 'Please enter your message.' },
+        { success: false, code: 'EMAIL_TOO_LONG', message: 'Email address cannot exceed 254 characters.' },
+        { status: 400 }
+      );
+    }
+
+    if (!trimmedSubject || trimmedSubject.length < 3) {
+      return NextResponse.json(
+        { success: false, code: 'INVALID_SUBJECT', message: 'Subject must be at least 3 characters.' },
+        { status: 400 }
+      );
+    }
+
+    if (trimmedSubject.length > 200) {
+      return NextResponse.json(
+        { success: false, code: 'SUBJECT_TOO_LONG', message: 'Subject cannot exceed 200 characters.' },
+        { status: 400 }
+      );
+    }
+
+    if (!trimmedMessage || trimmedMessage.length < 10) {
+      return NextResponse.json(
+        { success: false, code: 'INVALID_MESSAGE', message: 'Message must be at least 10 characters.' },
+        { status: 400 }
+      );
+    }
+
+    if (trimmedMessage.length > 4000) {
+      return NextResponse.json(
+        { success: false, code: 'MESSAGE_TOO_LONG', message: 'Message cannot exceed 4000 characters.' },
         { status: 400 }
       );
     }
@@ -51,10 +88,10 @@ export async function POST(request: Request) {
       projectId: PROJECT_ID,
       type: 'contact',
       data: {
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        subject: subject.trim(),
-        message: message.trim()
+        name: trimmedName,
+        email: trimmedEmail.toLowerCase(),
+        subject: trimmedSubject,
+        message: trimmedMessage
       }
     };
 
@@ -97,4 +134,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
