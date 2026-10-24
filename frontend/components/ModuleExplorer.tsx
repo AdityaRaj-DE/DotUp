@@ -15,7 +15,8 @@ import {
   EyeIcon,
   SparklesIcon,
   SlidersIcon,
-  CheckIcon
+  CheckIcon,
+  RotateCcwIcon
 } from './Icons';
 import AsciiRevealText from './AsciiRevealText';
 import AnimatedPresetPill from './AnimatedPresetPill';
@@ -247,13 +248,28 @@ export default function ModuleExplorer({
       {/* Module Grid */}
       <div className="modules-container">
         {filteredModules.length === 0 ? (
-          <div className="empty-state">
+          <div className="empty-state" data-ascii="surface">
+            <span className="crosshair crosshair-tl" />
+            <span className="crosshair crosshair-tr" />
+            <span className="crosshair crosshair-bl" />
+            <span className="crosshair crosshair-br" />
+
             <div className="empty-state-icon">
-              <SearchIcon size={24} />
+              <SearchIcon size={22} />
             </div>
-            <h3 className="empty-state-title">No modules matched your criteria</h3>
+            <h3 className="empty-state-title">
+              <AsciiGlitchText text="No modules matched your criteria" />
+            </h3>
             <p className="empty-state-desc">
-              We couldn&apos;t find any tools matching &ldquo;{searchQuery}&rdquo; in this category.
+              {searchQuery ? (
+                <>
+                  No developer tools matching{' '}
+                  <code className="empty-state-query">&ldquo;{searchQuery}&rdquo;</code>{' '}
+                  in the current filter.
+                </>
+              ) : (
+                'No developer tools found in this category.'
+              )}
             </p>
             <button
               type="button"
@@ -261,9 +277,10 @@ export default function ModuleExplorer({
                 onSearchChange('');
                 onSelectCategory('all');
               }}
-              className="btn-secondary"
+              className="btn-empty-reset"
             >
-              Reset Filters
+              <RotateCcwIcon size={13} />
+              <AsciiGlitchText text="Reset Search & Filters" />
             </button>
           </div>
         ) : (
