@@ -221,9 +221,10 @@ function PresetCompactCard({
         )}
       </div>
 
-      {showDescriptions && (
+      {/* Description with smooth accordion collapse transition */}
+      <div className={`matrix-cell-desc-collapse ${showDescriptions ? 'matrix-cell-desc-open' : ''}`}>
         <p className="matrix-cell-desc">{module.description}</p>
-      )}
+      </div>
     </div>
   );
 }

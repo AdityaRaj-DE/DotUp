@@ -85,9 +85,10 @@ export default function ModuleCard({
         )}
       </div>
 
-      {showDescription && (
+      {/* Description with smooth accordion collapse transition */}
+      <div className={`matrix-cell-desc-collapse ${showDescription ? 'matrix-cell-desc-open' : ''}`}>
         <p className="matrix-cell-desc">{module.description}</p>
-      )}
+      </div>
     </div>
   );
 }

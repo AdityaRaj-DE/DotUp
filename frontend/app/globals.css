@@ -662,6 +662,28 @@ body {
   transition: border-color 0.2s var(--ease-apple);
 }
 
+/* Zone transitions between Presets and Custom */
+.builder-flow-content {
+  position: relative;
+  width: 100%;
+}
+
+.flow-preset-zone,
+.flow-custom-zone {
+  animation: flowFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes flowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .preset-unified-pills-section {
   display: flex;
   flex-direction: column;
@@ -760,6 +782,7 @@ body {
   box-shadow: none !important;
   overflow: visible !important;
   gap: 0 !important;
+  transition: opacity 0.25s ease;
 }
 
 @media (max-width: 1200px) {
@@ -800,7 +823,10 @@ body {
   border-radius: 0;
   border-right: 1px solid rgba(255, 255, 255, 0.16);
   border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              color 0.2s ease, 
+              border-color 0.2s ease, 
+              box-shadow 0.25s ease;
   user-select: none;
 }
 
@@ -905,11 +931,12 @@ body {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.18);
   flex-shrink: 0;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .matrix-cell-selected .matrix-cell-indicator {
   background: #ffffff; /* Clean solid white dot, no glow */
+  transform: scale(1.2);
 }
 
 .matrix-cell-symbol {
@@ -922,7 +949,7 @@ body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.15s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .matrix-cell:hover .matrix-cell-symbol {
@@ -964,11 +991,27 @@ body {
   align-items: center;
 }
 
+/* Smooth Accordion Collapse for Matrix Cell Description */
+.matrix-cell-desc-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.matrix-cell-desc-collapse.matrix-cell-desc-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
 .matrix-cell-desc {
+  min-height: 0;
   font-size: 0.78rem;
   color: var(--text-secondary);
   margin-top: 0.45rem;
   line-height: 1.4;
+  transition: color 0.15s ease;
 }
 
 .preset-module-row {
