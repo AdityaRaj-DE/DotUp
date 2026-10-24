@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import AsciiGlitchText from './AsciiGlitchText';
+import { motion } from 'framer-motion';
 
 interface NavbarProps {
   backendStatus?: string;
@@ -34,30 +35,29 @@ export default function Navbar({ backendStatus, databaseStatus }: NavbarProps) {
         </Link>
 
         <nav className="navbar-nav-links" aria-label="Main Navigation">
-          <Link
-            href="/"
-            className={`nav-link ${isHome ? 'nav-link-active' : ''}`}
-          >
-            <AsciiGlitchText text="Home" />
-          </Link>
-          <Link
-            href="/how-to-use"
-            className={`nav-link ${isHowToUse ? 'nav-link-active' : ''}`}
-          >
-            <AsciiGlitchText text="How to Use" />
-          </Link>
-          <Link
-            href="/about"
-            className={`nav-link ${isAbout ? 'nav-link-active' : ''}`}
-          >
-            <AsciiGlitchText text="About" />
-          </Link>
-          <Link
-            href="/meet-the-developer"
-            className={`nav-link ${isDeveloper ? 'nav-link-active' : ''}`}
-          >
-            <AsciiGlitchText text="Meet the Developer" />
-          </Link>
+          {[
+            { href: '/', label: 'Home', active: isHome },
+            { href: '/how-to-use', label: 'How to Use', active: isHowToUse },
+            { href: '/about', label: 'About', active: isAbout },
+            { href: '/meet-the-developer', label: 'Meet the Developer', active: isDeveloper }
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`nav-link ${item.active ? 'nav-link-active' : ''}`}
+            >
+              {item.active && (
+                <motion.span
+                  layoutId="navbar-active-pill"
+                  className="nav-link-active-bg"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span className="nav-link-text">
+                <AsciiGlitchText text={item.label} />
+              </span>
+            </Link>
+          ))}
         </nav>
       </div>
 
