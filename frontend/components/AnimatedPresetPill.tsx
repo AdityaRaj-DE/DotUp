@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AsciiReveal from './AsciiReveal';
 import AsciiRevealText from './AsciiRevealText';
+import { motion } from 'framer-motion';
 
 export interface AnimatedPresetPillProps {
   id: string;
@@ -81,6 +82,15 @@ export default function AnimatedPresetPill({
       className={`preset-pill-btn ${isCustom ? 'preset-pill-custom' : ''} ${isSelected ? 'preset-pill-btn-active' : ''}`}
       style={{ animationDelay: `${index * 35}ms` }}
     >
+      {/* Sliding Active Pill Background via layoutId */}
+      {isSelected && (
+        <motion.span
+          layoutId="preset-active-pill-bg"
+          className={`preset-pill-active-bg ${isCustom ? 'preset-pill-custom-active-bg' : ''}`}
+          transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+        />
+      )}
+
       {/* Micro ASCII canvas wave on active pill element */}
       {isSelected && (
         <AsciiReveal
