@@ -7,6 +7,7 @@ import LiquidDropdown from './LiquidDropdown';
 import AsciiRevealText from './AsciiRevealText';
 import AnimatedPresetPill from './AnimatedPresetPill';
 import AsciiGlitchText, { useAsciiGlitch } from './AsciiGlitchText';
+import { useGridCols, isLastRow } from '../lib/useGridCols';
 
 interface PresetModuleListProps {
   presetId?: string;
@@ -38,6 +39,7 @@ export default function PresetModuleList({
   onCustomizeStack
 }: PresetModuleListProps) {
   const [showDescriptions, setShowDescriptions] = useState(false);
+  const gridCols = useGridCols();
   const enabledModules = MODULES.filter((m) => selectedModules[m.id]?.enabled);
   const count = moduleCount ?? enabledModules.length;
   const isCustomActive = activePresetId === 'custom';
@@ -132,17 +134,19 @@ export default function PresetModuleList({
             </div>
           </div>
 
-          {/* Bottom Section: Cards Grid */}
-          <div className="preset-modules-grid">
+          {/* Bottom Section: Tic-Tac-Toe Matrix Grid */}
+          <div className="modules-matrix-grid preset-modules-grid">
             {enabledModules.map((module: ModuleDefinition, idx: number) => {
               const modState = selectedModules[module.id];
               const currentVersion = modState?.version || module.defaultVersion || '';
+              const isLast = isLastRow(idx, enabledModules.length, gridCols);
 
               return (
                 <PresetCompactCard
                   key={module.id}
                   module={module}
                   idx={idx}
+                  isLastRow={isLast}
                   currentVersion={currentVersion}
                   showDescriptions={showDescriptions}
                   onChangeVersion={onChangeVersion}
@@ -158,12 +162,14 @@ export default function PresetModuleList({
 function PresetCompactCard({
   module,
   idx,
+  isLastRow,
   currentVersion,
   showDescriptions,
   onChangeVersion
 }: {
   module: ModuleDefinition;
   idx: number;
+  isLastRow?: boolean;
   currentVersion: string;
   showDescriptions: boolean;
   onChangeVersion: (id: string, version: string) => void;
@@ -171,28 +177,28 @@ function PresetCompactCard({
   const { displayText: titleText, triggerGlitch, resetGlitch } = useAsciiGlitch(module.name);
 
   return (
-    <article
-      className="card compact-card"
+    <div
+      className={`matrix-cell matrix-cell-static ${isLastRow ? 'is-last-row' : ''}`}
       data-ascii="surface"
       tabIndex={0}
-      aria-label={`${module.name} card`}
-      style={{ animationDelay: `${idx * 30}ms` }}
+      aria-label={`${module.name} cell`}
+      style={{ animationDelay: `${idx * 25}ms` }}
       onMouseEnter={triggerGlitch}
       onMouseLeave={resetGlitch}
     >
-      <div className="card-top-header">
-        <div className="card-header-left">
-          <div className="card-symbol-badge" aria-hidden="true">
+      <div className="matrix-cell-top">
+        <div className="matrix-cell-left">
+          <div className="matrix-cell-symbol" aria-hidden="true">
             <ModuleSymbol type={module.iconType} size={15} />
           </div>
-          <div className="card-titles">
-            <h2 className="headline">{titleText}</h2>
+          <div className="matrix-cell-titles">
+            <h2 className="matrix-cell-title">{titleText}</h2>
           </div>
         </div>
 
         {module.supportsVersion && (
           <div
-            className="card-header-version-zone"
+            className="matrix-cell-version"
             onClick={(e) => e.stopPropagation()}
           >
             {module.versionOptions && module.versionOptions.length > 0 ? (
@@ -216,8 +222,8 @@ function PresetCompactCard({
       </div>
 
       {showDescriptions && (
-        <p className="body">{module.description}</p>
+        <p className="matrix-cell-desc">{module.description}</p>
       )}
-    </article>
+    </div>
   );
 }

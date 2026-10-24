@@ -21,6 +21,7 @@ import {
 import AsciiRevealText from './AsciiRevealText';
 import AnimatedPresetPill from './AnimatedPresetPill';
 import AsciiGlitchText, { useAsciiGlitch } from './AsciiGlitchText';
+import { useGridCols, isLastRow } from '../lib/useGridCols';
 
 interface ModuleExplorerProps {
   activePresetId?: string;
@@ -52,6 +53,7 @@ export default function ModuleExplorer({
   onClearAll
 }: ModuleExplorerProps) {
   const [showDescriptions, setShowDescriptions] = useState(false);
+  const gridCols = useGridCols();
   const isCustomActive = activePresetId === 'custom';
 
   const filteredModules = useMemo(() => {
@@ -284,16 +286,18 @@ export default function ModuleExplorer({
             </button>
           </div>
         ) : (
-          <div className="category-module-grid">
-            {filteredModules.map((mod: ModuleDefinition) => {
+          <div className="modules-matrix-grid category-module-grid">
+            {filteredModules.map((mod: ModuleDefinition, idx: number) => {
               const isChecked = !!selectedModules[mod.id]?.enabled;
               const ver = selectedModules[mod.id]?.version || '';
+              const isLast = isLastRow(idx, filteredModules.length, gridCols);
 
               return (
                 <ModuleCard
                   key={mod.id}
                   module={mod}
                   isSelected={isChecked}
+                  isLastRow={isLast}
                   selectedVersion={ver}
                   showDescription={showDescriptions}
                   onToggle={onToggleModule}

@@ -724,10 +724,230 @@ body {
   color: #000000;
 }
 
-.preset-modules-grid {
+/* ==========================================================================
+   TIC-TAC-TOE OPEN MATRIX GRID SYSTEM (NO OUTER BOUNDARY)
+   ========================================================================== */
+
+.modules-matrix-grid,
+.preset-modules-grid,
+.category-module-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(4, 1fr);
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  gap: 0 !important;
+}
+
+@media (max-width: 1200px) {
+  .modules-matrix-grid,
+  .preset-modules-grid,
+  .category-module-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 860px) {
+  .modules-matrix-grid,
+  .preset-modules-grid,
+  .category-module-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .modules-matrix-grid,
+  .preset-modules-grid,
+  .category-module-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.matrix-cell {
+  position: relative;
+  background: transparent !important;
+  padding: 0.95rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 60px;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  border-radius: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  transition: background-color 0.15s ease, color 0.15s ease;
+  user-select: none;
+}
+
+/* 4-column layout (default desktop) */
+@media (min-width: 1201px) {
+  .modules-matrix-grid > .matrix-cell:nth-child(4n),
+  .preset-modules-grid > .matrix-cell:nth-child(4n),
+  .category-module-grid > .matrix-cell:nth-child(4n) {
+    border-right: none;
+  }
+}
+
+/* 3-column layout */
+@media (min-width: 861px) and (max-width: 1200px) {
+  .modules-matrix-grid > .matrix-cell:nth-child(3n),
+  .preset-modules-grid > .matrix-cell:nth-child(3n),
+  .category-module-grid > .matrix-cell:nth-child(3n) {
+    border-right: none;
+  }
+}
+
+/* 2-column layout */
+@media (min-width: 541px) and (max-width: 860px) {
+  .modules-matrix-grid > .matrix-cell:nth-child(2n),
+  .preset-modules-grid > .matrix-cell:nth-child(2n),
+  .category-module-grid > .matrix-cell:nth-child(2n) {
+    border-right: none;
+  }
+}
+
+/* 1-column mobile */
+@media (max-width: 540px) {
+  .modules-matrix-grid > .matrix-cell,
+  .preset-modules-grid > .matrix-cell,
+  .category-module-grid > .matrix-cell {
+    border-right: none;
+  }
+}
+
+/* Remove bottom border from elements in the last row */
+.modules-matrix-grid > .matrix-cell.is-last-row,
+.preset-modules-grid > .matrix-cell.is-last-row,
+.category-module-grid > .matrix-cell.is-last-row {
+  border-bottom: none;
+}
+
+.matrix-cell:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.matrix-cell:active {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.matrix-cell:focus-visible {
+  z-index: 2;
+  box-shadow: inset 0 0 0 1px #ffffff;
+}
+
+/* Preset view is read-only (all included modules active) */
+.matrix-cell-static {
+  background: transparent !important;
+  cursor: default;
+}
+
+.matrix-cell-static:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.matrix-cell-static .matrix-cell-title {
+  color: #ffffff;
+}
+
+/* Highlighted state in custom multi-select: clean subtle highlight, NO glow */
+.matrix-cell-selected {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.matrix-cell-selected .matrix-cell-title {
+  color: #ffffff;
+}
+
+.matrix-cell-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.65rem;
+}
+
+.matrix-cell-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.matrix-cell-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  flex-shrink: 0;
+  transition: background-color 0.15s ease;
+}
+
+.matrix-cell-selected .matrix-cell-indicator {
+  background: #ffffff; /* Clean solid white dot, no glow */
+}
+
+.matrix-cell-symbol {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.matrix-cell:hover .matrix-cell-symbol {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.matrix-cell-selected .matrix-cell-symbol {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.matrix-cell-titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.matrix-cell-title {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  transition: color 0.15s ease;
+}
+
+.matrix-cell:hover .matrix-cell-title {
+  color: #ffffff;
+}
+
+.matrix-cell-version {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.matrix-cell-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 0.45rem;
+  line-height: 1.4;
 }
 
 .preset-module-row {
@@ -1165,12 +1385,6 @@ body {
 
 .btn-empty-reset:active {
   transform: scale(0.96);
-}
-
-.category-module-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 0.85rem;
 }
 
 .module-card {
@@ -2131,6 +2345,7 @@ body {
     justify-content: flex-start;
   }
 
+  .modules-matrix-grid,
   .preset-modules-grid,
   .category-module-grid {
     grid-template-columns: 1fr;

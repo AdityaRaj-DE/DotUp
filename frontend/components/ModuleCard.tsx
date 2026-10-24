@@ -2,13 +2,14 @@
 
 import React from 'react';
 import { ModuleDefinition } from '../lib/modules';
-import { ModuleSymbol, CheckIcon } from './Icons';
+import { ModuleSymbol } from './Icons';
 import LiquidDropdown from './LiquidDropdown';
 import { useAsciiGlitch } from './AsciiGlitchText';
 
 interface ModuleCardProps {
   module: ModuleDefinition;
   isSelected: boolean;
+  isLastRow?: boolean;
   selectedVersion: string;
   showDescription?: boolean;
   onToggle: (id: string) => void;
@@ -18,6 +19,7 @@ interface ModuleCardProps {
 export default function ModuleCard({
   module,
   isSelected,
+  isLastRow,
   selectedVersion,
   showDescription = false,
   onToggle,
@@ -35,7 +37,7 @@ export default function ModuleCard({
   };
 
   return (
-    <article
+    <div
       role="checkbox"
       aria-checked={isSelected}
       aria-label={`${module.name} (${module.id})`}
@@ -45,27 +47,22 @@ export default function ModuleCard({
       onKeyDown={handleKeyDown}
       onMouseEnter={triggerGlitch}
       onMouseLeave={resetGlitch}
-      className={`card module-card compact-card ${isSelected ? 'card-selected' : ''}`}
+      className={`matrix-cell ${isSelected ? 'matrix-cell-selected' : ''} ${isLastRow ? 'is-last-row' : ''}`}
     >
-      <div className="card-top-header">
-        <div className="card-header-left">
-          <div
-            className={`module-checkbox ${isSelected ? 'module-checkbox-checked' : ''}`}
-            aria-hidden="true"
-          >
-            {isSelected && <CheckIcon size={10} />}
-          </div>
-          <div className="card-symbol-badge" aria-hidden="true">
+      <div className="matrix-cell-top">
+        <div className="matrix-cell-left">
+          <span className="matrix-cell-indicator" aria-hidden="true" />
+          <div className="matrix-cell-symbol" aria-hidden="true">
             <ModuleSymbol type={module.iconType} size={15} />
           </div>
-          <div className="card-titles">
-            <h2 className="headline">{titleText}</h2>
+          <div className="matrix-cell-titles">
+            <h2 className="matrix-cell-title">{titleText}</h2>
           </div>
         </div>
 
         {module.supportsVersion && (
           <div
-            className="card-header-version-zone"
+            className="matrix-cell-version"
             onClick={(e) => e.stopPropagation()}
           >
             {module.versionOptions && module.versionOptions.length > 0 ? (
@@ -89,8 +86,8 @@ export default function ModuleCard({
       </div>
 
       {showDescription && (
-        <p className="body">{module.description}</p>
+        <p className="matrix-cell-desc">{module.description}</p>
       )}
-    </article>
+    </div>
   );
 }
