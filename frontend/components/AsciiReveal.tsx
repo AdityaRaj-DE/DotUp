@@ -11,6 +11,7 @@ export interface AsciiRevealProps {
   waveFrom?: 'center' | 'corner' | 'cursor';
   speedMultiplier?: number;
   className?: string;
+  as?: 'div' | 'span';
 }
 
 const PRESET_CONFIGS = {
@@ -44,11 +45,14 @@ export default function AsciiReveal({
   cellSize = 14,
   waveFrom = 'center',
   speedMultiplier = 1,
-  className = ''
+  className = '',
+  as = 'div'
 }: AsciiRevealProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [animating, setAnimating] = useState(false);
+  const Wrapper = as === 'span' ? 'span' : 'div';
+  const Content = as === 'span' ? 'span' : 'div';
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -148,15 +152,15 @@ export default function AsciiReveal({
   }, [triggerKey, preset, duration, cellSize, waveFrom, speedMultiplier]);
 
   return (
-    <div ref={containerRef} className={`ascii-reveal-wrapper ${className}`}>
-      <div className={`ascii-reveal-content ${animating ? 'ascii-reveal-animating' : ''}`}>
+    <Wrapper ref={containerRef as any} className={`ascii-reveal-wrapper ${className}`}>
+      <Content className={`ascii-reveal-content ${animating ? 'ascii-reveal-animating' : ''}`}>
         {children}
-      </div>
+      </Content>
       <canvas
         ref={canvasRef}
         aria-hidden="true"
         className={`ascii-reveal-canvas ${animating ? 'ascii-canvas-active' : ''}`}
       />
-    </div>
+    </Wrapper>
   );
 }

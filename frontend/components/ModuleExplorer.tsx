@@ -18,6 +18,7 @@ import {
   CheckIcon
 } from './Icons';
 import AsciiRevealText from './AsciiRevealText';
+import AnimatedPresetPill from './AnimatedPresetPill';
 
 interface ModuleExplorerProps {
   activePresetId?: string;
@@ -93,47 +94,47 @@ export default function ModuleExplorer({
         <div className="preset-unified-pills-section">
           <div className="preset-pill-header">
             <div className="preset-pill-title-row">
-              <span className="preset-pill-label">Environment Presets</span>
-              <span className="preset-pill-hint">Select a preset to load curated tools or customize your own stack</span>
+              <span className="preset-pill-label">
+                <AsciiRevealText text="Environment Presets" preset="blueprint" speed={16} />
+              </span>
+              <span className="preset-pill-hint">
+                <AsciiRevealText
+                  text="Select a preset to load curated tools or customize your own stack"
+                  preset="decode"
+                  speed={12}
+                />
+              </span>
             </div>
           </div>
 
           <div className="preset-pills-scroll" role="tablist" aria-label="Select preset baseline">
-            {PRESETS.map((preset: ProfilePreset) => {
+            {PRESETS.map((preset: ProfilePreset, idx: number) => {
               const isSelected = activePresetId === preset.id;
-              const pCount = presetModuleCounts[preset.id] ?? preset.modules.length;
+              const pCount = presetModuleCounts?.[preset.id] ?? preset.modules.length;
 
               return (
-                <button
+                <AnimatedPresetPill
                   key={preset.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isSelected}
+                  id={preset.id}
+                  name={preset.name}
+                  count={pCount}
+                  isSelected={isSelected}
                   onClick={() => onSelectPreset(preset.id)}
-                  className={`preset-pill-btn ${isSelected ? 'preset-pill-btn-active' : ''}`}
-                >
-                  <span className="preset-pill-icon">
-                    {isSelected ? <CheckIcon size={13} /> : <SparklesIcon size={13} />}
-                  </span>
-                  <span className="preset-pill-name">{preset.name}</span>
-                  <span className="preset-pill-badge">{pCount}</span>
-                </button>
+                  index={idx}
+                />
               );
             })}
 
-            <button
-              type="button"
-              role="tab"
-              aria-selected={isCustomActive}
+            <AnimatedPresetPill
+              key="custom"
+              id="custom"
+              name="Custom Stack"
+              count={selectedCount}
+              isSelected={isCustomActive}
+              isCustom={true}
               onClick={() => onSelectPreset('custom')}
-              className={`preset-pill-btn preset-pill-custom ${isCustomActive ? 'preset-pill-btn-active' : ''}`}
-            >
-              <span className="preset-pill-icon">
-                <SlidersIcon size={13} />
-              </span>
-              <span className="preset-pill-name">Custom Stack</span>
-              <span className="preset-pill-badge">{selectedCount}</span>
-            </button>
+              index={PRESETS.length}
+            />
           </div>
         </div>
       )}

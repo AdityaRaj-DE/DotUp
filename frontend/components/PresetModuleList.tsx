@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { MODULES, PRESETS, ProfilePreset, ModuleDefinition } from '../lib/modules';
 import { ModuleSymbol, EyeIcon, SparklesIcon, SlidersIcon, CheckIcon } from './Icons';
 import LiquidDropdown from './LiquidDropdown';
-import AsciiReveal from './AsciiReveal';
 import AsciiRevealText from './AsciiRevealText';
+import AnimatedPresetPill from './AnimatedPresetPill';
 
 interface PresetModuleListProps {
   presetId?: string;
@@ -47,53 +47,52 @@ export default function PresetModuleList({
       <div className="preset-unified-pills-section">
         <div className="preset-pill-header">
           <div className="preset-pill-title-row">
-            <span className="preset-pill-label">Environment Presets</span>
-            <span className="preset-pill-hint">Select a preset to load curated tools or customize your own stack</span>
+            <span className="preset-pill-label">
+              <AsciiRevealText text="Environment Presets" preset="blueprint" speed={16} />
+            </span>
+            <span className="preset-pill-hint">
+              <AsciiRevealText
+                text="Select a preset to load curated tools or customize your own stack"
+                preset="decode"
+                speed={12}
+              />
+            </span>
           </div>
         </div>
 
         <div className="preset-pills-scroll" role="tablist" aria-label="Select preset baseline">
-          {PRESETS.map((preset: ProfilePreset) => {
+          {PRESETS.map((preset: ProfilePreset, idx: number) => {
             const isSelected = activePresetId === preset.id;
             const pCount = presetModuleCounts[preset.id] ?? preset.modules.length;
 
             return (
-              <button
+              <AnimatedPresetPill
                 key={preset.id}
-                type="button"
-                role="tab"
-                aria-selected={isSelected}
+                id={preset.id}
+                name={preset.name}
+                count={pCount}
+                isSelected={isSelected}
                 onClick={() => onSelectPreset(preset.id)}
-                className={`preset-pill-btn ${isSelected ? 'preset-pill-btn-active' : ''}`}
-              >
-                <span className="preset-pill-icon">
-                  {isSelected ? <CheckIcon size={13} /> : <SparklesIcon size={13} />}
-                </span>
-                <span className="preset-pill-name">{preset.name}</span>
-                <span className="preset-pill-badge">{pCount}</span>
-              </button>
+                index={idx}
+              />
             );
           })}
 
-          <button
-            type="button"
-            role="tab"
-            aria-selected={isCustomActive}
+          <AnimatedPresetPill
+            key="custom"
+            id="custom"
+            name="Custom Stack"
+            count={customSelectedCount}
+            isSelected={isCustomActive}
+            isCustom={true}
             onClick={() => onSelectPreset('custom')}
-            className={`preset-pill-btn preset-pill-custom ${isCustomActive ? 'preset-pill-btn-active' : ''}`}
-          >
-            <span className="preset-pill-icon">
-              <SlidersIcon size={13} />
-            </span>
-            <span className="preset-pill-name">Custom Stack</span>
-            <span className="preset-pill-badge">{customSelectedCount}</span>
-          </button>
+            index={PRESETS.length}
+          />
         </div>
       </div>
 
       {/* Middle Section: Preset Info Header & Action Buttons */}
-      <AsciiReveal preset="decode" triggerKey={presetId} duration={520} cellSize={14}>
-        <div className="preset-unified-body">
+      <div className="preset-unified-body">
           <div className="preset-modules-header">
             <div className="preset-desc-left">
               <div className="preset-desc-badge-row">
@@ -190,7 +189,6 @@ export default function PresetModuleList({
             })}
           </div>
         </div>
-      </AsciiReveal>
     </div>
   );
 }
