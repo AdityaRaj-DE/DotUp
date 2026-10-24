@@ -5,7 +5,8 @@ import React, { useEffect, useState } from 'react';
 export interface AsciiRevealTextProps {
   text: string;
   className?: string;
-  speed?: number; // ms per tick
+  speed?: number; // frame tick interval in ms (default: 24ms)
+  duration?: number; // total duration in ms (default: capped at 1500ms / 1.5s)
   preset?: 'decode' | 'terminal' | 'blueprint' | 'dither';
   triggerKey?: string | number;
   as?: React.ElementType;
@@ -21,7 +22,8 @@ const CHAR_SETS = {
 export default function AsciiRevealText({
   text,
   className = '',
-  speed = 22,
+  speed = 24,
+  duration,
   preset = 'decode',
   triggerKey,
   as: Component = 'span'
@@ -36,12 +38,19 @@ export default function AsciiRevealText({
     }
 
     const targetLength = text.length;
-    let iteration = 0;
-    const totalFrames = targetLength * 2.2;
+    if (targetLength === 0) {
+      setDisplayText('');
+      return;
+    }
+
+    // Cap total animation time to max 1.5 seconds (1500ms) across all text elements
+    const targetDuration = duration ?? Math.min(1500, Math.max(350, targetLength * 19));
+    const startTime = performance.now();
 
     const interval = setInterval(() => {
-      iteration++;
-      const resolvedCount = Math.floor((iteration / totalFrames) * targetLength);
+      const elapsed = performance.now() - startTime;
+      const progress = Math.min(elapsed / targetDuration, 1);
+      const resolvedCount = Math.floor(progress * targetLength);
 
       const scrambled = text
         .split('')
@@ -58,14 +67,14 @@ export default function AsciiRevealText({
 
       setDisplayText(scrambled);
 
-      if (resolvedCount >= targetLength) {
+      if (progress >= 1) {
         clearInterval(interval);
         setDisplayText(text);
       }
     }, speed);
 
     return () => clearInterval(interval);
-  }, [text, triggerKey, preset, speed, chars]);
+  }, [text, triggerKey, preset, speed, duration, chars]);
 
   return (
     <Component className={`ascii-text-reveal ${className}`} data-preset={preset}>

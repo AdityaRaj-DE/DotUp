@@ -84,7 +84,7 @@ export default function PresetPillSelector({
                   text="Build your own setup from scratch. Select and configure specific runtimes, cloud SDKs, shells, and tools below."
                   preset="decode"
                   triggerKey="custom"
-                  speed={18}
+                  duration={1500}
                 />
               </p>
             </div>

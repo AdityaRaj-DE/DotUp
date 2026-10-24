@@ -6,6 +6,7 @@ import { ModuleSymbol, EyeIcon, SparklesIcon, SlidersIcon, CheckIcon } from './I
 import LiquidDropdown from './LiquidDropdown';
 import AsciiRevealText from './AsciiRevealText';
 import AnimatedPresetPill from './AnimatedPresetPill';
+import AsciiGlitchText, { useAsciiGlitch } from './AsciiGlitchText';
 
 interface PresetModuleListProps {
   presetId?: string;
@@ -112,7 +113,7 @@ export default function PresetModuleList({
                   text={presetDescription || 'Pre-tuned development baselines ready to provision.'}
                   preset="decode"
                   triggerKey={presetId}
-                  speed={16}
+                  duration={1500}
                 />
               </p>
             </div>
@@ -126,7 +127,7 @@ export default function PresetModuleList({
                 title={showDescriptions ? 'Hide descriptions on cards' : 'Show descriptions on all cards'}
               >
                 <EyeIcon size={13} />
-                <span>{showDescriptions ? 'Hide Descriptions' : 'Show Descriptions'}</span>
+                <AsciiGlitchText text={showDescriptions ? 'Hide Descriptions' : 'Show Descriptions'} />
               </button>
             </div>
           </div>
@@ -138,57 +139,85 @@ export default function PresetModuleList({
               const currentVersion = modState?.version || module.defaultVersion || '';
 
               return (
-                <article
+                <PresetCompactCard
                   key={module.id}
-                  className="card compact-card"
-                  data-ascii="surface"
-                  tabIndex={0}
-                  aria-label={`${module.name} card`}
-                  style={{ animationDelay: `${idx * 30}ms` }}
-                >
-                  <div className="card-top-header">
-                    <div className="card-header-left">
-                      <div className="card-symbol-badge" aria-hidden="true">
-                        <ModuleSymbol type={module.iconType} size={15} />
-                      </div>
-                      <div className="card-titles">
-                        <h2 className="headline">{module.name}</h2>
-                      </div>
-                    </div>
-
-                    {module.supportsVersion && (
-                      <div
-                        className="card-header-version-zone"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {module.versionOptions && module.versionOptions.length > 0 ? (
-                          <LiquidDropdown
-                            value={currentVersion}
-                            options={module.versionOptions}
-                            onChange={(val) => onChangeVersion(module.id, val)}
-                          />
-                        ) : (
-                          <input
-                            type="text"
-                            aria-label={`${module.name} version`}
-                            value={currentVersion}
-                            placeholder="v"
-                            onChange={(e) => onChangeVersion(module.id, e.target.value)}
-                            className="module-version-input"
-                          />
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {showDescriptions && (
-                    <p className="body">{module.description}</p>
-                  )}
-                </article>
+                  module={module}
+                  idx={idx}
+                  currentVersion={currentVersion}
+                  showDescriptions={showDescriptions}
+                  onChangeVersion={onChangeVersion}
+                />
               );
             })}
           </div>
         </div>
     </div>
+  );
+}
+
+function PresetCompactCard({
+  module,
+  idx,
+  currentVersion,
+  showDescriptions,
+  onChangeVersion
+}: {
+  module: ModuleDefinition;
+  idx: number;
+  currentVersion: string;
+  showDescriptions: boolean;
+  onChangeVersion: (id: string, version: string) => void;
+}) {
+  const { displayText: titleText, triggerGlitch, resetGlitch } = useAsciiGlitch(module.name);
+
+  return (
+    <article
+      className="card compact-card"
+      data-ascii="surface"
+      tabIndex={0}
+      aria-label={`${module.name} card`}
+      style={{ animationDelay: `${idx * 30}ms` }}
+      onMouseEnter={triggerGlitch}
+      onMouseLeave={resetGlitch}
+    >
+      <div className="card-top-header">
+        <div className="card-header-left">
+          <div className="card-symbol-badge" aria-hidden="true">
+            <ModuleSymbol type={module.iconType} size={15} />
+          </div>
+          <div className="card-titles">
+            <h2 className="headline">{titleText}</h2>
+          </div>
+        </div>
+
+        {module.supportsVersion && (
+          <div
+            className="card-header-version-zone"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {module.versionOptions && module.versionOptions.length > 0 ? (
+              <LiquidDropdown
+                value={currentVersion}
+                options={module.versionOptions}
+                onChange={(val) => onChangeVersion(module.id, val)}
+              />
+            ) : (
+              <input
+                type="text"
+                aria-label={`${module.name} version`}
+                value={currentVersion}
+                placeholder="v"
+                onChange={(e) => onChangeVersion(module.id, e.target.value)}
+                className="module-version-input"
+              />
+            )}
+          </div>
+        )}
+      </div>
+
+      {showDescriptions && (
+        <p className="body">{module.description}</p>
+      )}
+    </article>
   );
 }

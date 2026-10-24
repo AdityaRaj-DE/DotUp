@@ -4,6 +4,7 @@ import React from 'react';
 import { ModuleDefinition } from '../lib/modules';
 import { ModuleSymbol, CheckIcon } from './Icons';
 import LiquidDropdown from './LiquidDropdown';
+import { useAsciiGlitch } from './AsciiGlitchText';
 
 interface ModuleCardProps {
   module: ModuleDefinition;
@@ -22,6 +23,8 @@ export default function ModuleCard({
   onToggle,
   onChangeVersion
 }: ModuleCardProps) {
+  const { displayText: titleText, triggerGlitch, resetGlitch } = useAsciiGlitch(module.name);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === ' ' || e.key === 'Enter') {
       if ((e.target as HTMLElement).tagName !== 'BUTTON' && (e.target as HTMLElement).tagName !== 'INPUT') {
@@ -40,6 +43,8 @@ export default function ModuleCard({
       data-ascii="surface"
       onClick={() => onToggle(module.id)}
       onKeyDown={handleKeyDown}
+      onMouseEnter={triggerGlitch}
+      onMouseLeave={resetGlitch}
       className={`card module-card compact-card ${isSelected ? 'card-selected' : ''}`}
     >
       <div className="card-top-header">
@@ -54,7 +59,7 @@ export default function ModuleCard({
             <ModuleSymbol type={module.iconType} size={15} />
           </div>
           <div className="card-titles">
-            <h2 className="headline">{module.name}</h2>
+            <h2 className="headline">{titleText}</h2>
           </div>
         </div>
 

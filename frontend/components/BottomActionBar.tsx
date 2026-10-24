@@ -12,6 +12,7 @@ import {
   XIcon
 } from './Icons';
 import { ValidationError } from '../lib/generator';
+import AsciiGlitchText from './AsciiGlitchText';
 
 interface BottomActionBarProps {
   command: string;
@@ -107,7 +108,7 @@ export default function BottomActionBar({
               title="View generated install command and YAML specification"
             >
               <EyeIcon size={15} />
-              <span>View Code</span>
+              <AsciiGlitchText text="View Code" />
             </button>
 
             {/* Download YAML */}
@@ -119,7 +120,7 @@ export default function BottomActionBar({
               title="Download dotup setup.yaml specification"
             >
               <DownloadIcon size={15} />
-              <span>Download YAML</span>
+              <AsciiGlitchText text="Download YAML" />
             </button>
 
             {/* Quick Copy Command */}
@@ -131,7 +132,7 @@ export default function BottomActionBar({
               title="Copy terminal bootstrap command"
             >
               {copiedType === 'command' ? <CheckIcon size={15} /> : <CopyIcon size={15} />}
-              <span>{copiedType === 'command' ? 'Command Copied!' : 'Copy Command'}</span>
+              <AsciiGlitchText text={copiedType === 'command' ? 'Command Copied!' : 'Copy Command'} />
             </button>
           </div>
         </div>
@@ -149,7 +150,7 @@ export default function BottomActionBar({
                   className={`modal-tab ${modalTab === 'command' ? 'modal-tab-active' : ''}`}
                 >
                   <LightningIcon size={14} />
-                  <span>Terminal Bootstrap Command</span>
+                  <AsciiGlitchText text="Terminal Bootstrap Command" />
                 </button>
                 <button
                   type="button"
@@ -157,7 +158,7 @@ export default function BottomActionBar({
                   className={`modal-tab ${modalTab === 'yaml' ? 'modal-tab-active' : ''}`}
                 >
                   <FileTextIcon size={14} />
-                  <span>setup.yaml Specification</span>
+                  <AsciiGlitchText text="setup.yaml Specification" />
                 </button>
               </div>
 
@@ -184,7 +185,7 @@ export default function BottomActionBar({
                   className="btn-modal-copy"
                 >
                   {copiedType === modalTab ? <CheckIcon size={13} /> : <CopyIcon size={13} />}
-                  <span>{copiedType === modalTab ? 'Copied!' : 'Copy to Clipboard'}</span>
+                  <AsciiGlitchText text={copiedType === modalTab ? 'Copied!' : 'Copy to Clipboard'} />
                 </button>
               </div>
 

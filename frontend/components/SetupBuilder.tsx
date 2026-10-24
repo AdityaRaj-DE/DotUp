@@ -13,6 +13,7 @@ import ModuleExplorer from './ModuleExplorer';
 import BottomActionBar from './BottomActionBar';
 import ProfileInformation from './ProfileInformation';
 import { RotateCcwIcon, SlidersIcon, CheckIcon } from './Icons';
+import AsciiGlitchText from './AsciiGlitchText';
 
 interface SetupBuilderProps {
   initialBackendStatus?: string;
@@ -202,21 +203,21 @@ export default function SetupBuilder({
               title="Toggle metadata edit"
             >
               <SlidersIcon size={12} />
-              <span>{showAdvancedProfile ? 'Hide Metadata' : 'Profile Meta'}</span>
+              <AsciiGlitchText text={showAdvancedProfile ? 'Hide Metadata' : 'Profile Meta'} />
             </button>
 
             {showResetConfirm ? (
               <div className="reset-confirm-bar" role="alert">
                 <span className="reset-confirm-text">Reset to default?</span>
                 <button type="button" onClick={handleReset} className="btn-danger-sm">
-                  Reset
+                  <AsciiGlitchText text="Reset" />
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowResetConfirm(false)}
                   className="btn-ghost-sm"
                 >
-                  Cancel
+                  <AsciiGlitchText text="Cancel" />
                 </button>
               </div>
             ) : (
@@ -227,7 +228,7 @@ export default function SetupBuilder({
                 title="Reset configuration to Full preset"
               >
                 <RotateCcwIcon size={12} />
-                <span>Reset</span>
+                <AsciiGlitchText text="Reset" />
               </button>
             )}
           </div>

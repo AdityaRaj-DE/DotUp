@@ -19,6 +19,7 @@ import {
 } from './Icons';
 import AsciiRevealText from './AsciiRevealText';
 import AnimatedPresetPill from './AnimatedPresetPill';
+import AsciiGlitchText, { useAsciiGlitch } from './AsciiGlitchText';
 
 interface ModuleExplorerProps {
   activePresetId?: string;
@@ -159,7 +160,7 @@ export default function ModuleExplorer({
               text="Build your own setup from scratch. Select and configure specific runtimes, cloud SDKs, shells, and tools below."
               preset="decode"
               triggerKey="custom"
-              speed={16}
+              duration={1500}
             />
           </p>
         </div>
@@ -172,7 +173,7 @@ export default function ModuleExplorer({
             title={showDescriptions ? 'Hide descriptions on cards' : 'Show descriptions on all cards'}
           >
             <EyeIcon size={13} />
-            <span>{showDescriptions ? 'Hide Descriptions' : 'Show Descriptions'}</span>
+            <AsciiGlitchText text={showDescriptions ? 'Hide Descriptions' : 'Show Descriptions'} />
           </button>
         </div>
       </div>
@@ -204,54 +205,41 @@ export default function ModuleExplorer({
         {/* Category Pills & Bulk Actions Toolbar */}
         <div className="filter-toolbar">
           <div className="category-pills" role="tablist" aria-label="Module categories">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={selectedCategory === 'all'}
+            <CategoryFilterPill
+              label="All Modules"
+              count={MODULES.length}
+              isActive={selectedCategory === 'all'}
               onClick={() => onSelectCategory('all')}
-              className={`filter-pill ${selectedCategory === 'all' ? 'filter-pill-active' : ''}`}
-            >
-              All Modules ({MODULES.length})
-            </button>
+            />
 
             {CATEGORIES.map((cat) => {
               const count = MODULES.filter((m) => m.category === cat.id).length;
               const isCatActive = selectedCategory === cat.id;
 
               return (
-                <button
+                <CategoryFilterPill
                   key={cat.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isCatActive}
+                  label={cat.label}
+                  count={count}
+                  isActive={isCatActive}
+                  icon={getCategoryIcon(cat.iconType)}
                   onClick={() => onSelectCategory(cat.id)}
-                  className={`filter-pill ${isCatActive ? 'filter-pill-active' : ''}`}
-                >
-                  <span className="filter-pill-icon">{getCategoryIcon(cat.iconType)}</span>
-                  <span>{cat.label}</span>
-                  <span className="filter-pill-count">{count}</span>
-                </button>
+                />
               );
             })}
           </div>
 
           <div className="bulk-actions">
-            <button
-              type="button"
-              onClick={onSelectAllVisible}
-              className="btn-filter-action"
+            <FilterActionButton
               title="Select all currently visible modules"
-            >
-              Select All
-            </button>
-            <button
-              type="button"
-              onClick={onClearAll}
-              className="btn-filter-action"
+              label="Select All"
+              onClick={onSelectAllVisible}
+            />
+            <FilterActionButton
               title="Deselect all modules"
-            >
-              Clear
-            </button>
+              label="Clear"
+              onClick={onClearAll}
+            />
           </div>
         </div>
       </div>
@@ -300,5 +288,62 @@ export default function ModuleExplorer({
         )}
       </div>
     </section>
+  );
+}
+
+function CategoryFilterPill({
+  label,
+  count,
+  isActive,
+  icon,
+  onClick
+}: {
+  label: string;
+  count: number;
+  isActive: boolean;
+  icon?: React.ReactNode;
+  onClick: () => void;
+}) {
+  const { displayText, triggerGlitch, resetGlitch } = useAsciiGlitch(label);
+
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={isActive}
+      onClick={onClick}
+      onMouseEnter={triggerGlitch}
+      onMouseLeave={resetGlitch}
+      className={`filter-pill ${isActive ? 'filter-pill-active' : ''}`}
+    >
+      {icon && <span className="filter-pill-icon">{icon}</span>}
+      <span>{displayText}</span>
+      <span className="filter-pill-count">{count}</span>
+    </button>
+  );
+}
+
+function FilterActionButton({
+  title,
+  label,
+  onClick
+}: {
+  title: string;
+  label: string;
+  onClick: () => void;
+}) {
+  const { displayText, triggerGlitch, resetGlitch } = useAsciiGlitch(label);
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={triggerGlitch}
+      onMouseLeave={resetGlitch}
+      className="btn-filter-action"
+      title={title}
+    >
+      <span>{displayText}</span>
+    </button>
   );
 }
