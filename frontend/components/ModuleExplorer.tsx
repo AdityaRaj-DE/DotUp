@@ -199,40 +199,23 @@ export default function ModuleExplorer({
             </button>
           </div>
         ) : (
-          CATEGORIES.map((cat) => {
-            const catModules = filteredModules.filter((m) => m.category === cat.id);
-            if (catModules.length === 0) return null;
+          <div className="category-module-grid">
+            {filteredModules.map((mod: ModuleDefinition) => {
+              const isChecked = !!selectedModules[mod.id]?.enabled;
+              const ver = selectedModules[mod.id]?.version || '';
 
-            return (
-              <div key={cat.id} className="category-group">
-                <div className="category-header">
-                  <div className="category-header-title">
-                    <span className="category-header-icon">{getCategoryIcon(cat.iconType)}</span>
-                    <span className="category-header-text">{cat.label}</span>
-                  </div>
-                  <span className="category-desc-text">{cat.description}</span>
-                </div>
-
-                <div className="category-module-grid">
-                  {catModules.map((mod: ModuleDefinition) => {
-                    const isChecked = !!selectedModules[mod.id]?.enabled;
-                    const ver = selectedModules[mod.id]?.version || '';
-
-                    return (
-                      <ModuleCard
-                        key={mod.id}
-                        module={mod}
-                        isSelected={isChecked}
-                        selectedVersion={ver}
-                        onToggle={onToggleModule}
-                        onChangeVersion={onChangeVersion}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })
+              return (
+                <ModuleCard
+                  key={mod.id}
+                  module={mod}
+                  isSelected={isChecked}
+                  selectedVersion={ver}
+                  onToggle={onToggleModule}
+                  onChangeVersion={onChangeVersion}
+                />
+              );
+            })}
+          </div>
         )}
       </div>
     </section>

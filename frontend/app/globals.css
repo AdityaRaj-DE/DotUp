@@ -2533,3 +2533,69 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   ASCII REVEAL & TRANSITIONS (inspired by quanhoangindex/ascii-reveal)
+   ========================================================================== */
+
+.ascii-reveal-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.ascii-reveal-content {
+  position: relative;
+  transition: opacity 0.25s ease-out;
+}
+
+.ascii-reveal-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.ascii-canvas-active {
+  opacity: 1;
+}
+
+.ascii-text-reveal {
+  display: inline-block;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+/* Smooth stagger entry for list cards */
+.stagger-fade-in {
+  animation: slideFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slideFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Glitch shimmer accent */
+@keyframes asciiGlitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(-1px, -1px); }
+  60% { transform: translate(1px, 1px); }
+  80% { transform: translate(1px, -1px); }
+  100% { transform: translate(0); }
+}
+
+.preset-pill-btn-active .preset-pill-icon {
+  animation: asciiGlitch 0.35s ease;
+}

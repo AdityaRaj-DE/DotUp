@@ -279,6 +279,7 @@ export default function SetupBuilder({
           /* Preset Pill Active: Down below, what is in that pill is cleanly listed */
           <div className="flow-preset-zone">
             <PresetModuleList
+              presetId={activePresetId}
               presetName={activePreset?.name || 'Selected Preset'}
               presetTagline={activePreset?.tagline}
               selectedModules={selectedModules}

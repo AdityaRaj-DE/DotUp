@@ -3,6 +3,7 @@
 import React from 'react';
 import { PRESETS, ProfilePreset } from '../lib/modules';
 import { SparklesIcon, SlidersIcon, CheckIcon } from './Icons';
+import AsciiRevealText from './AsciiRevealText';
 
 interface PresetPillSelectorProps {
   activePresetId: string;
@@ -69,14 +70,21 @@ export default function PresetPillSelector({
         </button>
       </div>
 
-      {/* Dynamic Description Box (Only displays for the selected preset) */}
+      {/* Dynamic Description Box (Only displays for the selected preset with ASCII reveal) */}
       <div className="preset-pill-description-box" role="region" aria-live="polite">
         {isCustomActive ? (
           <div className="preset-description-content">
             <div className="preset-desc-left">
-              <span className="preset-desc-tagline">Custom Tailored Environment</span>
+              <span className="preset-desc-tagline">
+                <AsciiRevealText text="Custom Tailored Environment" preset="terminal" triggerKey="custom" />
+              </span>
               <p className="preset-desc-text">
-                Build your own setup from scratch. Select and configure specific runtimes, cloud SDKs, shells, and tools below.
+                <AsciiRevealText
+                  text="Build your own setup from scratch. Select and configure specific runtimes, cloud SDKs, shells, and tools below."
+                  preset="decode"
+                  triggerKey="custom"
+                  speed={18}
+                />
               </p>
             </div>
             <div className="preset-desc-stats">
@@ -88,12 +96,25 @@ export default function PresetPillSelector({
           <div className="preset-description-content">
             <div className="preset-desc-left">
               <div className="preset-desc-badge-row">
-                <span className="preset-desc-tagline">{activePreset.tagline}</span>
+                <span className="preset-desc-tagline">
+                  <AsciiRevealText
+                    text={activePreset.tagline}
+                    preset="blueprint"
+                    triggerKey={activePreset.id}
+                  />
+                </span>
                 <span className="preset-desc-modules-count">
                   {presetModuleCounts[activePreset.id] ?? activePreset.modules.length} tools included
                 </span>
               </div>
-              <p className="preset-desc-text">{activePreset.description}</p>
+              <p className="preset-desc-text">
+                <AsciiRevealText
+                  text={activePreset.description}
+                  preset="decode"
+                  triggerKey={activePreset.id}
+                  speed={16}
+                />
+              </p>
             </div>
             <div className="preset-desc-stats">
               <span className="preset-desc-count-num">
@@ -107,4 +128,3 @@ export default function PresetPillSelector({
     </div>
   );
 }
-
