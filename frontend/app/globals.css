@@ -670,18 +670,7 @@ body {
 
 .flow-preset-zone,
 .flow-custom-zone {
-  animation: flowFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes flowFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.995);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  width: 100%;
 }
 
 .preset-unified-pills-section {

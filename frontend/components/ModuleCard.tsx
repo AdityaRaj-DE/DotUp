@@ -5,6 +5,7 @@ import { ModuleDefinition } from '../lib/modules';
 import { ModuleSymbol } from './Icons';
 import LiquidDropdown from './LiquidDropdown';
 import { useAsciiGlitch } from './AsciiGlitchText';
+import { motion } from 'framer-motion';
 
 interface ModuleCardProps {
   module: ModuleDefinition;
@@ -37,7 +38,12 @@ export default function ModuleCard({
   };
 
   return (
-    <div
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       role="checkbox"
       aria-checked={isSelected}
       aria-label={`${module.name} (${module.id})`}
@@ -89,6 +95,6 @@ export default function ModuleCard({
       <div className={`matrix-cell-desc-collapse ${showDescription ? 'matrix-cell-desc-open' : ''}`}>
         <p className="matrix-cell-desc">{module.description}</p>
       </div>
-    </div>
+    </motion.div>
   );
 }

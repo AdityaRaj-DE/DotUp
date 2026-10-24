@@ -22,6 +22,7 @@ import AsciiRevealText from './AsciiRevealText';
 import AnimatedPresetPill from './AnimatedPresetPill';
 import AsciiGlitchText, { useAsciiGlitch } from './AsciiGlitchText';
 import { useGridCols, isLastRow } from '../lib/useGridCols';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface ModuleExplorerProps {
   activePresetId?: string;
@@ -286,26 +287,28 @@ export default function ModuleExplorer({
             </button>
           </div>
         ) : (
-          <div className="modules-matrix-grid category-module-grid">
-            {filteredModules.map((mod: ModuleDefinition, idx: number) => {
-              const isChecked = !!selectedModules[mod.id]?.enabled;
-              const ver = selectedModules[mod.id]?.version || '';
-              const isLast = isLastRow(idx, filteredModules.length, gridCols);
+          <motion.div layout className="modules-matrix-grid category-module-grid">
+            <AnimatePresence mode="popLayout">
+              {filteredModules.map((mod: ModuleDefinition, idx: number) => {
+                const isChecked = !!selectedModules[mod.id]?.enabled;
+                const ver = selectedModules[mod.id]?.version || '';
+                const isLast = isLastRow(idx, filteredModules.length, gridCols);
 
-              return (
-                <ModuleCard
-                  key={mod.id}
-                  module={mod}
-                  isSelected={isChecked}
-                  isLastRow={isLast}
-                  selectedVersion={ver}
-                  showDescription={showDescriptions}
-                  onToggle={onToggleModule}
-                  onChangeVersion={onChangeVersion}
-                />
-              );
-            })}
-          </div>
+                return (
+                  <ModuleCard
+                    key={mod.id}
+                    module={mod}
+                    isSelected={isChecked}
+                    isLastRow={isLast}
+                    selectedVersion={ver}
+                    showDescription={showDescriptions}
+                    onToggle={onToggleModule}
+                    onChangeVersion={onChangeVersion}
+                  />
+                );
+              })}
+            </AnimatePresence>
+          </motion.div>
         )}
       </div>
     </section>

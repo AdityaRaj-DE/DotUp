@@ -7,13 +7,12 @@ import {
   generateBootstrapSnippet,
   validateConfig
 } from '../lib/generator';
-import PresetPillSelector from './PresetPillSelector';
-import PresetModuleList from './PresetModuleList';
-import ModuleExplorer from './ModuleExplorer';
 import BottomActionBar from './BottomActionBar';
 import ProfileInformation from './ProfileInformation';
+import UnifiedWorkbench from './UnifiedWorkbench';
 import { RotateCcwIcon, SlidersIcon, CheckIcon } from './Icons';
 import AsciiGlitchText from './AsciiGlitchText';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface SetupBuilderProps {
   initialBackendStatus?: string;
@@ -257,45 +256,22 @@ export default function SetupBuilder({
         )}
       </div>
 
-      {/* Dynamic Main Body Content */}
+      {/* Dynamic Main Body Content with UnifiedWorkbench */}
       <div className="builder-flow-content">
-        {activePresetId === 'custom' ? (
-          /* Custom Pill Active: Unified single card with preset pills, custom header, search/filters, and interactive grid */
-          <div className="flow-custom-zone">
-            <ModuleExplorer
-              activePresetId={activePresetId}
-              presetModuleCounts={presetModuleCounts}
-              onSelectPreset={handleSelectPreset}
-              selectedModules={selectedModules}
-              onToggleModule={handleToggleModule}
-              onChangeVersion={handleChangeVersion}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-              onSelectAllVisible={handleSelectAllVisible}
-              onClearAll={handleClearAll}
-            />
-          </div>
-        ) : (
-          /* Preset Pill Active: Unified single card containing pills, preset header, and included modules */
-          <div className="flow-preset-zone">
-            <PresetModuleList
-              presetId={`${activePresetId}-${replayCount}`}
-              activePresetId={activePresetId}
-              presetName={activePreset?.name || 'Selected Preset'}
-              presetTagline={activePreset?.tagline}
-              presetDescription={activePreset?.description}
-              moduleCount={activePreset ? (presetModuleCounts[activePreset.id] ?? activePreset.modules.length) : undefined}
-              presetModuleCounts={presetModuleCounts}
-              customSelectedCount={selectedCount}
-              selectedModules={selectedModules}
-              onSelectPreset={handleSelectPreset}
-              onChangeVersion={handleChangeVersion}
-              onCustomizeStack={() => handleSelectPreset('custom')}
-            />
-          </div>
-        )}
+        <UnifiedWorkbench
+          activePresetId={activePresetId}
+          presetModuleCounts={presetModuleCounts}
+          selectedModules={selectedModules}
+          onSelectPreset={handleSelectPreset}
+          onToggleModule={handleToggleModule}
+          onChangeVersion={handleChangeVersion}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+          onSelectAllVisible={handleSelectAllVisible}
+          onClearAll={handleClearAll}
+        />
       </div>
 
       {/* Premium Sticky Bottom Action Bar with Copy, Download, and View Code */}

@@ -8,6 +8,7 @@ import AsciiRevealText from './AsciiRevealText';
 import AnimatedPresetPill from './AnimatedPresetPill';
 import AsciiGlitchText, { useAsciiGlitch } from './AsciiGlitchText';
 import { useGridCols, isLastRow } from '../lib/useGridCols';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface PresetModuleListProps {
   presetId?: string;
@@ -134,26 +135,28 @@ export default function PresetModuleList({
             </div>
           </div>
 
-          {/* Bottom Section: Tic-Tac-Toe Matrix Grid */}
-          <div className="modules-matrix-grid preset-modules-grid">
-            {enabledModules.map((module: ModuleDefinition, idx: number) => {
-              const modState = selectedModules[module.id];
-              const currentVersion = modState?.version || module.defaultVersion || '';
-              const isLast = isLastRow(idx, enabledModules.length, gridCols);
+          {/* Bottom Section: Tic-Tac-Toe Matrix Grid with AnimatePresence */}
+          <motion.div layout className="modules-matrix-grid preset-modules-grid">
+            <AnimatePresence mode="popLayout">
+              {enabledModules.map((module: ModuleDefinition, idx: number) => {
+                const modState = selectedModules[module.id];
+                const currentVersion = modState?.version || module.defaultVersion || '';
+                const isLast = isLastRow(idx, enabledModules.length, gridCols);
 
-              return (
-                <PresetCompactCard
-                  key={module.id}
-                  module={module}
-                  idx={idx}
-                  isLastRow={isLast}
-                  currentVersion={currentVersion}
-                  showDescriptions={showDescriptions}
-                  onChangeVersion={onChangeVersion}
-                />
-              );
-            })}
-          </div>
+                return (
+                  <PresetCompactCard
+                    key={module.id}
+                    module={module}
+                    idx={idx}
+                    isLastRow={isLast}
+                    currentVersion={currentVersion}
+                    showDescriptions={showDescriptions}
+                    onChangeVersion={onChangeVersion}
+                  />
+                );
+              })}
+            </AnimatePresence>
+          </motion.div>
         </div>
     </div>
   );
@@ -177,12 +180,16 @@ function PresetCompactCard({
   const { displayText: titleText, triggerGlitch, resetGlitch } = useAsciiGlitch(module.name);
 
   return (
-    <div
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       className={`matrix-cell matrix-cell-static ${isLastRow ? 'is-last-row' : ''}`}
       data-ascii="surface"
       tabIndex={0}
       aria-label={`${module.name} cell`}
-      style={{ animationDelay: `${idx * 25}ms` }}
       onMouseEnter={triggerGlitch}
       onMouseLeave={resetGlitch}
     >
@@ -225,6 +232,6 @@ function PresetCompactCard({
       <div className={`matrix-cell-desc-collapse ${showDescriptions ? 'matrix-cell-desc-open' : ''}`}>
         <p className="matrix-cell-desc">{module.description}</p>
       </div>
-    </div>
+    </motion.div>
   );
 }
