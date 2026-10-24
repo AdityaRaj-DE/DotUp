@@ -147,7 +147,7 @@ export default function HowToUsePage() {
             <AsciiReveal preset="blueprint" duration={480}>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
                 <a
-                  href="https://github.com/itsadityaraj/DotUp#how-to-use-it-dotupyaml"
+                  href="https://github.com/AdityaRaj-DE/DotUp#how-to-use-it-dotupyaml"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-hero-primary"
@@ -156,7 +156,7 @@ export default function HowToUsePage() {
                   <ExternalLinkIcon size={12} />
                 </a>
                 <a
-                  href="https://github.com/itsadityaraj/DotUp/tree/main/examples"
+                  href="https://github.com/AdityaRaj-DE/DotUp/tree/main/examples"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-hero-secondary"
@@ -245,7 +245,7 @@ export default function HowToUsePage() {
                 <span>→</span>
               </Link>
               <a
-                href="https://github.com/itsadityaraj/DotUp"
+                href="https://github.com/AdityaRaj-DE/DotUp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-hero-secondary"

@@ -64,7 +64,7 @@ export default function Navbar({ backendStatus, databaseStatus }: NavbarProps) {
       {/* Right Side: GitHub Pill */}
       <div className="navbar-right">
         <a
-          href="https://github.com/itsadityaraj/DotUp"
+          href="https://github.com/AdityaRaj-DE/DotUp"
           target="_blank"
           rel="noopener noreferrer"
           className="navbar-github-pill"
