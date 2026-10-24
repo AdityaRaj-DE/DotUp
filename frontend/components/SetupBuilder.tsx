@@ -256,20 +256,15 @@ export default function SetupBuilder({
         )}
       </div>
 
-      {/* Preset Pills Header (Horizontal selection with dynamic ASCII description) */}
-      <PresetPillSelector
-        activePresetId={activePresetId}
-        onSelectPreset={handleSelectPreset}
-        presetModuleCounts={presetModuleCounts}
-        customSelectedCount={selectedCount}
-      />
-
       {/* Dynamic Main Body Content */}
       <div className="builder-flow-content">
         {activePresetId === 'custom' ? (
-          /* Custom Pill Active: Full interactive module explorer with search and category filters */
+          /* Custom Pill Active: Unified single card with preset pills, custom header, search/filters, and interactive grid */
           <div className="flow-custom-zone">
             <ModuleExplorer
+              activePresetId={activePresetId}
+              presetModuleCounts={presetModuleCounts}
+              onSelectPreset={handleSelectPreset}
               selectedModules={selectedModules}
               onToggleModule={handleToggleModule}
               onChangeVersion={handleChangeVersion}
@@ -282,13 +277,19 @@ export default function SetupBuilder({
             />
           </div>
         ) : (
-          /* Preset Pill Active: Down below, what is in that pill is cleanly listed */
+          /* Preset Pill Active: Unified single card containing pills, preset header, and included modules */
           <div className="flow-preset-zone">
             <PresetModuleList
               presetId={`${activePresetId}-${replayCount}`}
+              activePresetId={activePresetId}
               presetName={activePreset?.name || 'Selected Preset'}
               presetTagline={activePreset?.tagline}
+              presetDescription={activePreset?.description}
+              moduleCount={activePreset ? (presetModuleCounts[activePreset.id] ?? activePreset.modules.length) : undefined}
+              presetModuleCounts={presetModuleCounts}
+              customSelectedCount={selectedCount}
               selectedModules={selectedModules}
+              onSelectPreset={handleSelectPreset}
               onChangeVersion={handleChangeVersion}
               onCustomizeStack={() => handleSelectPreset('custom')}
             />

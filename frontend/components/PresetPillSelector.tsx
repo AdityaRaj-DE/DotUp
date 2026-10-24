@@ -70,9 +70,9 @@ export default function PresetPillSelector({
         </button>
       </div>
 
-      {/* Dynamic Description Box (Only displays for the selected preset with ASCII reveal) */}
-      <div className="preset-pill-description-box" role="region" aria-live="polite">
-        {isCustomActive ? (
+      {/* Dynamic Description Box (Only displays for custom stack or when not inside merged preset list) */}
+      {isCustomActive && (
+        <div className="preset-pill-description-box" role="region" aria-live="polite">
           <div className="preset-description-content">
             <div className="preset-desc-left">
               <span className="preset-desc-tagline">
@@ -92,39 +92,8 @@ export default function PresetPillSelector({
               <span className="preset-desc-count-label">modules configured</span>
             </div>
           </div>
-        ) : activePreset ? (
-          <div className="preset-description-content">
-            <div className="preset-desc-left">
-              <div className="preset-desc-badge-row">
-                <span className="preset-desc-tagline">
-                  <AsciiRevealText
-                    text={activePreset.tagline}
-                    preset="blueprint"
-                    triggerKey={activePreset.id}
-                  />
-                </span>
-                <span className="preset-desc-modules-count">
-                  {presetModuleCounts[activePreset.id] ?? activePreset.modules.length} tools included
-                </span>
-              </div>
-              <p className="preset-desc-text">
-                <AsciiRevealText
-                  text={activePreset.description}
-                  preset="decode"
-                  triggerKey={activePreset.id}
-                  speed={16}
-                />
-              </p>
-            </div>
-            <div className="preset-desc-stats">
-              <span className="preset-desc-count-num">
-                {presetModuleCounts[activePreset.id] ?? activePreset.modules.length}
-              </span>
-              <span className="preset-desc-count-label">curated tools</span>
-            </div>
-          </div>
-        ) : null}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

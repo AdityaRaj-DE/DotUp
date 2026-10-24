@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { MODULES, CATEGORIES, ModuleDefinition } from '../lib/modules';
+import { MODULES, CATEGORIES, PRESETS, ProfilePreset, ModuleDefinition } from '../lib/modules';
 import ModuleCard from './ModuleCard';
 import {
   LayersIcon,
@@ -12,10 +12,17 @@ import {
   CodeIcon,
   CloudIcon,
   WindowIcon,
-  EyeIcon
+  EyeIcon,
+  SparklesIcon,
+  SlidersIcon,
+  CheckIcon
 } from './Icons';
+import AsciiRevealText from './AsciiRevealText';
 
 interface ModuleExplorerProps {
+  activePresetId?: string;
+  presetModuleCounts?: Record<string, number>;
+  onSelectPreset?: (presetId: string) => void;
   selectedModules: Record<string, { enabled: boolean; version?: string }>;
   onToggleModule: (id: string) => void;
   onChangeVersion: (id: string, version: string) => void;
@@ -28,6 +35,9 @@ interface ModuleExplorerProps {
 }
 
 export default function ModuleExplorer({
+  activePresetId = 'custom',
+  presetModuleCounts = {},
+  onSelectPreset,
   selectedModules,
   onToggleModule,
   onChangeVersion,
@@ -39,6 +49,7 @@ export default function ModuleExplorer({
   onClearAll
 }: ModuleExplorerProps) {
   const [showDescriptions, setShowDescriptions] = useState(false);
+  const isCustomActive = activePresetId === 'custom';
 
   const filteredModules = useMemo(() => {
     return MODULES.filter((m) => {
@@ -76,20 +87,83 @@ export default function ModuleExplorer({
   };
 
   return (
-    <section aria-labelledby="modules-heading" className="panel-card">
-      {/* Panel header */}
-      <div className="panel-header">
-        <div className="panel-title-group">
-          <span className="panel-icon-wrap">
-            <LayersIcon size={16} />
-          </span>
-          <div>
-            <h2 id="modules-heading" className="panel-title">Component Modules</h2>
-            <p className="panel-subtitle">Select environment tools, runtimes, and editors</p>
+    <section aria-labelledby="modules-heading" className="preset-unified-card">
+      {/* Top Section: Integrated Preset Pills Bar */}
+      {onSelectPreset && (
+        <div className="preset-unified-pills-section">
+          <div className="preset-pill-header">
+            <div className="preset-pill-title-row">
+              <span className="preset-pill-label">Environment Presets</span>
+              <span className="preset-pill-hint">Select a preset to load curated tools or customize your own stack</span>
+            </div>
+          </div>
+
+          <div className="preset-pills-scroll" role="tablist" aria-label="Select preset baseline">
+            {PRESETS.map((preset: ProfilePreset) => {
+              const isSelected = activePresetId === preset.id;
+              const pCount = presetModuleCounts[preset.id] ?? preset.modules.length;
+
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isSelected}
+                  onClick={() => onSelectPreset(preset.id)}
+                  className={`preset-pill-btn ${isSelected ? 'preset-pill-btn-active' : ''}`}
+                >
+                  <span className="preset-pill-icon">
+                    {isSelected ? <CheckIcon size={13} /> : <SparklesIcon size={13} />}
+                  </span>
+                  <span className="preset-pill-name">{preset.name}</span>
+                  <span className="preset-pill-badge">{pCount}</span>
+                </button>
+              );
+            })}
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={isCustomActive}
+              onClick={() => onSelectPreset('custom')}
+              className={`preset-pill-btn preset-pill-custom ${isCustomActive ? 'preset-pill-btn-active' : ''}`}
+            >
+              <span className="preset-pill-icon">
+                <SlidersIcon size={13} />
+              </span>
+              <span className="preset-pill-name">Custom Stack</span>
+              <span className="preset-pill-badge">{selectedCount}</span>
+            </button>
           </div>
         </div>
+      )}
 
-        <div className="module-header-actions-group">
+      {/* Preset / Custom Description Header & Controls */}
+      <div className="preset-modules-header">
+        <div className="preset-desc-left">
+          <div className="preset-desc-badge-row">
+            <span className="preset-desc-tagline">
+              <AsciiRevealText
+                text="Custom Tailored Environment"
+                preset="blueprint"
+                triggerKey="custom"
+              />
+            </span>
+            <span className="preset-desc-modules-count">
+              {selectedCount} of {MODULES.length} Selected
+            </span>
+          </div>
+          <p className="preset-desc-text">
+            <AsciiRevealText
+              text="Build your own setup from scratch. Select and configure specific runtimes, cloud SDKs, shells, and tools below."
+              preset="decode"
+              triggerKey="custom"
+              speed={16}
+            />
+          </p>
+        </div>
+
+        <div className="preset-header-actions-row">
           <button
             type="button"
             onClick={() => setShowDescriptions(!showDescriptions)}
@@ -99,17 +173,13 @@ export default function ModuleExplorer({
             <EyeIcon size={13} />
             <span>{showDescriptions ? 'Hide Descriptions' : 'Show Descriptions'}</span>
           </button>
-
-          <span className="badge-pill badge-primary">
-            {selectedCount} of {MODULES.length} Selected
-          </span>
         </div>
       </div>
 
       {/* Explorer Controls: Search + Categories */}
       <div className="explorer-controls">
-        <div className="search-bar">
-          <SearchIcon size={15} className="search-icon" />
+        <div className="search-input-wrap">
+          <SearchIcon size={15} className="search-icon-inside" />
           <input
             type="text"
             value={searchQuery}
