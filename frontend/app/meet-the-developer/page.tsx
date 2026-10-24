@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import AsciiRevealText from '../../components/AsciiRevealText';
 import AsciiGlitchText from '../../components/AsciiGlitchText';
+import ContactForm from '../../components/ContactForm';
 import {
   HeartIcon,
   ExternalLinkIcon,
@@ -214,6 +215,9 @@ export default function MeetTheDeveloperPage() {
                 <span>→</span>
               </Link>
             </div>
+
+            {/* Direct Contact Form */}
+            <ContactForm />
           </section>
         </div>
       </main>
