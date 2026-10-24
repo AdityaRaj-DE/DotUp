@@ -190,8 +190,8 @@ export default function SetupBuilder({
 
         <div className="hero-top-row">
           <div className="hero-pill-badge">
-            <span className="badge-new">v3.0</span>
-            <span>Declarative workstation engine for macOS & Linux</span>
+            <span className="badge-new">DOTUP V3.0</span>
+            <span>OPEN SOURCE DEVELOPER TOOLING</span>
           </div>
 
           <div className="hero-actions-right">
@@ -234,10 +234,12 @@ export default function SetupBuilder({
         </div>
 
         <h1 className="hero-headline">
-          Declarative Environment Configurator
+          Your machine. Your stack. One command.
         </h1>
         <p className="hero-lead">
-          Select a pre-tuned baseline pill below or switch to Custom to hand-pick languages, cloud CLI tools, and development editors into an idempotent setup specification.
+          Build a reproducible development environment. Choose your tools, configure your stack, and generate your setup command.
+          <br />
+          Start with a preset or build your own stack from scratch.
         </p>
 
         {/* Advanced Profile Information Drawer (collapsible with smooth height/opacity animation) */}
