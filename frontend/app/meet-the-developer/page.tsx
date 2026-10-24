@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
-import AsciiReveal from '../../components/AsciiReveal';
 import AsciiRevealText from '../../components/AsciiRevealText';
 import AsciiGlitchText from '../../components/AsciiGlitchText';
 import {
@@ -99,87 +98,83 @@ export default function MeetTheDeveloperPage() {
           </div>
 
           {/* Motivation & Why DotUp Was Built */}
-          <AsciiReveal preset="decode" duration={520}>
-            <section className="page-section-card" data-ascii="surface">
-              <div className="page-section-header">
-                <span className="page-section-tagline">
-                  <AsciiRevealText text="The Origin Story" preset="blueprint" />
-                </span>
-                <h2 className="page-section-title">Why I Built DotUp</h2>
-                <p className="page-section-desc">
-                  Developer setup shouldn&apos;t feel like repetitive manual labor.
-                </p>
-              </div>
+          <section className="page-section-card" data-ascii="surface">
+            <div className="page-section-header">
+              <span className="page-section-tagline">
+                <AsciiRevealText text="The Origin Story" preset="blueprint" />
+              </span>
+              <h2 className="page-section-title">Why I Built DotUp</h2>
+              <p className="page-section-desc">
+                Developer setup shouldn&apos;t feel like repetitive manual labor.
+              </p>
+            </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem', color: '#cbd5e1', lineHeight: '1.65' }}>
-                <p>
-                  As a systems engineer who frequently provisions fresh Linux machines across laptops, workstations, and remote nodes, I found myself repeatedly spending 3 to 4 hours per machine doing the exact same chores:
-                </p>
-                <ul style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', color: '#94a3b8' }}>
-                  <li>Manually downloading tarballs and adding Debian/Ubuntu PPAs.</li>
-                  <li>Troubleshooting broken GPG keyrings and package manager errors.</li>
-                  <li>Configuring Zsh frameworks, fonts, and Git credentials from memory.</li>
-                  <li>Verifying Node.js, Python, and Docker versions across mismatched team environments.</li>
-                </ul>
-                <p>
-                  Existing tools either required heavyweight runtimes (Ansible requiring Python before you even have Python installed), or they were brittle shell scripts that crashed halfway through and polluted the system with broken half-installed dependencies.
-                </p>
-                <p>
-                  <strong>DotUp</strong> was designed to be the tool I always wanted: zero dependencies outside standard POSIX utilities, pure idempotency so you can run it ten times safely, a clear dry-run preview via <code className="code-pill">--plan</code>, and an intuitive web UI with monospaced precision.
-                </p>
-              </div>
-            </section>
-          </AsciiReveal>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem', color: '#cbd5e1', lineHeight: '1.65' }}>
+              <p>
+                As a systems engineer who frequently provisions fresh Linux machines across laptops, workstations, and remote nodes, I found myself repeatedly spending 3 to 4 hours per machine doing the exact same chores:
+              </p>
+              <ul style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', color: '#94a3b8' }}>
+                <li>Manually downloading tarballs and adding Debian/Ubuntu PPAs.</li>
+                <li>Troubleshooting broken GPG keyrings and package manager errors.</li>
+                <li>Configuring Zsh frameworks, fonts, and Git credentials from memory.</li>
+                <li>Verifying Node.js, Python, and Docker versions across mismatched team environments.</li>
+              </ul>
+              <p>
+                Existing tools either required heavyweight runtimes (Ansible requiring Python before you even have Python installed), or they were brittle shell scripts that crashed halfway through and polluted the system with broken half-installed dependencies.
+              </p>
+              <p>
+                <strong>DotUp</strong> was designed to be the tool I always wanted: zero dependencies outside standard POSIX utilities, pure idempotency so you can run it ten times safely, a clear dry-run preview via <code className="code-pill">--plan</code>, and an intuitive web UI with monospaced precision.
+              </p>
+            </div>
+          </section>
 
           {/* Technical Specialization & Engineering Principles */}
-          <AsciiReveal preset="blueprint" duration={550}>
-            <section className="page-section-card" data-ascii="surface">
-              <div className="page-section-header">
-                <span className="page-section-tagline">
-                  <AsciiRevealText text="Craftsmanship &amp; Engineering Focus" preset="blueprint" />
-                </span>
-                <h2 className="page-section-title">Core Engineering Principles</h2>
-                <p className="page-section-desc">
-                  The technical pillars behind every tool, script, and component in the DotUp ecosystem:
+          <section className="page-section-card" data-ascii="surface">
+            <div className="page-section-header">
+              <span className="page-section-tagline">
+                <AsciiRevealText text="Craftsmanship &amp; Engineering Focus" preset="blueprint" />
+              </span>
+              <h2 className="page-section-title">Core Engineering Principles</h2>
+              <p className="page-section-desc">
+                The technical pillars behind every tool, script, and component in the DotUp ecosystem:
+              </p>
+            </div>
+
+            <div className="feature-cards-grid">
+              <div className="guide-step-box" style={{ userSelect: 'none', cursor: 'default' }}>
+                <div className="guide-step-badge-row">
+                  <span className="guide-step-pill">SYSTEMS</span>
+                  <span className="guide-step-category">Architecture</span>
+                </div>
+                <h3 className="guide-step-headline">Linux Internals &amp; Automation</h3>
+                <p className="guide-step-text">
+                  Deep expertise in POSIX shell scripting, package managers (APT, DNF, Pacman), process isolation, systemd, and Linux workstation ergonomics.
                 </p>
               </div>
 
-              <div className="feature-cards-grid">
-                <div className="guide-step-box">
-                  <div className="guide-step-badge-row">
-                    <span className="guide-step-pill">SYSTEMS</span>
-                    <span className="guide-step-category">Architecture</span>
-                  </div>
-                  <h3 className="guide-step-headline">Linux Internals &amp; Automation</h3>
-                  <p className="guide-step-text">
-                    Deep expertise in POSIX shell scripting, package managers (APT, DNF, Pacman), process isolation, systemd, and Linux workstation ergonomics.
-                  </p>
+              <div className="guide-step-box" style={{ userSelect: 'none', cursor: 'default' }}>
+                <div className="guide-step-badge-row">
+                  <span className="guide-step-pill">FRONTEND</span>
+                  <span className="guide-step-category">Design</span>
                 </div>
-
-                <div className="guide-step-box">
-                  <div className="guide-step-badge-row">
-                    <span className="guide-step-pill">FRONTEND</span>
-                    <span className="guide-step-category">Design</span>
-                  </div>
-                  <h3 className="guide-step-headline">High-Fidelity Interface Engineering</h3>
-                  <p className="guide-step-text">
-                    Obsessed with design details: terminal aesthetics, Canvas-driven ASCII wave reveals, glassmorphism, responsive monospaced typography, and zero-jank microinteractions.
-                  </p>
-                </div>
-
-                <div className="guide-step-box">
-                  <div className="guide-step-badge-row">
-                    <span className="guide-step-pill">SECURITY</span>
-                    <span className="guide-step-category">Guarantees</span>
-                  </div>
-                  <h3 className="guide-step-headline">Pragmatic &amp; Safe Execution</h3>
-                  <p className="guide-step-text">
-                    Refusing to blindly run unknown shell scripts as root. Enforcing cryptographic verification, trap cleanups, and strict principle-of-least-privilege delegation.
-                  </p>
-                </div>
+                <h3 className="guide-step-headline">High-Fidelity Interface Engineering</h3>
+                <p className="guide-step-text">
+                  Obsessed with design details: terminal aesthetics, Canvas-driven ASCII wave reveals, glassmorphism, responsive monospaced typography, and zero-jank microinteractions.
+                </p>
               </div>
-            </section>
-          </AsciiReveal>
+
+              <div className="guide-step-box" style={{ userSelect: 'none', cursor: 'default' }}>
+                <div className="guide-step-badge-row">
+                  <span className="guide-step-pill">SECURITY</span>
+                  <span className="guide-step-category">Guarantees</span>
+                </div>
+                <h3 className="guide-step-headline">Pragmatic &amp; Safe Execution</h3>
+                <p className="guide-step-text">
+                  Refusing to blindly run unknown shell scripts as root. Enforcing cryptographic verification, trap cleanups, and strict principle-of-least-privilege delegation.
+                </p>
+              </div>
+            </div>
+          </section>
 
           {/* Connect & Collaboration */}
           <section className="page-section-card" data-ascii="surface">
