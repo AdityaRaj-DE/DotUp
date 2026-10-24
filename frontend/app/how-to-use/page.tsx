@@ -232,14 +232,14 @@ export default function HowToUsePage() {
           </section>
 
           {/* Bottom Call to Action */}
-          <div className="hero-ascii-frame" style={{ textAlign: 'center', padding: '2.5rem 2rem' }}>
-            <h2 className="hero-headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
+          <div className="hero-ascii-frame cta-ascii-frame">
+            <h2 className="hero-headline cta-headline">
               <AsciiRevealText text="Ready to Configure Your Workstation?" preset="decode" />
             </h2>
-            <p className="hero-lead" style={{ margin: '0 auto 1.5rem auto' }}>
+            <p className="hero-lead cta-lead">
               Jump into the visual configurator, pick your tools, and generate your setup command in seconds.
             </p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <div className="cta-actions-row">
               <Link href="/" className="btn-hero-primary">
                 <AsciiGlitchText text="Launch Configurator" />
                 <span>→</span>
