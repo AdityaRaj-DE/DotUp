@@ -45,8 +45,15 @@ body {
   color: var(--text-primary);
   letter-spacing: -0.015em;
   overflow-x: hidden;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image:
+    /* Rich atmospheric aurora glow in page background */
+    radial-gradient(ellipse 60% 50% at 75% 15%, rgba(192, 132, 252, 0.28), transparent 70%),
+    radial-gradient(ellipse 50% 45% at 85% 25%, rgba(249, 115, 22, 0.22), transparent 65%),
+    radial-gradient(ellipse 45% 40% at 20% 40%, rgba(59, 130, 246, 0.16), transparent 60%),
+    radial-gradient(ellipse 70% 60% at 50% 0%, rgba(254, 215, 170, 0.14), transparent 75%),
+    radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 24px 24px;
+  background-attachment: fixed;
 }
 
 /* Base shell & navigation */
@@ -231,15 +238,17 @@ body {
   gap: 2rem;
 }
 
-/* Hero Section with Corner Crosshairs (Matching Image 1 frame) */
+/* Hero Section with Corner Crosshairs (Balanced dark frosty glass) */
 .hero-ascii-frame {
   position: relative;
-  background: #090a0c;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(12, 14, 18, 0.72);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 20px;
   padding: 2.6rem 2.6rem 2.2rem 2.6rem;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .crosshair {
@@ -382,14 +391,16 @@ body {
 
 /* Horizontal Preset Pills Selector (Matching Image 1 & 2 Segmented Pills) */
 .preset-pill-container {
-  background: var(--bg-dark-card);
-  border: 1px solid var(--border-dark-subtle);
+  background: rgba(12, 14, 18, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
   padding: 1.25rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .preset-pill-header {
@@ -569,11 +580,13 @@ body {
 
 /* Preset Modules Clean List */
 .preset-modules-card {
-  background: var(--bg-dark-card);
-  border: 1px solid var(--border-dark-subtle);
+  background: rgba(12, 14, 18, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
   padding: 1.6rem;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .preset-modules-header {
@@ -747,11 +760,13 @@ body {
 
 /* Custom Explorer Cards & Filter Layout */
 .panel-card {
-  background: var(--bg-dark-card);
-  border: 1px solid var(--border-dark-subtle);
+  background: rgba(12, 14, 18, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .panel-header {
@@ -1743,8 +1758,10 @@ body {
 article.card,
 .card {
   position: relative;
-  background: #0c0d0e;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(14, 16, 20, 0.78);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   padding: 1.4rem 1.4rem 1.25rem 1.4rem;
   display: flex;
@@ -1753,28 +1770,17 @@ article.card,
   min-height: 190px;
   cursor: pointer;
   outline: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   animation: cardFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-@keyframes cardFadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 article.card:hover,
 .card:hover {
-  background: #141618;
-  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(22, 26, 32, 0.88);
+  border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 article.card:focus-visible,
@@ -1784,8 +1790,9 @@ article.card:focus-visible,
 }
 
 .card-selected {
-  border-color: rgba(255, 255, 255, 0.35) !important;
-  background: #111316 !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  background: rgba(26, 31, 38, 0.9) !important;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 255, 255, 0.08) !important;
 }
 
 /* Card Header & Symbols */
