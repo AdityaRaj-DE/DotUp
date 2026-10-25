@@ -86,7 +86,9 @@ zsh_configure() {
         local installed_eza=false
         # 1. Try system package manager if available
         if pkg_is_available "eza" 2>/dev/null; then
-            pkg_install "eza" >/dev/null 2>&1 && installed_eza=true || true
+            if pkg_install "eza" >/dev/null 2>&1; then
+                installed_eza=true
+            fi
         fi
 
         # 2. If package manager didn't install eza, download prebuilt binary directly
