@@ -14,7 +14,7 @@ run_test() {
 
     echo -n "Test Bootstrap: ${name}... "
     local output
-    
+
     if output=$(bash -c "$cmd" 2>&1); then
         if [[ "$output" == *"$expected_output"* ]]; then
             echo -e "${GREEN}PASS${NC}"
@@ -37,14 +37,14 @@ echo "Running Bootstrap Integration Tests..."
 # Create a mock release tarball
 TEST_DIR=$(mktemp -d)
 mkdir -p "${TEST_DIR}/dotup-test"
-cat << 'MOCK' > "${TEST_DIR}/dotup-test/install.sh"
+cat <<'MOCK' >"${TEST_DIR}/dotup-test/install.sh"
 #!/bin/bash
 echo "MOCK_INSTALL_SUCCESS"
 MOCK
 chmod +x "${TEST_DIR}/dotup-test/install.sh"
 
 (cd "$TEST_DIR" && tar -czf dotup-test.tar.gz dotup-test/)
-(cd "$TEST_DIR" && sha256sum dotup-test.tar.gz > SHA256SUMS)
+(cd "$TEST_DIR" && sha256sum dotup-test.tar.gz >SHA256SUMS)
 
 export DOTUP_LOCAL_TAR="${TEST_DIR}/dotup-test.tar.gz"
 export DOTUP_LOCAL_SHA="${TEST_DIR}/SHA256SUMS"
@@ -53,13 +53,13 @@ export DOTUP_VERSION="test"
 run_test "Local artifact extraction and execution" "bash ${SCRIPT_DIR}/bootstrap.sh" "MOCK_INSTALL_SUCCESS"
 
 # Test custom target script
-cat << 'MOCK' > "${TEST_DIR}/dotup-test/custom.sh"
+cat <<'MOCK' >"${TEST_DIR}/dotup-test/custom.sh"
 #!/bin/bash
 echo "MOCK_CUSTOM_SUCCESS"
 MOCK
 chmod +x "${TEST_DIR}/dotup-test/custom.sh"
 (cd "$TEST_DIR" && tar -czf dotup-test.tar.gz dotup-test/)
-(cd "$TEST_DIR" && sha256sum dotup-test.tar.gz > SHA256SUMS)
+(cd "$TEST_DIR" && sha256sum dotup-test.tar.gz >SHA256SUMS)
 
 export DOTUP_SCRIPT="custom.sh"
 run_test "Custom target script execution" "bash ${SCRIPT_DIR}/bootstrap.sh" "MOCK_CUSTOM_SUCCESS"

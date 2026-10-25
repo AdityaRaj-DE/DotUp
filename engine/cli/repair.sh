@@ -36,7 +36,6 @@ source "${ENGINE_DIR}/lib/state_engine.sh"
 source "${ENGINE_DIR}/lib/module_adapter.sh"
 source "${ENGINE_DIR}/lib/registry.sh"
 
-
 setup_logging
 
 echo -e "${BOLD}${CYAN}DotUp Repair${NC}"
@@ -75,11 +74,9 @@ if [[ -n "$CONFIG_FILE" ]]; then
     done
 else
     log_info "Running Legacy V1 comprehensive repair on all modules..."
-    ALL_MODULES
-    read -r -a ALL_MODULES <<< "$(registry_list_all_modules)"
+    read -r -a ALL_MODULES <<<"$(registry_list_all_modules)"
     for module in "${ALL_MODULES[@]}"; do
         state=$(execute_module_action "$module" "detect")
-        local status_val
         status_val=$(echo "$state" | grep "status=" | cut -d= -f2 || echo "UNKNOWN")
         if [[ "$status_val" == "BROKEN" ]] || [[ "$status_val" == "NOT_INSTALLED" ]]; then
             echo -e "${YELLOW}Repairing ${module}...${NC}"

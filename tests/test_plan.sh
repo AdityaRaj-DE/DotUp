@@ -69,6 +69,7 @@ source "${SCRIPT_DIR}/engine/lib/state_engine.sh"
 
 test_print_plan() {
     # Mock data
+    # shellcheck disable=SC2034
     CONFIG_MODULES=("git" "node" "python" "broken_tool" "unsupported_tool")
     # shellcheck disable=SC2034
     DIFF_STATE_git_action="SATISFIED"

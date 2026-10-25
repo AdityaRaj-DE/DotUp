@@ -26,14 +26,14 @@ print_plan() {
         local mod_name="${var#DIFF_STATE_}"
         mod_name="${mod_name%_action}"
         local action="${!var}"
-        echo "${mod_name}=${action}" >> "$MOCK_OUTPUT_FILE"
+        echo "${mod_name}=${action}" >>"$MOCK_OUTPUT_FILE"
     done
 }
 
 # The target function under test
 execute_components_v2() {
     local modules=("$@")
-    
+
     # Phase 7B: Execute State Engine
     collect_desired_state "${modules[@]}"
     collect_actual_state "${modules[@]}"
@@ -46,7 +46,8 @@ execute_components_v2() {
 }
 
 # We need an empty dotup config file so the state engine doesn't crash or read garbage
-export DOTUP_CONFIG_FILE=$(mktemp)
+DOTUP_CONFIG_FILE=$(mktemp)
+export DOTUP_CONFIG_FILE
 trap 'rm -f $DOTUP_CONFIG_FILE' EXIT
 
 echo "Running Programmatic Execution Test..."

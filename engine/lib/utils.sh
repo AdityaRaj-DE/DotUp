@@ -2,7 +2,8 @@
 
 # Temp dir management
 setup_temp_dir() {
-    export TMP_DIR=$(mktemp -d)
+    TMP_DIR=$(mktemp -d)
+    export TMP_DIR
     trap cleanup_temp_dir EXIT
     log_debug "Created temporary directory at ${TMP_DIR}"
 }

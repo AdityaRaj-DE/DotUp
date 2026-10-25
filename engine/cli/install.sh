@@ -44,21 +44,20 @@ source "${ENGINE_DIR}/lib/state_engine.sh"
 source "${ENGINE_DIR}/lib/module_adapter.sh"
 source "${ENGINE_DIR}/lib/registry.sh"
 
-
 execute_module() {
     local module="$1"
     log_info "Executing module: ${module}..."
-    
-    # We still need to call detect directly for the old logic, but through the adapter it would just be `execute_module_action detect` 
+
+    # We still need to call detect directly for the old logic, but through the adapter it would just be `execute_module_action detect`
     # Actually, the adapter doesn't return state, it just executes the function.
     # To return state, we should just let it run or modify the adapter to echo.
     # Wait, the adapter handles sourcing. So we can just rely on the adapter to source it, then call detect.
     # Let's keep it simple: the adapter handles the action.
-    
+
     # In V1, detect is expected to echo the state.
     # Let's source the module explicitly for detect here, or add 'detect' to adapter.
     # But adapter currently just executes it. If it executes it, stdout is preserved!
-    
+
     local state
     state=$(execute_module_action "$module" "detect") || fail_critical "Module function not found for $module detect"
 
@@ -148,7 +147,7 @@ execute_module_v2() {
 
 execute_components_v2() {
     local modules=("$@")
-    
+
     # Phase 7B: Execute State Engine
     collect_desired_state "${modules[@]}"
     collect_actual_state "${modules[@]}"
@@ -167,7 +166,7 @@ execute_components_v2() {
 
 execute_components_v1() {
     local modules=("$@")
-    
+
     if [[ $PLAN_MODE -eq 1 ]]; then
         fail_critical "--plan is only supported for V2 YAML configurations (--config)."
     fi
@@ -224,7 +223,7 @@ main() {
     fi
 
     log_info "Installing dotup CLI wrapper..."
-    local bin_dir="${HOME}/.local/bin"
+    local bin_dir="${DOTUP_BIN_DIR:-${HOME}/.local/bin}"
     mkdir -p "${bin_dir}"
     cp "${ENGINE_DIR}/cli/dotup" "${bin_dir}/dotup"
     chmod +x "${bin_dir}/dotup"

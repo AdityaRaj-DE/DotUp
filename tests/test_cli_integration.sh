@@ -11,7 +11,8 @@ export DOTUP_ENV="test"
 
 # Create mock sudo for testing
 MOCK_DIR=$(mktemp -d)
-cat << 'MOCK' > "$MOCK_DIR/sudo"
+export DOTUP_BIN_DIR="$MOCK_DIR/bin"
+cat <<'MOCK' >"$MOCK_DIR/sudo"
 #!/bin/sh
 exit 0
 MOCK
@@ -27,7 +28,7 @@ run_cli_test() {
     echo -n "Test CLI: ${name}... "
     local output
     local exit_code=0
-    
+
     if output=$(bash -c "$cmd" 2>&1); then
         exit_code=0
     else
@@ -61,7 +62,7 @@ run_cli_test "dotup wrapper unknown" "bash ${SCRIPT_DIR}/dotup unknown-command" 
 run_cli_test "dotup version" "bash ${SCRIPT_DIR}/dotup version" 0 "dotup version"
 
 # Minimal mock config
-cat <<'YAMLEOF' > /tmp/dotup-test-mock.yaml
+cat <<'YAMLEOF' >/tmp/dotup-test-mock.yaml
 schema_version: 1
 profile:
   name: test-mock
@@ -82,7 +83,7 @@ run_cli_test "doctor V2 config" "bash ${SCRIPT_DIR}/dotup doctor --config /tmp/d
 
 # Create a mock module for V3 integration tests
 mkdir -p "${SCRIPT_DIR}/engine/modules/mock-test"
-cat << 'MOCKMOD' > "${SCRIPT_DIR}/engine/modules/mock-test/mock-test.sh"
+cat <<'MOCKMOD' >"${SCRIPT_DIR}/engine/modules/mock-test/mock-test.sh"
 mock_test_detect_state() { echo "status=NOT_INSTALLED"; }
 mock_test_install() { echo "Installing mock-test..."; return 0; }
 mock_test_configure() { return 0; }
@@ -90,7 +91,7 @@ mock_test_validate() { return 0; }
 MOCKMOD
 
 # V3 config
-cat <<'YAMLEOF' > /tmp/v3_integration.yaml
+cat <<'YAMLEOF' >/tmp/v3_integration.yaml
 schemaVersion: "1"
 setup:
   id: "v3-test"
@@ -101,7 +102,6 @@ YAMLEOF
 
 # Test install with V3 config
 run_cli_test "install V3 config" "bash ${SCRIPT_DIR}/install.sh --config /tmp/v3_integration.yaml" 0 "Installing mock-test..."
-
 
 # Clean up
 rm -f /tmp/dotup-test-mock.yaml /tmp/v3_integration.yaml

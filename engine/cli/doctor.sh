@@ -34,7 +34,6 @@ source "${ENGINE_DIR}/lib/state_engine.sh"
 source "${ENGINE_DIR}/lib/module_adapter.sh"
 source "${ENGINE_DIR}/lib/registry.sh"
 
-
 setup_logging
 detect_os
 detect_package_manager
@@ -80,7 +79,7 @@ else
         # state contains "status=..." and optionally "version=..."
         local status_val
         status_val=$(echo "$state" | grep "status=" | cut -d= -f2 || echo "UNKNOWN")
-        
+
         if [[ "$status_val" == "INSTALLED" ]]; then
             echo -e "${GREEN}✓${NC} ${name}"
         elif [[ "$status_val" == "NOT_APPLICABLE" ]]; then
@@ -91,9 +90,8 @@ else
         fi
     }
 
-    
-    read -r -a ALL_MODS <<< "$(registry_list_all_modules)"
-    
+    read -r -a ALL_MODS <<<"$(registry_list_all_modules)"
+
     echo -e "${BOLD}Installed Components${NC}"
     for mod in "${ALL_MODS[@]}"; do
         check_module "$mod" "$mod"

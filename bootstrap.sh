@@ -33,7 +33,7 @@ if [[ -z "${DOTUP_LOCAL_TAR:-}" ]]; then
     fi
     echo -e "${CYAN}Resolved version: ${VERSION}${NC}"
 else
-    VERSION="test"
+    VERSION="${DOTUP_VERSION:-test}"
     echo -e "${CYAN}Using local test archive.${NC}"
 fi
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Setup logging
-DEVBOOTSTRAP_DIR="${HOME}/.devbootstrap"
+DEVBOOTSTRAP_DIR="${DEVBOOTSTRAP_DIR:-${HOME}/.devbootstrap}"
 LOG_DIR="${DEVBOOTSTRAP_DIR}/logs"
 if [[ -z "${LOG_FILE:-}" ]]; then
     TIMESTAMP=$(date +"%Y-%m-%d-%H%M%S")
@@ -10,6 +10,9 @@ fi
 export LATEST_LOG="${LOG_DIR}/latest.log"
 
 setup_logging() {
+    if [[ "${LOG_FILE}" == "/dev/null" ]]; then
+        return 0
+    fi
     mkdir -p "${LOG_DIR}"
     touch "${LOG_FILE}"
     ln -sf "${LOG_FILE}" "${LATEST_LOG}"

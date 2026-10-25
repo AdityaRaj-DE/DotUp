@@ -54,7 +54,7 @@ hr() {
 }
 banner() {
     echo -e "${CYAN}"
-    cat << "EOF"
+    cat <<"EOF"
  ____        _   _   _
 |  _ \  ___ | |_| | | |_ __
 | | | |/ _ \| __| | | | '_ \
@@ -66,6 +66,7 @@ EOF
 }
 
 # ── Configuration ─────────────────────────────────────────────────────
+# shellcheck disable=SC2034
 PROJECT_NAME="dotup"
 
 HEALTH_TIMEOUT=180
@@ -76,14 +77,14 @@ compose() {
 
 # ── Pre-flight checks ─────────────────────────────────────────────────
 check_prereq() {
-    command -v docker >/dev/null 2>&1 \
-        || fail "Docker not found" "Install Docker Desktop: https://docs.docker.com/get-docker/"
-    docker compose version >/dev/null 2>&1 \
-        || fail "Docker Compose v2 not found" "Upgrade Docker Desktop or install the compose plugin"
-    docker info >/dev/null 2>&1 \
-        || fail "Docker daemon not running" "Start Docker Desktop (or: sudo systemctl start docker)"
-    command -v curl >/dev/null 2>&1 \
-        || fail "curl not installed" "Install it: apt/brew install curl"
+    command -v docker >/dev/null 2>&1 ||
+        fail "Docker not found" "Install Docker Desktop: https://docs.docker.com/get-docker/"
+    docker compose version >/dev/null 2>&1 ||
+        fail "Docker Compose v2 not found" "Upgrade Docker Desktop or install the compose plugin"
+    docker info >/dev/null 2>&1 ||
+        fail "Docker daemon not running" "Start Docker Desktop (or: sudo systemctl start docker)"
+    command -v curl >/dev/null 2>&1 ||
+        fail "curl not installed" "Install it: apt/brew install curl"
     ok "Docker, Compose, and Docker daemon are ready"
 }
 
@@ -92,8 +93,8 @@ check_ports() {
     local busy=()
     local port
     for port in "${REQUIRED_PORTS[@]}"; do
-        if ss -tlnH "sport = :$port" 2>/dev/null | grep -q LISTEN \
-            || lsof -i ":$port" -sTCP:LISTEN >/dev/null 2>&1; then
+        if ss -tlnH "sport = :$port" 2>/dev/null | grep -q LISTEN ||
+            lsof -i ":$port" -sTCP:LISTEN >/dev/null 2>&1; then
             if ! docker ps --format '{{.Ports}}' | grep -q ":$port->"; then
                 busy+=("$port")
             fi
@@ -130,7 +131,7 @@ setup_local_env() {
             echo ""
             echo "# ── Auto-appended from .env.example ($(date '+%Y-%m-%d')) ─────────────"
             printf '%s\n' "${new_keys[@]}"
-        } >> .env
+        } >>.env
         info "Appended new keys to .env: ${new_keys[*]%%=*}"
         info "Review and update values if needed."
     fi
@@ -149,7 +150,7 @@ print_ready() {
     echo -e "  ${PURPLE}│${NC}  ${BOLD}Frontend:${NC}  ${CYAN}http://localhost:3000${NC}                                        ${PURPLE}│${NC}"
     echo -e "  ${PURPLE}│${NC}  ${BOLD}API:${NC}       ${CYAN}http://localhost:8000${NC}                                        ${PURPLE}│${NC}"
     echo -e "  ${PURPLE}│${NC}  ${BOLD}API Docs:${NC}  ${CYAN}http://localhost:8000/docs${NC}                                   ${PURPLE}│${NC}"
-    echo -e "  ${PURPLE}├────────────────────────────────────────────────────────────────────────────┤${NC}"    
+    echo -e "  ${PURPLE}├────────────────────────────────────────────────────────────────────────────┤${NC}"
     echo -e "  ${PURPLE}│${NC}  ${BOLD}Common:${NC}                                                                   ${PURPLE}│${NC}"
     echo -e "  ${PURPLE}│${NC}    ${DIM}./start_local.sh logs${NC}           ${DIM}follow recent logs (last 100 lines)${NC}     ${PURPLE}│${NC}"
     echo -e "  ${PURPLE}│${NC}    ${DIM}./start_local.sh migrate${NC}        ${DIM}run database migrations${NC}                 ${PURPLE}│${NC}"
@@ -168,12 +169,18 @@ cmd_start() {
     setup_local_env
 
     banner
-    hr; echo -e "  ${BOLD}PRE-FLIGHT${NC}"; hr; echo ""
+    hr
+    echo -e "  ${BOLD}PRE-FLIGHT${NC}"
+    hr
+    echo ""
     check_prereq
     check_ports
     echo ""
 
-    hr; echo -e "  ${BOLD}LAUNCHING${NC}"; hr; echo ""
+    hr
+    echo -e "  ${BOLD}LAUNCHING${NC}"
+    hr
+    echo ""
 
     if $fresh; then
         step "Fresh mode: stopping containers + removing volumes + images"
@@ -222,10 +229,13 @@ cmd_db() {
 }
 
 cmd_migrate() {
-    hr; echo -e "  ${BOLD}DATABASE MIGRATIONS${NC}"; hr; echo ""
+    hr
+    echo -e "  ${BOLD}DATABASE MIGRATIONS${NC}"
+    hr
+    echo ""
     step "Ensuring database is ready for migrations..."
     compose up -d --wait --wait-timeout 60 postgres 2>/dev/null || fail "Database failed to start"
-    
+
     if [ -d "backend/alembic" ] || [ -f "backend/alembic.ini" ]; then
         # Run alembic upgrade head
         compose run --rm backend alembic upgrade head || fail "Migration step failed"
@@ -238,16 +248,25 @@ cmd_migrate() {
 cmd_doctor() {
     setup_local_env
     banner
-    hr; echo -e "  ${BOLD}DOCTOR${NC}"; hr; echo ""
+    hr
+    echo -e "  ${BOLD}DOCTOR${NC}"
+    hr
+    echo ""
     check_prereq
     check_ports
     echo ""
 
-    hr; echo -e "  ${BOLD}CONTAINER STATE${NC}"; hr; echo ""
+    hr
+    echo -e "  ${BOLD}CONTAINER STATE${NC}"
+    hr
+    echo ""
     compose ps
     echo ""
 
-    hr; echo -e "  ${BOLD}BACKEND LOGS (last 20 lines)${NC}"; hr; echo ""
+    hr
+    echo -e "  ${BOLD}BACKEND LOGS (last 20 lines)${NC}"
+    hr
+    echo ""
     compose logs backend --tail 20 2>/dev/null || warn "Backend container not running"
     echo ""
 }
@@ -272,14 +291,17 @@ cmd="${1:-start}"
 shift || true
 
 case "$cmd" in
-    start)              cmd_start "$@" ;;
-    stop)               cmd_stop ;;
-    restart)            cmd_restart "$@" ;;
-    logs)               cmd_logs "$@" ;;
-    shell)              cmd_shell "$@" ;;
-    db)                 cmd_db ;;
-    migrate)            cmd_migrate ;;
-    doctor)             cmd_doctor ;;
-    help|--help|-h)     cmd_help ;;
-    *)                  echo "Unknown: $cmd"; cmd_help; exit 1 ;;
+start) cmd_start "$@" ;;
+stop) cmd_stop ;;
+restart) cmd_restart "$@" ;;
+logs) cmd_logs "$@" ;;
+shell) cmd_shell "$@" ;;
+db) cmd_db ;;
+migrate) cmd_migrate ;;
+doctor) cmd_doctor ;;
+help | --help | -h) cmd_help ;;
+*)
+    echo "Unknown: $cmd"
+    cmd_help; exit 1
+    ;;
 esac

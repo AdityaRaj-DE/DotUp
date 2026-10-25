@@ -149,11 +149,11 @@ validate_options() {
 }
 
 case "$ACTION" in
-    detect) detect ;;
-    install) install ;;
-    repair) repair ;;
-    configure) configure ;;
-    validate) validate ;;
-    validate_options) validate_options ;;
-    *) fail_critical "Git module: Unknown action '$ACTION'" ;;
+detect) detect ;;
+install) install ;;
+repair) repair ;;
+configure) configure ;;
+validate) validate ;;
+validate_options) validate_options ;;
+*) fail_critical "Git module: Unknown action '$ACTION'" ;;
 esac

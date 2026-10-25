@@ -95,15 +95,15 @@ zsh_configure() {
             arch=$(uname -m)
             local eza_target=""
             case "$arch" in
-                x86_64|amd64)
-                    eza_target="eza_x86_64-unknown-linux-gnu.tar.gz"
-                    ;;
-                aarch64|arm64)
-                    eza_target="eza_aarch64-unknown-linux-gnu.tar.gz"
-                    ;;
-                armv7l|armhf)
-                    eza_target="eza_arm-unknown-linux-gnueabihf.tar.gz"
-                    ;;
+            x86_64 | amd64)
+                eza_target="eza_x86_64-unknown-linux-gnu.tar.gz"
+                ;;
+            aarch64 | arm64)
+                eza_target="eza_aarch64-unknown-linux-gnu.tar.gz"
+                ;;
+            armv7l | armhf)
+                eza_target="eza_arm-unknown-linux-gnueabihf.tar.gz"
+                ;;
             esac
 
             if [[ -n "$eza_target" ]]; then

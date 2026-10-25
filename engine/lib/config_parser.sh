@@ -15,13 +15,13 @@ config_reset() {
     CONFIG_SETUP_VERSION=""
     CONFIG_IS_V3=0
     CONFIG_MODULES=()
-    
+
     # Initialize the intermediate config file
     if [[ -z "${TMP_DIR:-}" ]]; then
         TMP_DIR=$(mktemp -d)
     fi
     export DOTUP_CONFIG_FILE="${TMP_DIR}/dotup-config.tmp"
-    > "$DOTUP_CONFIG_FILE"
+    : >"$DOTUP_CONFIG_FILE"
 }
 
 # Removes surrounding quotes and leading/trailing whitespace
@@ -92,6 +92,7 @@ parse_config() {
                 # shellcheck disable=SC2034
                 CONFIG_SCHEMA_VERSION="$val"
                 if [[ "$key" == "schemaVersion" ]]; then
+                    # shellcheck disable=SC2034
                     CONFIG_IS_V3=1
                 fi
             elif [[ "$key" == "profile" ]]; then
@@ -125,7 +126,7 @@ parse_config() {
             elif [[ $indent_len -eq 4 ]]; then
                 if [[ -n "$current_module" ]]; then
                     local safe_mod="${current_module//-/_}"
-                    echo "${safe_mod}.${key}=${val}" >> "$DOTUP_CONFIG_FILE"
+                    echo "${safe_mod}.${key}=${val}" >>"$DOTUP_CONFIG_FILE"
                 else
                     fail_critical "Configuration parse error: Invalid 4-space indentation outside module definition."
                 fi
@@ -141,7 +142,7 @@ parse_config() {
                 in_options=1
             elif [[ $in_options -eq 1 && -n "$current_module" ]]; then
                 local safe_mod="${current_module//-/_}"
-                echo "${safe_mod}.${key}=${val}" >> "$DOTUP_CONFIG_FILE"
+                echo "${safe_mod}.${key}=${val}" >>"$DOTUP_CONFIG_FILE"
             else
                 fail_critical "Configuration parse error: Invalid field in components '${key}'"
             fi

@@ -67,7 +67,7 @@ validate_config_semantics() {
                         fail_critical "Validation failed: Module '${mod}' does not support option '${opt_key}'."
                     fi
                 fi
-            done < "$DOTUP_CONFIG_FILE"
+            done <"$DOTUP_CONFIG_FILE"
         fi
     done
 

@@ -32,16 +32,20 @@ execute_module_action() {
             if [[ "$key" == "${safe_mod}."* ]]; then
                 local opt_key="${key#*.}"
                 # Convert to uppercase manually for cross-platform bash support, or use tr
-                local upper_opt_key=$(echo "$opt_key" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+                local upper_opt_key
+                upper_opt_key=$(echo "$opt_key" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
                 export "DOTUP_MOD_${upper_opt_key}=${val}"
             fi
-        done < "$DOTUP_CONFIG_FILE"
+        done <"$DOTUP_CONFIG_FILE"
     fi
 
     # Check if this is a V3 standalone module (executable and handles its own args)
     # For now, we assume V1/V2 legacy if it's just a .sh file we used to source.
     # In V3, modules will have +x bit and act as independent processes.
-    if [[ -x "$mod_path" && "$(head -n 2 "$mod_path" | grep -q 'dotup-module-v3'; echo $?)" == "0" ]]; then
+    if [[ -x "$mod_path" && "$(
+        head -n 2 "$mod_path" | grep -q 'dotup-module-v3'
+        echo $?
+    )" == "0" ]]; then
         # Future V3 execution path
         "$mod_path" "$action"
         return $?
@@ -53,7 +57,7 @@ execute_module_action() {
     source "$mod_path"
 
     local fn_name="${safe_mod}_${action}"
-    
+
     if [[ "$action" == "detect" ]]; then
         local detect_state_fn="${safe_mod}_detect_state"
         if declare -F "$detect_state_fn" >/dev/null; then

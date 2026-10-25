@@ -11,7 +11,7 @@ fi
 # Prints the path to stdout. Returns 0 if found, 1 if not found.
 registry_resolve_module() {
     local module="$1"
-    
+
     # In the future, this could consult a static JSON map or remote registry.
     # For now, it abstracts the filesystem structure.
     for f in "${ENGINE_DIR}/modules"/*/"${module}.sh"; do
@@ -34,6 +34,6 @@ registry_list_all_modules() {
         filename=$(basename "$file")
         modules+=("${filename%.sh}")
     done < <(find "${ENGINE_DIR}/modules" -mindepth 2 -maxdepth 2 -name "*.sh" -print0 | sort -z)
-    
+
     echo "${modules[@]}"
 }

@@ -30,7 +30,7 @@ collect_desired_state() {
                     local opt_key="${key#*.}"
                     export "DESIRED_STATE_${safe_mod}_${opt_key}=${val}"
                 fi
-            done < "$DOTUP_CONFIG_FILE"
+            done <"$DOTUP_CONFIG_FILE"
         fi
     done
 }
@@ -41,10 +41,10 @@ collect_actual_state() {
 
     for mod in "${modules[@]}"; do
         local safe_mod="${mod//-/_}"
-        
+
         # We process the detect action via the adapter
         # The adapter normalizes both V1 and V2 detection into key=value lines
-        
+
         # Read the strict key=value format safely
         while IFS="=" read -r key val || [[ -n "$key" ]]; do
             # Skip empty lines

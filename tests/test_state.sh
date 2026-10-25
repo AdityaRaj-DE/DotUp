@@ -52,11 +52,10 @@ echo "Running State Engine Tests..."
 CONFIG_MODULES=("git" "node" "python")
 
 export DOTUP_CONFIG_FILE="/tmp/dotup-test-state-config.tmp"
-cat << 'MOCK' > "$DOTUP_CONFIG_FILE"
+cat <<'MOCK' >"$DOTUP_CONFIG_FILE"
 node.version=20
 python.version=3.12
 MOCK
-
 
 test_desired() {
     collect_desired_state "${CONFIG_MODULES[@]}"
@@ -80,7 +79,7 @@ execute_module_action() {
     local mod="$1"
     local action="$2"
     if [[ "$action" != "detect" ]]; then return 0; fi
-    
+
     if [[ "$mod" == "git" ]]; then
         echo "status=INSTALLED"
         echo "version=2.45.0"
@@ -153,7 +152,7 @@ run_test "Compare State Actions" test_compare "pass"
 # Test version change
 test_version_diff() {
     # Override git actual version to mismatch desired
-    echo "git.version=3.0" >> "$DOTUP_CONFIG_FILE"
+    echo "git.version=3.0" >>"$DOTUP_CONFIG_FILE"
 
     collect_desired_state "${CONFIG_MODULES[@]}"
     collect_actual_state "${CONFIG_MODULES[@]}"
@@ -170,7 +169,7 @@ run_test "Compare Version Change Required" test_version_diff "pass"
 # Test semantic version match
 test_semantic_version() {
     # Override git actual version to match prefix of desired
-    echo "git.version=2.45" >> "$DOTUP_CONFIG_FILE"
+    echo "git.version=2.45" >>"$DOTUP_CONFIG_FILE"
 
     collect_desired_state "${CONFIG_MODULES[@]}"
     collect_actual_state "${CONFIG_MODULES[@]}"
