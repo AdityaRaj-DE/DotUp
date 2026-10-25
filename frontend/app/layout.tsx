@@ -2,8 +2,15 @@ import './globals.css';
 import type { Viewport } from 'next';
 
 export const metadata = {
-  title: 'DotUp V3',
-  description: 'DotUp V3 Platform Foundation',
+  title: 'DotUp - Reproducible Workstation Setup',
+  description: 'Fast, idempotent, open-source Linux developer workstation configuration engine.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' }
+    ],
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export const viewport: Viewport = {

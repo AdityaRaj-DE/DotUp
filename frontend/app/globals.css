@@ -134,6 +134,20 @@ body {
   transform: scale(0.97);
 }
 
+.brand-logo-svg {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+  flex-shrink: 0;
+  transition: transform 0.18s var(--ease-apple), box-shadow 0.18s var(--ease-apple);
+}
+
+.navbar-brand-link:hover .brand-logo-svg {
+  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.65);
+}
+
 .brand-prismatic-box {
   width: 22px;
   height: 22px;

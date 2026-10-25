@@ -24,10 +24,29 @@ export default function Navbar({ backendStatus, databaseStatus }: NavbarProps) {
       {/* Left Side: Brand Logo with gradient border + horizontal links */}
       <div className="navbar-left">
         <Link href="/" className="navbar-brand-link">
-          {/* Prismatic square icon matching uploaded image 1 */}
-          <div className="brand-prismatic-box" aria-hidden="true">
-            <span className="brand-inner-glow" />
-          </div>
+          {/* DotUp Prismatic 'd' Brand Icon */}
+          <svg className="brand-logo-svg" width="22" height="22" viewBox="0 0 512 512" fill="none" aria-hidden="true">
+            <rect width="512" height="512" rx="112" fill="#12151d" />
+            <rect width="510" height="510" x="1" y="1" rx="111" stroke="rgba(255, 255, 255, 0.16)" strokeWidth="2" />
+            <g fill="url(#nav-dotup-spectrum)">
+              <rect x="326.6" y="64.4" width="88.2" height="88.2" rx="14" transform="rotate(45 370.7 108.5)" />
+              <rect x="172.1" y="202.9" width="88.2" height="88.2" rx="14" transform="rotate(45 216.2 247.0)" />
+              <rect x="326.6" y="205.8" width="88.2" height="88.2" rx="14" transform="rotate(45 370.7 249.9)" />
+              <rect x="249.3" y="280.1" width="88.2" height="88.2" rx="14" transform="rotate(45 293.4 324.2)" />
+              <rect x="96.8" y="280.1" width="88.2" height="88.2" rx="14" transform="rotate(45 140.9 324.2)" />
+              <rect x="171.9" y="354.4" width="88.2" height="88.2" rx="14" transform="rotate(45 216.0 398.5)" />
+              <rect x="326.7" y="359.2" width="88.2" height="88.2" rx="14" transform="rotate(45 370.8 403.3)" />
+            </g>
+            <defs>
+              <linearGradient id="nav-dotup-spectrum" x1="90%" y1="10%" x2="10%" y2="90%">
+                <stop offset="0%" stopColor="#38bdf8" />
+                <stop offset="28%" stopColor="#3b82f6" />
+                <stop offset="60%" stopColor="#8b5cf6" />
+                <stop offset="85%" stopColor="#d946ef" />
+                <stop offset="100%" stopColor="#f43f5e" />
+              </linearGradient>
+            </defs>
+          </svg>
           <span className="brand-title">
             <AsciiGlitchText text="dotup" />
           </span>

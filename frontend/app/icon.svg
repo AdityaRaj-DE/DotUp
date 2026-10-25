@@ -1,6 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="8" fill="#0f172a" />
-  <circle cx="16" cy="16" r="6" fill="#2563eb" />
-  <circle cx="16" cy="16" r="2.5" fill="#60a5fa" />
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="dotup-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#12151d" />
+      <stop offset="100%" stop-color="#07080b" />
+    </linearGradient>
 
+    <!-- App Theme Prismatic Spectrum Gradient -->
+    <linearGradient id="dotup-spectrum" x1="90%" y1="10%" x2="10%" y2="90%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="28%" stop-color="#3b82f6" />
+      <stop offset="60%" stop-color="#8b5cf6" />
+      <stop offset="85%" stop-color="#d946ef" />
+      <stop offset="100%" stop-color="#f43f5e" />
+    </linearGradient>
+
+    <!-- Subtle Specular Edge -->
+    <linearGradient id="specular-edge" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.05" />
+    </linearGradient>
+
+    <!-- Subtle Ambient Glow -->
+    <radialGradient id="ambient-glow" cx="50%" cy="55%" r="45%">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Dark Rounded App Icon Container -->
+  <rect width="512" height="512" rx="112" fill="url(#dotup-bg)" />
+  <rect width="510" height="510" x="1" y="1" rx="111" fill="none" stroke="url(#specular-edge)" stroke-width="2" />
+
+  <!-- Ambient Glow Behind Tiles -->
+  <circle cx="270" cy="280" r="180" fill="url(#ambient-glow)" />
+
+  <!-- The 7 Diamond Tiles Forming the DotUp 'd' Glyph -->
+  <g fill="url(#dotup-spectrum)">
+    <!-- D1: Top Ascender -->
+    <rect x="326.6" y="64.4" width="88.2" height="88.2" rx="14" transform="rotate(45 370.7 108.5)" />
+    <!-- D2: Top-Left Bowl -->
+    <rect x="172.1" y="202.9" width="88.2" height="88.2" rx="14" transform="rotate(45 216.2 247.0)" />
+    <!-- D3: Middle Ascender -->
+    <rect x="326.6" y="205.8" width="88.2" height="88.2" rx="14" transform="rotate(45 370.7 249.9)" />
+    <!-- D4: Center Bowl -->
+    <rect x="249.3" y="280.1" width="88.2" height="88.2" rx="14" transform="rotate(45 293.4 324.2)" />
+    <!-- D5: Far-Left Bowl -->
+    <rect x="96.8" y="280.1" width="88.2" height="88.2" rx="14" transform="rotate(45 140.9 324.2)" />
+    <!-- D6: Bottom-Left Bowl -->
+    <rect x="171.9" y="354.4" width="88.2" height="88.2" rx="14" transform="rotate(45 216.0 398.5)" />
+    <!-- D7: Bottom Ascender -->
+    <rect x="326.7" y="359.2" width="88.2" height="88.2" rx="14" transform="rotate(45 370.8 403.3)" />
+  </g>
+</svg>
