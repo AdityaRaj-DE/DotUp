@@ -302,6 +302,7 @@ doctor) cmd_doctor ;;
 help | --help | -h) cmd_help ;;
 *)
     echo "Unknown: $cmd"
-    cmd_help; exit 1
+    cmd_help
+    exit 1
     ;;
 esac
