@@ -75,7 +75,7 @@ export default function MeetTheDeveloperPage() {
                   </a>
 
                   <a
-                    href="https://linkedin.com/in/aditya-raj-developer"
+                    href="https://www.linkedin.com/in/aditya-raj-a030a0265/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-hero-secondary"
@@ -201,7 +201,7 @@ export default function MeetTheDeveloperPage() {
               </a>
 
               <a
-                href="https://linkedin.com/in/aditya-raj-developer"
+                href="https://www.linkedin.com/in/aditya-raj-a030a0265/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-hero-secondary"
