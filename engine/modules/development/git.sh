@@ -145,15 +145,29 @@ validate() {
 }
 
 validate_options() {
+    # shellcheck disable=SC2034
+    local key="${1:-}"
+    # shellcheck disable=SC2034
+    local val="${2:-}"
     return 1
 }
 
-case "$ACTION" in
-detect) detect ;;
-install) install ;;
-repair) repair ;;
-configure) configure ;;
-validate) validate ;;
-validate_options) validate_options ;;
-*) fail_critical "Git module: Unknown action '$ACTION'" ;;
-esac
+git_detect() { detect "$@"; }
+git_detect_state() { detect "$@"; }
+git_install() { install "$@"; }
+git_repair() { repair "$@"; }
+git_configure() { configure "$@"; }
+git_validate() { validate "$@"; }
+git_validate_options() { validate_options "$@"; }
+
+if [[ -n "$ACTION" ]]; then
+    case "$ACTION" in
+    detect) detect ;;
+    install) install ;;
+    repair) repair ;;
+    configure) configure ;;
+    validate) validate ;;
+    validate_options) validate_options ;;
+    *) fail_critical "Git module: Unknown action '$ACTION'" ;;
+    esac
+fi

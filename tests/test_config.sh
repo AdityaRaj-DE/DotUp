@@ -11,7 +11,8 @@ source "${SCRIPT_DIR}/engine/lib/config_validator.sh"
 export LOG_FILE="/dev/null"
 export VERBOSE=1
 fail_critical() {
-    echo "FAIL_CRITICAL: $1" >&2; exit 1
+    echo "FAIL_CRITICAL: $1" >&2
+    exit 1
 }
 FAILURES=0
 
